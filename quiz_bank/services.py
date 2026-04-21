@@ -47,6 +47,7 @@ from .constants import (
     CITY_ACHIEVEMENT_CODES,
     CITY_MILESTONE_ACHIEVEMENTS,
     DEFAULT_PERIOD_DATA_PATH,
+    DEFAULT_PERIOD_MULTILANG_DATA_PATH,
     DEFAULT_PERIOD_CODE,
     FACT_MILESTONE_ACHIEVEMENTS,
     PASS_THRESHOLD,
@@ -103,69 +104,53 @@ def _normalize_quiz_language(language: str | None) -> str:
     return normalized if normalized in SUPPORTED_QUIZ_LANGUAGES else "ru"
 
 
-def _quiz_language_path(language: str) -> Path:
-    normalized = _normalize_quiz_language(language)
-    if normalized == "ru":
-        return DEFAULT_PERIOD_DATA_PATH
-    return DEFAULT_PERIOD_DATA_PATH.with_name(f"quizzes_period_{normalized}.json")
-
-
-@lru_cache(maxsize=3)
-def _load_localized_quiz_index(language: str) -> dict[tuple[str, str, str], dict[str, object]]:
-    normalized = _normalize_quiz_language(language)
-    if normalized == "ru":
-        return {}
-
-    ru_items = json.loads(DEFAULT_PERIOD_DATA_PATH.read_text(encoding="utf-8"))
-    localized_items = json.loads(_quiz_language_path(normalized).read_text(encoding="utf-8"))
+@lru_cache(maxsize=1)
+def _load_multilang_quiz_index() -> dict[tuple[str, str, str], dict[str, object]]:
+    multilang_items = json.loads(DEFAULT_PERIOD_MULTILANG_DATA_PATH.read_text(encoding="utf-8"))
     index: dict[tuple[str, str, str], dict[str, object]] = {}
 
-    for ru_item, localized_item in zip(ru_items, localized_items):
-        if (
-            ru_item.get("city") != localized_item.get("city")
-            or ru_item.get("period_code") != localized_item.get("period_code")
-            or ru_item.get("correct_index") != localized_item.get("correct_index")
-        ):
-            continue
+    for item in multilang_items:
+        translations = item.get("translations", {})
+        ru_translation = translations.get("ru", {}) if isinstance(translations, dict) else {}
         index[
             (
-                str(ru_item.get("city", "")),
-                str(ru_item.get("period_code", "")),
-                str(ru_item.get("question", "")),
+                str(item.get("city", "")),
+                str(item.get("period_code", "")),
+                str(ru_translation.get("question", "")),
             )
-        ] = localized_item
+        ] = item
 
     return index
 
 
-def _localize_quiz_questions(
+def _build_response_quiz_questions(
     questions: list[dict[str, object]],
     language: str | None,
 ) -> list[dict[str, object]]:
     normalized = _normalize_quiz_language(language)
-    if normalized == "ru":
-        return questions
-
-    localized_index = _load_localized_quiz_index(normalized)
-    localized_questions: list[dict[str, object]] = []
+    multilang_index = _load_multilang_quiz_index()
+    response_questions: list[dict[str, object]] = []
     for question in questions:
         key = (
             str(question.get("city", "")),
             str(question.get("period_code", "")),
             str(question.get("question", "")),
         )
-        localized = localized_index.get(key)
-        if not localized:
-            localized_questions.append(question)
+        multilang = multilang_index.get(key)
+        if not multilang:
+            response_questions.append(question)
             continue
 
+        translations = multilang.get("translations", {})
+        localized = translations.get(normalized) or translations.get("ru") or {}
         row = dict(question)
         row["question"] = localized.get("question", question.get("question"))
         row["options"] = localized.get("options", question.get("options"))
         row["fact"] = localized.get("fact", question.get("fact"))
-        localized_questions.append(row)
+        row["translations"] = translations
+        response_questions.append(row)
 
-    return localized_questions
+    return response_questions
 
 
 def _db_cache_key(db_path: str | Path) -> str:
@@ -644,7 +629,7 @@ def start_test(db_path: str | Path, payload: StartTestRequest) -> StartTestRespo
                     ),
                 )
 
-            response_questions = _localize_quiz_questions(questions, payload.language)
+            response_questions = _build_response_quiz_questions(questions, payload.language)
 
             create_test_session(
                 connection=connection,
@@ -667,6 +652,7 @@ def start_test(db_path: str | Path, payload: StartTestRequest) -> StartTestRespo
                 id=question["id"],
                 question=question["question"],
                 options=question["options"],
+                translations=question.get("translations"),
             )
             for question in response_questions
         ],

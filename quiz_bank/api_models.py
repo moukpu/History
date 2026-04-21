@@ -64,10 +64,17 @@ class StartTestRequest(BaseModel):
         return language
 
 
+class LocalizedQuestionText(BaseModel):
+    question: str
+    options: list[str] = Field(..., min_length=4, max_length=4)
+    fact: str | None = None
+
+
 class TestQuestion(BaseModel):
     id: int | str
     question: str
     options: list[str] = Field(..., min_length=4, max_length=4)
+    translations: dict[str, LocalizedQuestionText] | None = None
 
 
 class StartTestResponse(BaseModel):

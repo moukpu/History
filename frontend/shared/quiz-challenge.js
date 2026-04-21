@@ -50,6 +50,15 @@ function getCurrentQuestion() {
   return state.quiz.questions[state.quiz.currentIndex] || null;
 }
 
+function getVisibleQuestion(question) {
+  const language = getCurrentLanguage();
+  const localized = question?.translations?.[language] || question?.translations?.ru;
+  return {
+    question: localized?.question || question?.question || "",
+    options: localized?.options || question?.options || [],
+  };
+}
+
 function getSelectedAnswerIndex() {
   setVisible(elements.submitButton, true);
 
@@ -134,6 +143,7 @@ function renderQuestion() {
   if (!question) {
     return;
   }
+  const visibleQuestion = getVisibleQuestion(question);
 
   setVisible(elements.questionSection, true);
   setVisible(elements.resultSection, false);
@@ -142,7 +152,7 @@ function renderQuestion() {
     elements.questionTag,
     `${state.quiz.city} • ${state.period?.year_label || state.quiz.periodCode}`
   );
-  setText(elements.questionTitle, question.question);
+  setText(elements.questionTitle, visibleQuestion.question);
   const qHint = (window.saparI18n?.t("question_hint") || "Вопрос {current} из {total}. Выберите один ответ.")
     .replace("{current}", state.quiz.currentIndex + 1)
     .replace("{total}", state.quiz.questions.length);
@@ -152,7 +162,7 @@ function renderQuestion() {
   const letters = ["A", "B", "C", "D"];
   const fragment = document.createDocumentFragment();
 
-  question.options.forEach((option, optionIndex) => {
+  visibleQuestion.options.forEach((option, optionIndex) => {
     const selected = selectedIndex === optionIndex;
     const optionButton = createElementFromHtml(`
       <button type="button" class="group flex items-center gap-5 p-6 rounded-full bg-surface-container-lowest border-2 ${
@@ -316,7 +326,10 @@ function handlePrev() {
 async function restoreOrStartQuiz() {
   const currentLanguage = getCurrentLanguage();
   const storedQuiz = getActiveQuizState();
-  if (storedQuiz?.language === currentLanguage) {
+  const storedQuizHasTranslations = storedQuiz?.questions?.every(
+    (question) => question.translations?.ru && question.translations?.en && question.translations?.kk
+  );
+  if (storedQuiz && storedQuizHasTranslations) {
     state.quiz = storedQuiz;
     return;
   }
@@ -344,7 +357,6 @@ async function restoreOrStartQuiz() {
     questions: response.questions,
     answers: {},
     currentIndex: 0,
-    language: currentLanguage,
   };
   saveQuizState();
 }
