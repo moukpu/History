@@ -70,16 +70,6 @@ function saveState() {
   }
 }
 
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    localStorage.removeItem(STORAGE_KEY);
-    return null;
-  }
-}
-
 function clearState() {
   localStorage.removeItem(STORAGE_KEY);
 }
@@ -403,30 +393,10 @@ function handlePrev() {
 }
 
 async function startEntTest() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const forceNew = urlParams.get("new") === "true";
-
-  if (forceNew) {
-    console.log("ENT Test: Force new test requested, clearing state.");
-    clearState();
-  } else {
-    // Try to restore saved state
-    const saved = loadState();
-    if (saved && saved.isEntTest && saved.questions && saved.questions.length > 0) {
-      console.log("ENT Test: Resuming saved session.");
-      state.quiz = saved;
-      if (!state.quiz.startedAt || !state.quiz.expiresAt) {
-        state.quiz.awaitingStart = true;
-        saveState();
-      }
-      return;
-    }
-  }
-  
-  // Clear potentially stale state
+  // ENT must always start from its own intro modal. Old localStorage sessions
+  // made the page skip the modal and left a stale 10:00 timer on screen.
   clearState();
 
-  // Start ENT test via the standard fast API
   const response = await api.startTest({
     player_id: state.playerId,
     city: "ENT_MODE",

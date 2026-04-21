@@ -127,8 +127,7 @@
         </div>
 
         <div class="flex items-center gap-4">
-          <div class="flex items-center gap-3 bg-primary text-on-primary px-6 py-2.5 rounded-full shadow-lg">
-            <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1">timer</span>
+          <div class="flex items-center bg-primary text-on-primary px-6 py-2.5 rounded-full shadow-lg">
             <div class="flex flex-col leading-none">
               <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Осталось</span>
               <span class="font-black text-xl leading-none tabular-nums" data-score-counter="">10:00</span>
@@ -137,10 +136,10 @@
         </div>
       </header>
 
-      <div class="fixed inset-0 z-[100] hidden items-center justify-center bg-on-surface/45 px-6 backdrop-blur-sm" data-ent-start-modal="">
+      <div class="fixed inset-0 z-[100] flex items-center justify-center bg-on-surface/45 px-6 backdrop-blur-sm" data-ent-start-modal="">
         <div class="w-full max-w-xl rounded-[2rem] bg-surface-container-lowest p-8 md:p-10 shadow-2xl border border-white/70 text-center">
           <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container shadow-inner">
-            <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1">timer</span>
+            <span class="font-black text-xl tabular-nums">10:00</span>
           </div>
           <h2 class="text-3xl font-black text-on-surface tracking-tight mb-4">ЕНТ-тест готов</h2>
           <p class="text-on-surface-variant text-base md:text-lg leading-relaxed font-medium mb-8">
@@ -163,17 +162,6 @@
               <h1 class="font-body text-2xl md:text-4xl font-normal text-on-surface leading-tight mb-6 tracking-tight" data-question-title="">Вопрос загружается...</h1>
               <p class="text-on-surface-variant text-lg leading-relaxed font-normal" data-question-body="">Подождите немного, тест ЕНТ загружается.</p>
             </div>
-          </div>
-
-          <div class="flex items-center justify-between gap-5 rounded-[2rem] bg-primary px-6 py-5 text-on-primary shadow-xl">
-            <div class="flex items-center gap-4">
-              <span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1">timer</span>
-              <div>
-                <p class="text-xs font-black uppercase tracking-widest opacity-80">Таймер ЕНТ</p>
-                <p class="text-sm font-bold opacity-90">20 вопросов за 10 минут</p>
-              </div>
-            </div>
-            <span class="font-black text-4xl leading-none tabular-nums" data-score-counter="">10:00</span>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-options-grid=""></div>
@@ -218,7 +206,7 @@
             </div>
             <div class="space-y-4">
               <div class="w-full flex items-center gap-3 p-4 rounded-2xl bg-surface-container-low border border-outline/5">
-                <span class="material-symbols-outlined text-secondary text-xl">timer</span>
+                <span class="h-3 w-3 rounded-full bg-secondary"></span>
                 <span class="text-sm font-bold text-on-surface leading-tight">Не торопитесь — внимательно читайте вопрос</span>
               </div>
               <div class="w-full flex items-center gap-3 p-4 rounded-2xl bg-surface-container-low border border-outline/5">
