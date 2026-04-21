@@ -1,6 +1,11 @@
 import { api } from "./api.js";
 import { translateAchievement } from "./achievements-i18n.js";
-import { getCityImage, getPeriodBadgeText } from "./city-visuals.js";
+import {
+  getCityImage,
+  getLocalizedCityDisplayName,
+  getLocalizedCityName,
+  getPeriodBadgeText,
+} from "./city-visuals.js";
 import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
 import {
   clearActiveQuizState,
@@ -59,6 +64,23 @@ function getVisibleQuestion(question) {
   };
 }
 
+function hasLegacyQuestionSuffix(text) {
+  return /\s*\([^()]*,\s*\d{4}\)\s*$/.test(String(text || ""));
+}
+
+function questionHasCurrentTranslations(question) {
+  const translations = question?.translations || {};
+  return ["ru", "en", "kk"].every((language) => {
+    const localized = translations[language];
+    return (
+      localized?.question &&
+      Array.isArray(localized?.options) &&
+      localized.options.length === 4 &&
+      !hasLegacyQuestionSuffix(localized.question)
+    );
+  });
+}
+
 function getSelectedAnswerIndex() {
   setVisible(elements.submitButton, true);
 
@@ -110,7 +132,13 @@ function renderHeader() {
 }
 
 function renderSidebar() {
-  const displayName = state.cityContent?.display_name || state.quiz?.city || "Город";
+  const language = getCurrentLanguage();
+  const displayName =
+    getLocalizedCityDisplayName(
+      state.quiz?.city,
+      state.cityContent?.display_name || state.quiz?.city,
+      language
+    ) || "Город";
   const periodBadge = state.period ? getPeriodBadgeText(state.period) : "Период";
   const historySummary =
     state.cityContent?.history_summary ||
@@ -150,7 +178,7 @@ function renderQuestion() {
   setVisible(elements.prevButton, state.quiz.currentIndex > 0);
   setText(
     elements.questionTag,
-    `${state.quiz.city} • ${state.period?.year_label || state.quiz.periodCode}`
+    `${getLocalizedCityName(state.quiz.city, getCurrentLanguage())} • ${state.period?.year_label || state.quiz.periodCode}`
   );
   setText(elements.questionTitle, visibleQuestion.question);
   const qHint = (window.saparI18n?.t("question_hint") || "Вопрос {current} из {total}. Выберите один ответ.")
@@ -326,10 +354,8 @@ function handlePrev() {
 async function restoreOrStartQuiz() {
   const currentLanguage = getCurrentLanguage();
   const storedQuiz = getActiveQuizState();
-  const storedQuizHasTranslations = storedQuiz?.questions?.every(
-    (question) => question.translations?.ru && question.translations?.en && question.translations?.kk
-  );
-  if (storedQuiz && storedQuizHasTranslations) {
+  const storedQuizIsCurrent = storedQuiz?.questions?.every(questionHasCurrentTranslations);
+  if (storedQuiz && storedQuizIsCurrent) {
     state.quiz = storedQuiz;
     return;
   }
@@ -441,6 +467,11 @@ async function init() {
   hideError();
 
   window.addEventListener("sapar-language-change", () => {
+    if (state.quiz && !state.quiz.questions.every(questionHasCurrentTranslations)) {
+      clearActiveQuizState();
+      window.location.reload();
+      return;
+    }
     render();
   });
 

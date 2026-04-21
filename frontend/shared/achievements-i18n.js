@@ -1,3 +1,5 @@
+import { getLocalizedCityName } from "./city-visuals.js";
+
 const PERIOD_LABELS = {
   khanate_1465: {
     year: "1465",
@@ -231,24 +233,25 @@ function translatePeriodMaster(periodCode, language) {
 
 function translateCityAchievement(achievement, language) {
   const city = achievement.city || achievement.name?.replace(/^.*: /, "") || "";
+  const localizedCity = getLocalizedCityName(city, language);
 
   if (language === "en") {
     return {
-      name: `City Expert: ${city}`,
-      description: `The city test for ${city} has been completed successfully.`,
+      name: `City Expert: ${localizedCity}`,
+      description: `The city test for ${localizedCity} has been completed successfully.`,
     };
   }
 
   if (language === "kk") {
     return {
-      name: `Қала білгірі: ${city}`,
-      description: `${city} қаласы бойынша тест сәтті өтті.`,
+      name: `Қала білгірі: ${localizedCity}`,
+      description: `${localizedCity} қаласы бойынша тест сәтті өтті.`,
     };
   }
 
   return {
-    name: `Знаток города: ${city}`,
-    description: `Успешно пройден тест по городу ${city}.`,
+    name: `Знаток города: ${localizedCity}`,
+    description: `Успешно пройден тест по городу ${localizedCity}.`,
   };
 }
 

@@ -1,5 +1,6 @@
 import { api } from "./api.js";
 import { translateAchievement } from "./achievements-i18n.js";
+import { getLocalizedCityName } from "./city-visuals.js";
 import { escapeHtml, setHtml, setText } from "./helpers.js";
 import { clearStoredPlayerId, reconcileStoredAuthUser } from "./storage.js";
 import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
@@ -945,6 +946,7 @@ function renderRecentResults(progress, bootstrap) {
     .map((item) => {
       const visual = getRecentResultVisual(item);
       const formattedDate = formatCompletedAt(item.last_completed_at);
+      const cityName = getLocalizedCityName(item.city, currentLanguage);
       return `
         <div class="bg-surface-container-lowest rounded-xl p-4 flex items-start gap-4 shadow-[0_8px_24px_rgba(46,47,45,0.06)] border border-outline-variant/15">
           <div class="${visual.iconClasses} p-2.5 rounded-full flex-shrink-0">
@@ -953,7 +955,7 @@ function renderRecentResults(progress, bootstrap) {
           <div class="min-w-0 flex-1">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <h3 class="font-bold text-on-surface text-sm leading-tight">${escapeHtml(item.city)}</h3>
+                <h3 class="font-bold text-on-surface text-sm leading-tight">${escapeHtml(cityName)}</h3>
                 <p class="mt-1 text-xs text-on-surface-variant leading-tight">${escapeHtml(getPeriodDisplay(item.period_code, periodMeta))}</p>
               </div>
               <span class="shrink-0 rounded-full bg-surface-container-low px-2.5 py-1 text-[11px] font-bold text-primary">${item.best_score}%</span>

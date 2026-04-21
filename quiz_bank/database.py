@@ -1097,6 +1097,21 @@ def replace_quiz_bank(db_path: str | Path, items: list[dict[str, Any]]) -> None:
         connection.close()
 
 
+def _quiz_bank_signature(items: Sequence[dict[str, Any]]) -> Counter[tuple[Any, ...]]:
+    return Counter(
+        (
+            str(item["city"]),
+            str(item.get("period_code", DEFAULT_PERIOD_CODE)),
+            str(item.get("difficulty", "easy")),
+            str(item["question"]),
+            tuple(item["options"]),
+            int(item["correct_index"]),
+            str(item["fact"]),
+        )
+        for item in items
+    )
+
+
 def seed_from_json_if_empty(
     db_path: str | Path,
     json_path: str | Path = DEFAULT_DATA_PATH,
@@ -1107,22 +1122,28 @@ def seed_from_json_if_empty(
     connection = connect_db(db_path)
     try:
         current_count = connection.execute("SELECT COUNT(*) FROM quizzes").fetchone()[0]
-        current_signature = Counter(
-            (str(row["city"]), str(row["period_code"]))
+        current_items = [
+            {
+                "city": row["city"],
+                "period_code": row["period_code"],
+                "difficulty": row["difficulty"],
+                "question": row["question"],
+                "options": json.loads(row["options"]),
+                "correct_index": row["correct_index"],
+                "fact": row["fact"],
+            }
             for row in connection.execute(
                 """
-                SELECT city, period_code
+                SELECT city, period_code, difficulty, question, options, correct_index, fact
                 FROM quizzes
                 """
             ).fetchall()
-        )
+        ]
     finally:
         connection.close()
 
-    expected_signature = Counter(
-        (str(item["city"]), str(item.get("period_code", DEFAULT_PERIOD_CODE)))
-        for item in items
-    )
+    current_signature = _quiz_bank_signature(current_items)
+    expected_signature = _quiz_bank_signature(items)
     if current_count > 0 and current_signature == expected_signature:
         return
 

@@ -3,6 +3,8 @@ import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
 import {
   getCityImage,
   getCityVisual,
+  getLocalizedCityDisplayName,
+  getLocalizedCityName,
   getMarkerIcon,
 } from "./city-visuals.js";
 import {
@@ -10,6 +12,7 @@ import {
   getInteractiveSvgCities,
   hasPeriodSvgMap,
   mountPeriodSvgMap,
+  updatePeriodSvgMapLabels,
   updatePeriodSvgMapState,
 } from "./period-svg-map.js";
 import {
@@ -1812,15 +1815,18 @@ function getLocalizedCityContent(content) {
 
   const translation =
     periodCityContentTranslations[state.selectedPeriodCode]?.[currentLanguage]?.[content.city];
-  if (!translation) {
-    return content;
-  }
+  const localized = translation ? { ...content, ...translation } : content;
 
   return {
-    ...content,
-    ...translation,
-    display_name: content.display_name,
-    old_name: content.old_name,
+    ...localized,
+    display_name: getLocalizedCityDisplayName(
+      localized.city,
+      localized.display_name,
+      currentLanguage
+    ),
+    old_name: localized.old_name
+      ? getLocalizedCityName(localized.old_name, currentLanguage)
+      : localized.old_name,
   };
 }
 
@@ -2032,6 +2038,7 @@ async function syncMapSurface(periodCode) {
     await mountPeriodSvgMap(elements.mapBackdrop, periodCode, (city) => {
       handleCityInteraction(city).catch(showGlobalError);
     });
+    updatePeriodSvgMapLabels(elements.mapBackdrop, currentLanguage);
     setVisible(elements.markerLayer, false);
     return;
   }
@@ -2071,6 +2078,7 @@ function renderMarkers() {
   if (hasPeriodSvgMap(state.selectedPeriodCode)) {
     setHtml(elements.markerLayer, "");
     setVisible(elements.markerLayer, false);
+    updatePeriodSvgMapLabels(elements.mapBackdrop, currentLanguage);
     updatePeriodSvgMapState(elements.mapBackdrop, {
       activeCity: state.selectedCity,
       factSession,
@@ -2089,6 +2097,11 @@ function renderMarkers() {
       return;
     }
 
+    const displayName = getLocalizedCityDisplayName(
+      cityState.city,
+      cityState.display_name,
+      currentLanguage
+    );
     const isActive = activeCity === cityState.city;
     const isFactCandidate = Boolean(
       factSession?.candidate_cities?.includes(cityState.city)
@@ -2129,7 +2142,7 @@ function renderMarkers() {
                 : passed
                   ? "text-tertiary"
                   : "text-primary"
-            }">${escapeHtml(cityState.display_name)}</span>
+            }">${escapeHtml(displayName)}</span>
           </div>
         </div>
       </div>
@@ -2174,7 +2187,9 @@ function renderPanel() {
   }
 
   const visual = getCityVisual(cityState.city);
-  const displayName = content?.display_name || cityState.display_name;
+  const displayName =
+    content?.display_name ||
+    getLocalizedCityDisplayName(cityState.city, cityState.display_name, currentLanguage);
   const subtitle =
     content?.subtitle ||
     cityState.subtitle ||
@@ -2265,6 +2280,10 @@ function renderFactState() {
   elements.startFactButton.disabled = !cityState?.fact_challenge_available;
 
   if (state.factResult) {
+    const correctCity = getLocalizedCityName(
+      state.factResult.correct_city,
+      currentLanguage
+    );
     setText(
       elements.factTitle,
       state.factResult.is_correct ? translate("fact_answer_accepted") : translate("fact_answer_checked")
@@ -2272,8 +2291,8 @@ function renderFactState() {
     setText(
       elements.factText,
       state.factResult.is_correct
-        ? translate("fact_correct", { city: state.factResult.correct_city })
-        : translate("fact_wrong", { city: state.factResult.correct_city })
+        ? translate("fact_correct", { city: correctCity })
+        : translate("fact_wrong", { city: correctCity })
     );
     setText(elements.factHelper, state.factResult.fact_text);
     elements.startFactButton.textContent = translate("fact_button_new");

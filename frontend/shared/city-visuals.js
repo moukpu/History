@@ -10,6 +10,79 @@ export const PERIOD_MAP_ASSETS = Object.freeze({
 
 export const MODERN_MAP_ASSET = PERIOD_MAP_ASSETS.modern_2025;
 
+export const CITY_NAME_TRANSLATIONS = Object.freeze({
+  en: Object.freeze({
+    "Акмолинск": "Akmolinsk",
+    "Акмола": "Akmola",
+    "Актау": "Aktau",
+    "Ақтау": "Aktau",
+    "Актобе": "Aktobe",
+    "Актюбинск": "Aktyubinsk",
+    "Ақтөбе": "Aktobe",
+    "Алма-Ата": "Alma-Ata",
+    "Алматы": "Almaty",
+    "Астана": "Astana",
+    "Атырау": "Atyrau",
+    "Аулие-Ата": "Aulie-Ata",
+    "Верный": "Verny",
+    "Гурьев": "Guryev",
+    "Джамбул": "Dzhambul",
+    "Казалинск": "Kazalinsk",
+    "Караганда": "Karaganda",
+    "Қарағанды": "Karaganda",
+    "Костанай": "Kostanay",
+    "Кустанай": "Kustanay",
+    "Қостанай": "Kostanay",
+    "Кзыл-Орда": "Kzyl-Orda",
+    "Кызылорда": "Kyzylorda",
+    "Қызылорда": "Kyzylorda",
+    "Орал": "Oral",
+    "Оскемен": "Oskemen",
+    "Өскемен": "Oskemen",
+    "Отрар": "Otrar",
+    "Павлодар": "Pavlodar",
+    "Перовск": "Perovsk",
+    "Петропавл": "Petropavl",
+    "Петропавловск": "Petropavlovsk",
+    "Сайрам": "Sairam",
+    "Сауран": "Sauran",
+    "Семей": "Semey",
+    "Семипалатинск": "Semipalatinsk",
+    "Сыгнак": "Sygnak",
+    "Тараз": "Taraz",
+    "Туркестан": "Turkestan",
+    "Түркістан": "Turkestan",
+    "Уральск": "Uralsk",
+    "Усть-Каменогорск": "Ust-Kamenogorsk",
+    "Целиноград": "Tselinograd",
+    "Чимкент": "Chimkent",
+    "Шевченко": "Shevchenko",
+    "Шымкент": "Shymkent",
+    "Яссы": "Yassy",
+    "ЕНТ": "UNT",
+  }),
+});
+
+export function getLocalizedCityName(city, language = "ru") {
+  if (!city) {
+    return "";
+  }
+
+  if (language !== "en") {
+    return city;
+  }
+
+  return CITY_NAME_TRANSLATIONS.en[city] || city;
+}
+
+export function getLocalizedCityDisplayName(
+  city,
+  displayName = null,
+  language = "ru"
+) {
+  return getLocalizedCityName(displayName || city, language);
+}
+
 export const PERIOD_CAPITAL_MARKERS = Object.freeze({
   khanate_1465: Object.freeze({
     backendCity: null,

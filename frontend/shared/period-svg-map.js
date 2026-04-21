@@ -1,4 +1,5 @@
 import {
+  getLocalizedCityName,
   PERIOD_CAPITAL_MARKERS,
   PERIOD_MAP_ASSETS,
   PERIOD_SVG_CITY_ALIASES,
@@ -101,6 +102,40 @@ function prepareVisualCityGroup(cityGroup) {
 
   labels.forEach((label) => {
     label.classList.add("map-city-label");
+    if (!label.dataset.originalText) {
+      label.dataset.originalText = label.textContent || "";
+    }
+    if (!label.dataset.originalFontSize) {
+      label.dataset.originalFontSize = label.getAttribute("font-size") || "";
+    }
+  });
+}
+
+function updateCityGroupLabel(cityGroup, language = "ru") {
+  const city = cityGroup.dataset.city;
+  if (!city) {
+    return;
+  }
+
+  const labelText = getLocalizedCityName(city, language);
+  cityGroup.setAttribute("aria-label", labelText);
+
+  cityGroup.querySelectorAll("text.map-city-label").forEach((label) => {
+    const originalText = label.dataset.originalText || label.textContent || "";
+    const originalFontSize = label.dataset.originalFontSize;
+
+    if (language === "en") {
+      label.textContent = labelText;
+      const baseSize = Number.parseFloat(originalFontSize || label.getAttribute("font-size") || "10");
+      const scale = labelText.length > 14 ? 0.78 : labelText.length > 10 ? 0.88 : 1;
+      label.setAttribute("font-size", String(Math.max(7, Math.round(baseSize * scale * 10) / 10)));
+      return;
+    }
+
+    label.textContent = originalText;
+    if (originalFontSize) {
+      label.setAttribute("font-size", originalFontSize);
+    }
   });
 }
 
@@ -134,6 +169,7 @@ function prepareInteractiveCityGroup(cityGroup, city, periodCode) {
   cityGroup.setAttribute("aria-pressed", "false");
   cityGroup.setAttribute("focusable", "true");
   cityGroup.classList.toggle("is-capital", matchesCapitalMarker(periodCode, cityGroup, city));
+  updateCityGroupLabel(cityGroup, "ru");
 }
 
 function prepareCapitalOnlyGroup(cityGroup) {
@@ -586,6 +622,12 @@ export function getInteractiveSvgCities(container) {
   return [...container.querySelectorAll(INTERACTIVE_CITY_SELECTOR)].map(
     (cityGroup) => cityGroup.dataset.city
   );
+}
+
+export function updatePeriodSvgMapLabels(container, language = "ru") {
+  container.querySelectorAll(INTERACTIVE_CITY_SELECTOR).forEach((cityGroup) => {
+    updateCityGroupLabel(cityGroup, language);
+  });
 }
 
 export function updatePeriodSvgMapState(
