@@ -20,7 +20,6 @@ const ENT_DURATION_MS = 10 * 60 * 1000;
 const START_BUTTON_READY_TEXT = "Окей, начать";
 const START_BUTTON_LOADING_TEXT = "Вопросы загружаются...";
 const START_STATUS_LOADING_TEXT = "Вопросы уже загружаются на фоне.";
-const START_STATUS_READY_TEXT = "Вопросы готовы. Нажмите кнопку, чтобы запустить таймер.";
 
 const state = {
   playerId: null,
@@ -114,7 +113,8 @@ function setStartModalLoading(loading) {
 
   elements.startConfirmButton.disabled = loading;
   setText(elements.startConfirmButton, loading ? START_BUTTON_LOADING_TEXT : START_BUTTON_READY_TEXT);
-  setText(elements.startStatus, loading ? START_STATUS_LOADING_TEXT : START_STATUS_READY_TEXT);
+  setVisible(elements.startStatus, loading);
+  setText(elements.startStatus, loading ? START_STATUS_LOADING_TEXT : "");
 }
 
 function stopTimer() {
@@ -476,8 +476,10 @@ async function init() {
   try {
     await startEntTest();
     console.log("ENT Test: Questions loaded successfully", state.quiz);
-    render();
     setStartModalLoading(false);
+    setStartModalVisible(true);
+    syncTimerDisplay();
+    render();
     if (state.quiz?.awaitingStart || !isTimerStarted()) {
       setStartModalVisible(true);
       syncTimerDisplay();
