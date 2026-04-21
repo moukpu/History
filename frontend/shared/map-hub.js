@@ -1916,29 +1916,7 @@ function renderBootstrapSummary() {
   );
   setText(
     elements.playerSummaryAchievements,
-    String(summary?.total_achievements_unlocked ?? 0)
-  );
-
-  const preview = state.bootstrap?.achievements_preview ?? [];
-  if (preview.length === 0) {
-    setHtml(
-      elements.achievementPreview,
-      `<p class="text-xs text-on-surface-variant">${escapeHtml(translate("achievements_empty"))}</p>`
-    );
-    return;
-  }
-
-  setHtml(
-    elements.achievementPreview,
-    preview
-      .slice(0, 2)
-      .map(
-        (achievement) =>
-          `<span class="bg-surface-container text-on-surface-variant px-2.5 py-1 rounded-full text-[10px] font-semibold">${escapeHtml(
-            achievement.name
-          )}</span>`
-      )
-      .join("")
+    String(mapSummary?.period_achievements_unlocked ?? 0)
   );
 }
 
@@ -2552,7 +2530,6 @@ function cacheElements() {
   elements.activeEraLabel = queryRequired("[data-active-era-label]");
   elements.playerSummaryTests = queryRequired("[data-player-tests]");
   elements.playerSummaryAchievements = queryRequired("[data-player-achievements]");
-  elements.achievementPreview = queryRequired("[data-achievement-preview]");
   elements.loadingState = queryRequired("[data-loading-state]");
   elements.errorState = queryRequired("[data-error-state]");
   elements.errorMessage = queryRequired("[data-error-message]");

@@ -333,6 +333,7 @@ class MapStatePeriodSummary(BaseModel):
     total_cities: int
     cities_passed: int
     fact_correct_count: int
+    period_achievements_unlocked: int = 0
     completion_percent: int
     is_unlocked_for_progression: bool
     is_completed: bool
