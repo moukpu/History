@@ -1495,6 +1495,285 @@ const transition1998CityContentTranslations = {
   },
 };
 
+const modern2025CityContentTranslations = {
+  en: {
+    "Астана": {
+      subtitle: "The modern capital of Kazakhstan on the Ishim River.",
+      short_description:
+        "Астана is the country's main political center and one of Kazakhstan's fastest-changing cities.",
+      history_summary:
+        "Today, Астана is known for modern administrative buildings, universities, and cultural venues. The city has an important place on the country's map because of its capital status and central location.",
+      interesting_fact: "Before its modern name, the city was known as Akmola and Nur-Sultan.",
+      role: "Modern capital",
+    },
+    "Алматы": {
+      subtitle: "The country's largest city near the Trans-Ili Alatau.",
+      short_description:
+        "Алматы remains one of Kazakhstan's main cultural, educational, and business centers.",
+      history_summary:
+        "The city is known for universities, museums, theaters, and business activity. Its closeness to the mountains makes Алматы recognizable and convenient for tourism and urban life.",
+      interesting_fact: "Until 1997, Алматы was the capital of Kazakhstan.",
+      role: "Largest city",
+    },
+    "Шымкент": {
+      subtitle: "A major southern city with trade and cultural traditions.",
+      short_description:
+        "Шымкент is one of Kazakhstan's largest cities and an important center of the south.",
+      history_summary:
+        "Today, the city is known for active urban life, markets, industry, and a convenient southern location. Шымкент keeps its connection with the region's old trade routes.",
+      interesting_fact: "Шымкент is one of Kazakhstan's cities of republican significance.",
+      role: "Southern metropolis",
+    },
+    "Актобе": {
+      subtitle: "A western city on the Ilek River and an important transport hub.",
+      short_description:
+        "Актобе is a large city in western Kazakhstan with developed industry.",
+      history_summary:
+        "The city connects western and central directions of the country and plays a visible role in the region's economy. Industry, education, and transport infrastructure are developing here.",
+      interesting_fact: "Актобе is located on the Ilek River.",
+      role: "Western transport hub",
+    },
+    "Караганда": {
+      subtitle: "The center of a major industrial and coal region.",
+      short_description:
+        "Караганда is known as one of the most important industrial cities of Central Kazakhstan.",
+      history_summary:
+        "The city grew with the development of the coal basin and heavy industry. Today, Караганда remains a notable educational and industrial center of the country.",
+      interesting_fact: "The Karaganda coal basin is known far beyond the region.",
+      role: "Industrial center",
+    },
+    "Тараз": {
+      subtitle: "An ancient southern city on the Talas River.",
+      short_description:
+        "Тараз connects modern city life with very deep history.",
+      history_summary:
+        "The city is known as one of the oldest in Kazakhstan and is tied to the history of the Great Silk Road. Today, Тараз remains an important center of Zhambyl Oblast.",
+      interesting_fact: "In the 20th century, the city was called Жамбыл for many years.",
+      role: "Ancient southern city",
+    },
+    "Павлодар": {
+      subtitle: "A city on the Irtysh in northeastern Kazakhstan.",
+      short_description:
+        "Павлодар is a notable industrial and energy center on the Irtysh River.",
+      history_summary:
+        "The modern city is connected with large enterprises, transport, and life in the Irtysh region. The Irtysh makes Павлодар an important point of the northeast.",
+      interesting_fact: "Павлодар stands on one of Kazakhstan's largest river routes, the Irtysh.",
+      role: "Irtysh industrial city",
+    },
+    "Оскемен": {
+      subtitle: "An eastern city at the confluence of the Irtysh and Ulba.",
+      short_description:
+        "Оскемен is one of the main cities of eastern Kazakhstan and a center of the mining and metallurgy region.",
+      history_summary:
+        "The city is near the Altai and is connected with industry, science, and energy. Its location by two rivers makes Оскемен a notable urban hub of eastern Kazakhstan.",
+      interesting_fact: "Оскемен is located where the Irtysh and Ulba rivers meet.",
+      role: "Eastern metallurgy city",
+    },
+    "Семей": {
+      subtitle: "A historic Irtysh city with strong cultural memory.",
+      short_description:
+        "Семей is known for its history, cultural role, and connection with Abai's name.",
+      history_summary:
+        "The city remains an important center of eastern Kazakhstan and preserves the memory of major events of the past. Семей is often mentioned together with the region's cultural history and the Irtysh River.",
+      interesting_fact: "The name of Abai Kunanbayev is especially often remembered near Семей.",
+      role: "Cultural center",
+    },
+    "Атырау": {
+      subtitle: "A city by the Ural River and an important center of the oil west.",
+      short_description:
+        "Атырау is one of the key cities of western Kazakhstan and the oil region.",
+      history_summary:
+        "The city is located near the Caspian Sea and plays a major role in the country's energy sector. Its position on the Ural makes Атырау a visible point between river and sea directions.",
+      interesting_fact:
+        "Атырау stands on the Ural River, which school geography often treats as a conventional border between Europe and Asia.",
+      role: "Oil region center",
+    },
+    "Костанай": {
+      subtitle: "A northern oblast center strongly tied to an agricultural region.",
+      short_description:
+        "Костанай is an important city of northern Kazakhstan, connected with education, trade, and the agricultural region.",
+      history_summary:
+        "The city is located in the north and serves as the administrative center of a large agricultural region. Transport, education, and urban services are developing here.",
+      interesting_fact: "Костанай stands on the Tobol River.",
+      role: "Northern agricultural center",
+    },
+    "Кызылорда": {
+      subtitle: "A Syr Darya city with memory of the republic's early capital.",
+      short_description:
+        "Кызылорда connects modern oblast-center life with an important page of Kazakhstan's history.",
+      history_summary:
+        "Today, the city remains the main center of the Syr Darya region. It is often remembered as the former capital of the Kazak ASSR and an important city of the southwest.",
+      interesting_fact: "Кызылорда was the capital of the Kazak ASSR in the 1920s.",
+      role: "Syr Darya center",
+    },
+    "Орал": {
+      subtitle: "A western city on the Ural River with a long border history.",
+      short_description:
+        "Орал is an important historical and transport center of western Kazakhstan.",
+      history_summary:
+        "The city grew on an important river route and for a long time connected the steppe with border districts. Today, Орал remains a notable administrative and cultural center of the west.",
+      interesting_fact: "The Russian-language historical name of the city is Уральск.",
+      role: "Western historical city",
+    },
+    "Петропавл": {
+      subtitle: "A northern city with trade and transport traditions.",
+      short_description:
+        "Петропавл is a notable city of northern Kazakhstan, connected with trade and routes.",
+      history_summary:
+        "The city developed as an important point on northern routes and remains an oblast center. It plays a visible role in the economy and daily life of the northern region.",
+      interesting_fact: "Петропавл is located near the Ishim River.",
+      role: "Northern regional center",
+    },
+    "Актау": {
+      subtitle: "A Caspian port and the main city of Mangystau.",
+      short_description:
+        "Актау is Kazakhstan's sea gateway on the Caspian Sea.",
+      history_summary:
+        "Modern Актау is known for its port, industry, and connection with the oil and gas region. The city plays an important role in transport, logistics, and the life of the country's western coast.",
+      interesting_fact: "In the Soviet period, the city was known as Шевченко.",
+      role: "Caspian port city",
+    },
+  },
+  kk: {
+    "Астана": {
+      subtitle: "Есіл өзеніндегі Қазақстанның қазіргі астанасы.",
+      short_description:
+        "Астана - елдің басты саяси орталығы және Қазақстандағы ең жылдам өзгеріп жатқан қалалардың бірі.",
+      history_summary:
+        "Бүгінде Астана заманауи әкімшілік ғимараттарымен, университеттерімен және мәдени алаңдарымен белгілі. Астаналық мәртебесі мен орталық орналасуы қаланы ел картасындағы маңызды орынға айналдырады.",
+      interesting_fact: "Қазіргі атауына дейін қала Ақмола және Нұр-Сұлтан деп белгілі болды.",
+      role: "Қазіргі астана",
+    },
+    "Алматы": {
+      subtitle: "Заилий Алатауы етегіндегі елдің ең ірі қаласы.",
+      short_description:
+        "Алматы Қазақстанның басты мәдени, білім және іскерлік орталықтарының бірі болып қала береді.",
+      history_summary:
+        "Қала жоғары оқу орындарымен, музейлерімен, театрларымен және іскерлік белсенділігімен белгілі. Тауларға жақындығы Алматыны танымал әрі туризм мен қала өміріне қолайлы орын етеді.",
+      interesting_fact: "1997 жылға дейін Алматы Қазақстанның астанасы болды.",
+      role: "Ең ірі қала",
+    },
+    "Шымкент": {
+      subtitle: "Сауда және мәдени дәстүрлері бар ірі оңтүстік қала.",
+      short_description:
+        "Шымкент - Қазақстанның ең ірі қалаларының бірі және ел оңтүстігінің маңызды орталығы.",
+      history_summary:
+        "Бүгінде қала белсенді қала өмірімен, базарларымен, өнеркәсібімен және оңтүстіктегі қолайлы орналасуымен белгілі. Шымкент өңірдің көне сауда жолдарымен байланысын сақтайды.",
+      interesting_fact: "Шымкент республикалық маңызы бар қалалардың қатарына кіреді.",
+      role: "Оңтүстік мегаполис",
+    },
+    "Актобе": {
+      subtitle: "Елек өзеніндегі батыс қала және маңызды көлік торабы.",
+      short_description:
+        "Актобе - өнеркәсібі дамыған батыс Қазақстандағы ірі қала.",
+      history_summary:
+        "Қала елдің батыс және орталық бағыттарын байланыстырып, өңір экономикасында көрнекті рөл атқарады. Мұнда өнеркәсіп, білім және көлік инфрақұрылымы дамып келеді.",
+      interesting_fact: "Актобе Елек өзенінде орналасқан.",
+      role: "Батыс көлік торабы",
+    },
+    "Караганда": {
+      subtitle: "Ірі индустриялық және көмір өңірінің орталығы.",
+      short_description:
+        "Караганда Орталық Қазақстанның ең маңызды өнеркәсіп қалаларының бірі ретінде белгілі.",
+      history_summary:
+        "Қала көмір бассейні мен ауыр өнеркәсіптің дамуымен бірге өсті. Бүгінде Караганда елдің көрнекті білім және индустриялық орталығы болып қала береді.",
+      interesting_fact: "Қарағанды көмір бассейні өңірден тыс жерлерде де белгілі.",
+      role: "Өнеркәсіп орталығы",
+    },
+    "Тараз": {
+      subtitle: "Талас өзеніндегі көне оңтүстік қала.",
+      short_description:
+        "Тараз қазіргі қала өмірін өте терең тарихпен байланыстырады.",
+      history_summary:
+        "Қала Қазақстандағы ең көне қалалардың бірі ретінде белгілі және Ұлы Жібек жолы тарихымен байланысты. Бүгінде Тараз Жамбыл облысының маңызды орталығы болып қала береді.",
+      interesting_fact: "XX ғасырда қала ұзақ уақыт Жамбыл деп аталды.",
+      role: "Көне оңтүстік қала",
+    },
+    "Павлодар": {
+      subtitle: "Қазақстанның солтүстік-шығысындағы Ертіс бойындағы қала.",
+      short_description:
+        "Павлодар - Ертіс өзеніндегі көрнекті өнеркәсіп және энергетика орталығы.",
+      history_summary:
+        "Қазіргі қала ірі кәсіпорындармен, көлікпен және Ертіс өңірінің өмірімен байланысты. Ертіс Павлодарды солтүстік-шығыс өңірдің маңызды нүктесіне айналдырады.",
+      interesting_fact: "Павлодар Қазақстандағы ең ірі өзен жолдарының бірі - Ертісте орналасқан.",
+      role: "Ертіс өнеркәсіп қаласы",
+    },
+    "Оскемен": {
+      subtitle: "Ертіс пен Үлбі қосылған жердегі шығыс қала.",
+      short_description:
+        "Оскемен - шығыс Қазақстанның басты қалаларының бірі және тау-металлургия өңірінің орталығы.",
+      history_summary:
+        "Қала Алтайға жақын орналасқан және өнеркәсіппен, ғылыммен, энергетикамен байланысты. Екі өзен бойындағы орны Оскеменді ел шығысындағы көрнекті қалалық торап етеді.",
+      interesting_fact: "Оскемен Ертіс пен Үлбі өзендері қосылған жерде орналасқан.",
+      role: "Шығыс металлургия қаласы",
+    },
+    "Семей": {
+      subtitle: "Мәдени жады күшті Ертіс бойындағы тарихи қала.",
+      short_description:
+        "Семей тарихымен, мәдени рөлімен және Абай есімімен байланысымен белгілі.",
+      history_summary:
+        "Қала шығыс Қазақстанның маңызды орталығы болып қалып, өткеннің ірі оқиғалары туралы жадты сақтайды. Семей өңірдің мәдени тарихы және Ертіс өзенімен бірге жиі аталады.",
+      interesting_fact: "Семей маңында Абай Құнанбаев есімі ерекше жиі еске алынады.",
+      role: "Мәдени орталық",
+    },
+    "Атырау": {
+      subtitle: "Жайық өзеніндегі және мұнайлы батыстың маңызды орталығы.",
+      short_description:
+        "Атырау - батыс Қазақстан мен мұнай өңірінің негізгі қалаларының бірі.",
+      history_summary:
+        "Қала Каспий теңізіне жақын орналасып, ел энергетикасында үлкен рөл атқарады. Жайық бойындағы орны Атырауды өзен мен теңіз бағыттарының арасындағы көрнекті нүкте етеді.",
+      interesting_fact:
+        "Атырау мектеп географиясында Еуропа мен Азия арасындағы шартты шекара ретінде жиі айтылатын Жайық өзенінде орналасқан.",
+      role: "Мұнай өңірі орталығы",
+    },
+    "Костанай": {
+      subtitle: "Ауыл шаруашылығы өңірімен тығыз байланысты солтүстік облыс орталығы.",
+      short_description:
+        "Костанай - біліммен, саудамен және аграрлық өлкемен байланысты солтүстік Қазақстанның маңызды қаласы.",
+      history_summary:
+        "Қала елдің солтүстігінде орналасып, үлкен ауыл шаруашылығы өңірінің әкімшілік орталығы қызметін атқарады. Мұнда көлік, білім және қалалық қызметтер дамып келеді.",
+      interesting_fact: "Костанай Тобыл өзенінде орналасқан.",
+      role: "Солтүстік аграрлық орталық",
+    },
+    "Кызылорда": {
+      subtitle: "Республиканың ерте астанасы туралы жады бар Сырдария бойындағы қала.",
+      short_description:
+        "Кызылорда қазіргі облыс орталығының өмірін Қазақстан тарихының маңызды бетімен байланыстырады.",
+      history_summary:
+        "Бүгінде қала Сырдария өңірінің басты орталығы болып қала береді. Оны жиі Қазақ АКСР-інің бұрынғы астанасы және елдің оңтүстік-батысындағы маңызды қала ретінде еске алады.",
+      interesting_fact: "Кызылорда 1920-жылдары Қазақ АКСР-інің астанасы болды.",
+      role: "Сырдария орталығы",
+    },
+    "Орал": {
+      subtitle: "Ұзақ шекаралық тарихы бар Жайық өзеніндегі батыс қала.",
+      short_description:
+        "Орал - батыс Қазақстанның маңызды тарихи және көлік орталығы.",
+      history_summary:
+        "Қала маңызды өзен жолында өсіп, ұзақ уақыт даланы шекаралық аудандармен байланыстырды. Бүгінде Орал ел батысының көрнекті әкімшілік және мәдени орталығы болып қала береді.",
+      interesting_fact: "Қаланың орыс тіліндегі тарихи атауы - Уральск.",
+      role: "Батыс тарихи қала",
+    },
+    "Петропавл": {
+      subtitle: "Сауда және көлік дәстүрлері бар солтүстік қала.",
+      short_description:
+        "Петропавл - саудамен және қатынас жолдарымен байланысты солтүстік Қазақстанның көрнекті қаласы.",
+      history_summary:
+        "Қала солтүстік бағыттардың маңызды пункті ретінде дамып, облыс орталығы болып қала береді. Ол солтүстік өңірдің экономикасы мен күнделікті өмірінде көрнекті рөл атқарады.",
+      interesting_fact: "Петропавл Есіл өзеніне жақын орналасқан.",
+      role: "Солтүстік өңір орталығы",
+    },
+    "Актау": {
+      subtitle: "Каспий порты және Маңғыстаудың басты қаласы.",
+      short_description:
+        "Актау - Қазақстанның Каспий теңізіндегі теңіз қақпасы.",
+      history_summary:
+        "Қазіргі Актау портымен, өнеркәсібімен және мұнай-газ өңірімен байланысымен белгілі. Қала елдің батыс жағалауының көлігі, логистикасы және өмірінде маңызды рөл атқарады.",
+      interesting_fact: "Кеңес дәуірінде қала Шевченко атауымен белгілі болды.",
+      role: "Каспий порт қаласы",
+    },
+  },
+};
+
 const periodCityContentTranslations = {
   khanate_1465: khanateCityContentTranslations,
   imperial_1731: imperial1731CityContentTranslations,
@@ -1502,6 +1781,7 @@ const periodCityContentTranslations = {
   soviet_1925: soviet1925CityContentTranslations,
   independence_1991: independence1991CityContentTranslations,
   transition_1998: transition1998CityContentTranslations,
+  modern_2025: modern2025CityContentTranslations,
 };
 
 function translate(key, params = {}) {
