@@ -1,10 +1,9 @@
 import { api } from "./api.js";
-import { mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
 import {
   getCityImage,
   getCityVisual,
   getMarkerIcon,
-  getPeriodBadgeText,
 } from "./city-visuals.js";
 import {
   clearPeriodSvgMap,
@@ -47,6 +46,391 @@ const state = {
 };
 
 const elements = {};
+let currentLanguage = getCurrentLanguage();
+
+const translations = {
+  ru: {
+    page_title: "Sapar Quest - Карта",
+    nav_home: "Главная",
+    nav_map: "Карта",
+    nav_leaderboard: "Рейтинг",
+    loading_map: "Загрузка карты и прогресса...",
+    load_error: "Ошибка загрузки.",
+    retry: "Повторить",
+    summary_tests: "Тесты",
+    summary_achievements: "Достижения",
+    timeline_title: "Лента времени степи",
+    active_period: "Активный период",
+    active_period_value: ({ title }) => `Активный период: ${title}`,
+    no_period: "Не выбран",
+    locked_period_tooltip: "Недоступно до прохождения предыдущего периода",
+    locked_period_status:
+      "Этот период откроется после прохождения всех городских тестов предыдущего периода.",
+    historical_period: "Исторический период",
+    city_role_default: "Город периода",
+    select_city: "Выберите город",
+    select_city_subtitle: "На карте появятся доступные города выбранного периода.",
+    city_description_placeholder: "Исторический контент загрузится после выбора города.",
+    historical_city_default: "Исторический город выбранного периода.",
+    short_description_unavailable: "Краткое описание пока недоступно.",
+    history_unavailable: "Историческая справка будет доступна после загрузки.",
+    fact_unavailable: "Интересный факт появится после загрузки контента.",
+    achievements_empty: "Достижения появятся после первых успешных действий на карте.",
+    old_name_prefix: ({ name }) => `Ранее: ${name}`,
+    quiz_available: "Тест доступен",
+    quiz_unavailable: "Тест пока недоступен",
+    fact_available: "Факт-вызов доступен",
+    fact_unavailable_chip: "Факт-вызов пока недоступен",
+    city_achievement_unlocked: "Достижение города открыто",
+    best_score: "Лучший результат",
+    attempts: "Попыток",
+    attempts_period: "Попыток в периоде",
+    short_history: "Краткая история",
+    interesting_fact: "Интересный факт",
+    city_progress: "Прогресс по городу",
+    city_test_passed: "Тест по городу уже пройден",
+    city_test_not_passed: "Тест по городу ещё не пройден",
+    fact_challenge: "Факт-вызов",
+    fact_challenge_period: "Факт-вызов периода",
+    fact_answer_accepted: "Ответ принят",
+    fact_answer_checked: "Ответ проверен",
+    fact_correct: ({ city }) => `Верно! Правильный город: ${city}.`,
+    fact_wrong: ({ city }) => `Пока нет. Правильный город: ${city}.`,
+    fact_text_default: "Получите короткий исторический факт и угадайте нужный город прямо на карте.",
+    fact_helper_default: "Результат сохранится в backend и повлияет на прогресс игрока.",
+    fact_helper_active: "Нажмите на один из подсвеченных городов на карте, чтобы отправить ответ.",
+    fact_button_active: "Факт-вызов активен",
+    fact_button_new: "Начать новый факт-вызов",
+    fact_helper_available: "Факт-вызов использует выбранный период и сохраняет результат в backend.",
+    fact_helper_unavailable: "Для этого города в выбранном периоде факт-вызов пока недоступен.",
+    fact_candidate_warning: "Для факт-вызова выберите один из подсвеченных городов.",
+    start_test: "Начать тест",
+    start_fact_challenge: "Начать факт-вызов",
+    cancel: "Сбросить",
+    loading: "Загрузка...",
+    quiz_unavailable_status: "Для этого города в выбранном периоде тест пока недоступен.",
+  },
+  en: {
+    page_title: "Sapar Quest - Map",
+    nav_home: "Home",
+    nav_map: "Map",
+    nav_leaderboard: "Leaderboard",
+    loading_map: "Loading map and progress...",
+    load_error: "Loading error.",
+    retry: "Try again",
+    summary_tests: "Tests",
+    summary_achievements: "Achievements",
+    timeline_title: "Steppe timeline",
+    active_period: "Active period",
+    active_period_value: ({ title }) => `Active period: ${title}`,
+    no_period: "Not selected",
+    locked_period_tooltip: "Unavailable until the previous period is completed",
+    locked_period_status:
+      "This period will unlock after all city tests in the previous period are completed.",
+    historical_period: "Historical period",
+    city_role_default: "Period city",
+    select_city: "Select a city",
+    select_city_subtitle: "Available cities for the selected period will appear on the map.",
+    city_description_placeholder: "Historical content will load after you select a city.",
+    historical_city_default: "Historical city of the selected period.",
+    short_description_unavailable: "A short description is not available yet.",
+    history_unavailable: "Historical notes will be available after loading.",
+    fact_unavailable: "An interesting fact will appear after the content loads.",
+    achievements_empty: "Achievements will appear after your first successful actions on the map.",
+    old_name_prefix: ({ name }) => `Earlier name: ${name}`,
+    quiz_available: "Test available",
+    quiz_unavailable: "Test not available yet",
+    fact_available: "Fact challenge available",
+    fact_unavailable_chip: "Fact challenge not available yet",
+    city_achievement_unlocked: "City achievement unlocked",
+    best_score: "Best score",
+    attempts: "Attempts",
+    attempts_period: "Attempts in this period",
+    short_history: "Short history",
+    interesting_fact: "Interesting fact",
+    city_progress: "City progress",
+    city_test_passed: "City test completed",
+    city_test_not_passed: "City test not completed yet",
+    fact_challenge: "Fact challenge",
+    fact_challenge_period: "Period fact challenge",
+    fact_answer_accepted: "Answer accepted",
+    fact_answer_checked: "Answer checked",
+    fact_correct: ({ city }) => `Correct. The right city is ${city}.`,
+    fact_wrong: ({ city }) => `Not yet. The right city is ${city}.`,
+    fact_text_default: "Get a short historical fact and guess the right city directly on the map.",
+    fact_helper_default: "The result will be saved in the backend and will affect player progress.",
+    fact_helper_active: "Click one of the highlighted cities on the map to submit your answer.",
+    fact_button_active: "Fact challenge active",
+    fact_button_new: "Start a new fact challenge",
+    fact_helper_available: "The fact challenge uses the selected period and saves the result in the backend.",
+    fact_helper_unavailable: "The fact challenge is not available for this city in the selected period yet.",
+    fact_candidate_warning: "For the fact challenge, choose one of the highlighted cities.",
+    start_test: "Start test",
+    start_fact_challenge: "Start fact challenge",
+    cancel: "Reset",
+    loading: "Loading...",
+    quiz_unavailable_status: "The test is not available for this city in the selected period yet.",
+  },
+  kk: {
+    page_title: "Sapar Quest - Карта",
+    nav_home: "Басты бет",
+    nav_map: "Карта",
+    nav_leaderboard: "Рейтинг",
+    loading_map: "Карта мен прогресс жүктелуде...",
+    load_error: "Жүктеу қатесі.",
+    retry: "Қайталау",
+    summary_tests: "Тесттер",
+    summary_achievements: "Жетістіктер",
+    timeline_title: "Дала уақыт жолағы",
+    active_period: "Белсенді кезең",
+    active_period_value: ({ title }) => `Белсенді кезең: ${title}`,
+    no_period: "Таңдалмаған",
+    locked_period_tooltip: "Алдыңғы кезең аяқталғаннан кейін қолжетімді болады",
+    locked_period_status:
+      "Бұл кезең алдыңғы кезеңдегі барлық қала тесттері аяқталғаннан кейін ашылады.",
+    historical_period: "Тарихи кезең",
+    city_role_default: "Кезең қаласы",
+    select_city: "Қаланы таңдаңыз",
+    select_city_subtitle: "Таңдалған кезеңнің қолжетімді қалалары картада пайда болады.",
+    city_description_placeholder: "Тарихи ақпарат қала таңдалғаннан кейін жүктеледі.",
+    historical_city_default: "Таңдалған кезеңнің тарихи қаласы.",
+    short_description_unavailable: "Қысқаша сипаттама әзірге қолжетімді емес.",
+    history_unavailable: "Тарихи анықтама жүктелгеннен кейін қолжетімді болады.",
+    fact_unavailable: "Қызықты факт ақпарат жүктелгеннен кейін пайда болады.",
+    achievements_empty: "Жетістіктер картадағы алғашқы сәтті әрекеттерден кейін пайда болады.",
+    old_name_prefix: ({ name }) => `Бұрынғы атауы: ${name}`,
+    quiz_available: "Тест қолжетімді",
+    quiz_unavailable: "Тест әзірге қолжетімді емес",
+    fact_available: "Факт-челлендж қолжетімді",
+    fact_unavailable_chip: "Факт-челлендж әзірге қолжетімді емес",
+    city_achievement_unlocked: "Қала жетістігі ашылды",
+    best_score: "Үздік нәтиже",
+    attempts: "Талпыныс",
+    attempts_period: "Осы кезеңдегі талпыныстар",
+    short_history: "Қысқаша тарих",
+    interesting_fact: "Қызықты факт",
+    city_progress: "Қала прогресі",
+    city_test_passed: "Қала тесті орындалды",
+    city_test_not_passed: "Қала тесті әлі орындалмады",
+    fact_challenge: "Факт-челлендж",
+    fact_challenge_period: "Кезең факт-челленджі",
+    fact_answer_accepted: "Жауап қабылданды",
+    fact_answer_checked: "Жауап тексерілді",
+    fact_correct: ({ city }) => `Дұрыс. Дұрыс қала: ${city}.`,
+    fact_wrong: ({ city }) => `Әзірге дұрыс емес. Дұрыс қала: ${city}.`,
+    fact_text_default: "Қысқа тарихи факт алып, картадан дұрыс қаланы тап.",
+    fact_helper_default: "Нәтиже backend-те сақталып, ойыншы прогресіне әсер етеді.",
+    fact_helper_active: "Жауап жіберу үшін картадағы белгіленген қалалардың бірін басыңыз.",
+    fact_button_active: "Факт-челлендж белсенді",
+    fact_button_new: "Жаңа факт-челлендж бастау",
+    fact_helper_available: "Факт-челлендж таңдалған кезеңді пайдаланып, нәтижені backend-те сақтайды.",
+    fact_helper_unavailable: "Бұл қала үшін таңдалған кезеңде факт-челлендж әзірге қолжетімді емес.",
+    fact_candidate_warning: "Факт-челлендж үшін белгіленген қалалардың бірін таңдаңыз.",
+    start_test: "Тест бастау",
+    start_fact_challenge: "Факт-челлендж бастау",
+    cancel: "Қалпына келтіру",
+    loading: "Жүктелуде...",
+    quiz_unavailable_status: "Бұл қала үшін таңдалған кезеңде тест әзірге қолжетімді емес.",
+  },
+};
+
+const periodTitleTranslations = {
+  en: {
+    khanate_1465: "Kazakh Khanate",
+    imperial_1731: "Russian Empire Influence",
+    imperial_1868: "Imperial Administrative Reform",
+    soviet_1925: "Soviet Kazakhstan",
+    independence_1991: "Independent Kazakhstan",
+    transition_1998: "Capital Relocation Era",
+    modern_2025: "Modern Kazakhstan",
+  },
+  kk: {
+    khanate_1465: "Қазақ хандығы",
+    imperial_1731: "Ресей империясының ықпалы",
+    imperial_1868: "Империялық әкімшілік реформа",
+    soviet_1925: "Кеңестік Қазақстан",
+    independence_1991: "Тәуелсіз Қазақстан",
+    transition_1998: "Астананы көшіру кезеңі",
+    modern_2025: "Қазіргі Қазақстан",
+  },
+};
+
+const khanateCityContentTranslations = {
+  en: {
+    "Сыгнак": {
+      subtitle: "Сыгнак was a city of the Middle Syr Darya and an important political center of the steppe.",
+      short_description:
+        "By the mid-15th century, Сыгнак remained one of the main cities of the Middle Syr Darya and was tied to the early history of the Kazakh Khanate.",
+      history_summary:
+        "Archaeology.kz describes Сыгнак as the capital of the Ak Orda in the 14th-15th centuries and as a city connected with the Kazakh Khanate in the 15th-16th centuries. The city stood on Syr Darya routes, had khan burials, and remained important as a political and trading center.",
+      interesting_fact: "Coins were already minted in Сыгнак in the 14th century.",
+      role: "Political center of the Syr Darya",
+    },
+    "Яссы": {
+      subtitle: "Яссы was a city of pilgrimage and spiritual memory in Southern Kazakhstan.",
+      short_description:
+        "In 1465, Яссы was known as the city of Khoja Ahmed Yasawi and an important spiritual center of the southern region.",
+      history_summary:
+        "UNESCO and the Azret-Sultan museum note that the Mausoleum of Khoja Ahmed Yasawi stood in the city of Яссы, later known as Turkestan. By the 15th century, mosques and other religious buildings had grown around the shrine, strengthening the city's role among the Syr Darya cities.",
+      interesting_fact: "The city of Яссы later became known as Turkestan.",
+      role: "Spiritual center of the south",
+    },
+    "Отрар": {
+      subtitle: "Отрар was the main oasis city near the Arys and Syr Darya rivers.",
+      short_description:
+        "By 1465, Отрар remained a major city of the southern oasis and an important link between farming regions and the steppe.",
+      history_summary:
+        "Archaeology.kz writes that the Otrar oasis was supplied by the waters of the Arys and Syr Darya, while Отрар itself played a major political, economic, and spiritual role. After the Mongol period, the city developed again in the 14th-15th centuries and was one of the notable centers of the south.",
+      interesting_fact: "The main water sources for the Otrar oasis were the Arys and Syr Darya rivers.",
+      role: "Oasis and trade center",
+    },
+    "Сауран": {
+      subtitle: "Сауран was a fortified city on the roads of the Turkestan region.",
+      short_description:
+        "In 1465, Сауран was known as a strong fortress and one of the notable cities of southern Kazakhstan.",
+      history_summary:
+        "The official Azret-Sultan museum site notes that in the 14th century Сауран was called one of the cities of the White Horde, and in the 15th-16th centuries it was often mentioned in struggles for the cities of the Turkestan region. The city was known for powerful walls, towers, gates, and a moat.",
+      interesting_fact: "In late medieval Сауран, northern and southern gates led into the city.",
+      role: "Fortified city",
+    },
+    "Сайрам": {
+      subtitle: "Сайрам was the ancient city of Ispidjab and a sacred center of the south.",
+      short_description:
+        "In 1465, Сайрам remained a well-known southern city associated with ancient Ispidjab and trade routes.",
+      history_summary:
+        "Archaeology.kz calls Сайрам one of the largest monuments of urban culture in southern Kazakhstan and identifies it with Ispidjab. The city developed on caravan roads, kept sacred importance for a long time, and was known for many religious monuments.",
+      interesting_fact: "In medieval sources, Сайрам was often called Ispidjab.",
+      role: "Sacred trade city",
+    },
+    "Тараз": {
+      subtitle: "Тараз was an ancient city of the Talas valley and a historical landmark of the south.",
+      short_description:
+        "By the 15th century, ancient Тараз had lost some of its earlier influence, but the place of the city still preserved its historical importance in the south.",
+      history_summary:
+        "Archaeology.kz connects Тараз with two millennia of urban history and a central position on the Great Silk Road. The source notes that the city of Talas ceased to exist in the 15th century, but settled life continued in the area later, so the district of ancient Тараз preserved historical memory.",
+      interesting_fact: "Тараз stood in the Talas River valley and was long one of the main cities of the south.",
+      role: "Ancient southern city",
+    },
+  },
+  kk: {
+    "Сыгнак": {
+      subtitle: "Сыгнак Орта Сырдариядағы қала және даланың маңызды саяси орталығы болды.",
+      short_description:
+        "XV ғасырдың ортасында Сыгнак Орта Сырдарияның басты қалаларының бірі болып қалып, Қазақ хандығының ерте тарихымен байланысты болды.",
+      history_summary:
+        "Archaeology.kz Сыгнақты XIV-XV ғасырларда Ақ Орданың астанасы және XV-XVI ғасырларда Қазақ хандығымен байланысты қала ретінде атайды. Қала Сырдария жолдарының бойында орналасып, хан жерлеулерімен, саяси және сауда орталығы ретіндегі маңызымен ерекшеленді.",
+      interesting_fact: "Сыгнакта XIV ғасырдың өзінде теңге соғылған.",
+      role: "Сырдариядағы саяси орталық",
+    },
+    "Яссы": {
+      subtitle: "Яссы Оңтүстік Қазақстандағы зиярат пен рухани жад қаласы болды.",
+      short_description:
+        "1465 жылы Яссы Қожа Ахмет Ясауи қаласы және оңтүстік өңірдің маңызды рухани орталығы ретінде белгілі болды.",
+      history_summary:
+        "UNESCO және «Әзірет-Сұлтан» музейі Қожа Ахмет Ясауи кесенесі кейін Түркістан аталған Яссы қаласында тұрғанын атап өтеді. XV ғасырда қасиетті орынның айналасында мешіттер мен басқа діни құрылыстар көбейіп, қала Сырдария бойындағы орталықтар арасында маңызын күшейтті.",
+      interesting_fact: "Кейін Яссы қаласы Түркістан атауымен белгілі болды.",
+      role: "Оңтүстіктің рухани орталығы",
+    },
+    "Отрар": {
+      subtitle: "Отрар Арыс пен Сырдария маңындағы оазистің басты қаласы болды.",
+      short_description:
+        "1465 жылға қарай Отрар оңтүстік оазистің ірі қаласы және егіншілік аймақтары мен даланы байланыстыратын маңызды нүкте болып қалды.",
+      history_summary:
+        "Archaeology.kz Отрар оазисі Арыс пен Сырдария суларымен қамтамасыз етілгенін, ал Отрардың саяси, шаруашылық және рухани рөлі үлкен болғанын жазады. Моңғол дәуірінен кейін қала XIV-XV ғасырларда қайта дамып, оңтүстіктің көрнекті орталықтарының қатарына кірді.",
+      interesting_fact: "Отрар оазисінің негізгі су көздері Арыс пен Сырдария болды.",
+      role: "Оазис және сауда орталығы",
+    },
+    "Сауран": {
+      subtitle: "Сауран Түркістан өңірінің жолдарындағы бекіністі қала болды.",
+      short_description:
+        "1465 жылы Сауран мықты қамал және оңтүстік Қазақстанның көрнекті қалаларының бірі ретінде белгілі болды.",
+      history_summary:
+        "«Әзірет-Сұлтан» музейінің ресми сайты XIV ғасырда Сауран Ақ Орданың қалаларының бірі аталғанын, ал XV-XVI ғасырларда Түркістан өңіріндегі қалалар үшін күресте жиі айтылғанын көрсетеді. Қала қуатты қабырғаларымен, мұнараларымен, қақпаларымен және орларымен танылды.",
+      interesting_fact: "Кейінгі орта ғасырдағы Сауранға солтүстік және оңтүстік қақпалар арқылы кірген.",
+      role: "Бекіністі қала",
+    },
+    "Сайрам": {
+      subtitle: "Сайрам ежелгі Испиджаб және оңтүстіктің қасиетті орталығы болды.",
+      short_description:
+        "1465 жылы Сайрам ежелгі Испиджабпен және сауда жолдарымен байланысты белгілі оңтүстік қала болып қала берді.",
+      history_summary:
+        "Archaeology.kz Сайрамды оңтүстік Қазақстандағы қала мәдениетінің ең ірі ескерткіштерінің бірі деп атап, оны Испиджабпен сәйкестендіреді. Қала керуен жолдарында дамып, ұзақ уақыт қасиетті маңызын сақтады және көптеген діни ескерткіштерімен белгілі болды.",
+      interesting_fact: "Ортағасырлық деректерде Сайрам жиі Испиджаб деп аталған.",
+      role: "Қасиетті сауда қаласы",
+    },
+    "Тараз": {
+      subtitle: "Тараз Талас аңғарындағы ежелгі қала және оңтүстіктің тарихи бағдары болды.",
+      short_description:
+        "XV ғасырда ежелгі Тараз бұрынғы ықпалының бір бөлігін жоғалтса да, қаланың орны оңтүстіктегі тарихи маңызын сақтады.",
+      history_summary:
+        "Archaeology.kz Таразды екі мың жылдық қала тарихымен және Ұлы Жібек жолындағы орталық орнымен байланыстырады. Дереккөз Талас қаласы XV ғасырда өмір сүруін тоқтатқанын, бірақ бұл жерде отырықшы халық кейін де өмір сүргенін айтады, сондықтан ежелгі Тараз аймағы тарихи жадты сақтады.",
+      interesting_fact: "Тараз Талас өзені аңғарында орналасып, ұзақ уақыт оңтүстіктің басты қалаларының бірі болды.",
+      role: "Ежелгі оңтүстік қала",
+    },
+  },
+};
+
+function translate(key, params = {}) {
+  const value = translations[currentLanguage]?.[key] ?? translations.ru[key] ?? key;
+  return typeof value === "function" ? value(params) : value;
+}
+
+function getLocalizedPeriodTitle(period) {
+  if (!period) {
+    return translate("no_period");
+  }
+
+  return periodTitleTranslations[currentLanguage]?.[period.code] || period.title;
+}
+
+function getLocalizedPeriodBadgeText(period) {
+  if (!period) {
+    return translate("historical_period");
+  }
+
+  return `${period.year_label} • ${getLocalizedPeriodTitle(period)}`;
+}
+
+function getLocalizedCityContent(content) {
+  if (!content || state.selectedPeriodCode !== "khanate_1465") {
+    return content;
+  }
+
+  const translation = khanateCityContentTranslations[currentLanguage]?.[content.city];
+  if (!translation) {
+    return content;
+  }
+
+  return {
+    ...content,
+    ...translation,
+    display_name: content.display_name,
+    old_name: content.old_name,
+  };
+}
+
+function getLocalizedCityRole(city, fallbackRole) {
+  if (state.selectedPeriodCode === "khanate_1465") {
+    const role = khanateCityContentTranslations[currentLanguage]?.[city]?.role;
+    if (role) return role;
+  }
+
+  if (currentLanguage === "ru" && fallbackRole) {
+    return fallbackRole;
+  }
+
+  return translate("city_role_default");
+}
+
+function applyStaticTranslations() {
+  document.documentElement.lang = currentLanguage;
+  document.title = translate("page_title");
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    if (element.closest("footer")) return;
+    element.textContent = translate(element.dataset.i18n);
+  });
+}
 
 function queryRequired(selector) {
   const element = document.querySelector(selector);
@@ -125,7 +509,7 @@ function renderBootstrapSummary() {
   if (preview.length === 0) {
     setHtml(
       elements.achievementPreview,
-      '<p class="text-xs text-on-surface-variant">Достижения появятся после первых успешных действий на карте.</p>'
+      `<p class="text-xs text-on-surface-variant">${escapeHtml(translate("achievements_empty"))}</p>`
     );
     return;
   }
@@ -158,7 +542,9 @@ function renderTimeline() {
   elements.timelineFill.style.width = `${fillPercent}%`;
   setText(
     elements.activeEraLabel,
-    `Активный период: ${getCurrentPeriod()?.title ?? "Не выбран"}`
+    translate("active_period_value", {
+      title: getLocalizedPeriodTitle(getCurrentPeriod()),
+    })
   );
 
   const fragment = document.createDocumentFragment();
@@ -199,10 +585,10 @@ function renderTimeline() {
           active
             ? ""
             : `<div class="pointer-events-none absolute bottom-full mb-3 ${tooltipPositionClass} z-30 w-[12rem] opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 bg-white text-on-surface text-[11px] px-3.5 py-3 rounded-xl whitespace-normal text-center shadow-[0_18px_40px_rgba(46,47,45,0.18)] border border-outline-variant/20">
-                <div class="font-bold leading-tight text-[11px]">${escapeHtml(period.title)}</div>
+                <div class="font-bold leading-tight text-[11px]">${escapeHtml(getLocalizedPeriodTitle(period))}</div>
                 ${
                   locked
-                    ? '<div class="mt-2 text-[10px] leading-relaxed text-on-surface-variant font-medium">Недоступно до прохождения предыдущего периода</div>'
+                    ? `<div class="mt-2 text-[10px] leading-relaxed text-on-surface-variant font-medium">${escapeHtml(translate("locked_period_tooltip"))}</div>`
                     : ""
                 }
               </div>`
@@ -219,7 +605,7 @@ function renderTimeline() {
       }
       if (locked) {
         setStatusMessage(
-          "Этот период откроется после прохождения всех городских тестов предыдущего периода.",
+          translate("locked_period_status"),
           "warning"
         );
         return;
@@ -268,7 +654,7 @@ async function handleCityInteraction(city) {
   if (factSession) {
     if (!factSession.candidate_cities.includes(city)) {
       setStatusMessage(
-        "Для факт-вызова выберите один из подсвеченных городов.",
+        translate("fact_candidate_warning"),
         "warning"
       );
       return;
@@ -364,7 +750,7 @@ function renderMarkers() {
       if (factSession) {
         if (!factSession.candidate_cities.includes(cityState.city)) {
           setStatusMessage(
-            "Для факт-вызова выберите один из подсвеченных городов.",
+            translate("fact_candidate_warning"),
             "warning"
           );
           return;
@@ -386,12 +772,12 @@ function renderMarkers() {
 function renderPanel() {
   const cityState = getCurrentCityState();
   const period = getCurrentPeriod();
-  const content = getCityContent(state.selectedCity);
+  const content = getLocalizedCityContent(getCityContent(state.selectedCity));
 
   if (!cityState) {
-    setText(elements.cityName, "Выберите город");
-    setText(elements.citySubtitle, "На карте появятся доступные города выбранного периода.");
-    setText(elements.cityDescription, "Исторический контент загрузится после выбора города.");
+    setText(elements.cityName, translate("select_city"));
+    setText(elements.citySubtitle, translate("select_city_subtitle"));
+    setText(elements.cityDescription, translate("city_description_placeholder"));
     return;
   }
 
@@ -400,26 +786,26 @@ function renderPanel() {
   const subtitle =
     content?.subtitle ||
     cityState.subtitle ||
-    "Исторический город выбранного периода.";
+    translate("historical_city_default");
   const shortDescription =
     content?.short_description ||
     subtitle ||
-    "Краткое описание пока недоступно.";
+    translate("short_description_unavailable");
   const historySummary =
-    content?.history_summary || "Историческая справка будет доступна после загрузки.";
+    content?.history_summary || translate("history_unavailable");
   const interestingFact =
-    content?.interesting_fact || "Интересный факт появится после загрузки контента.";
+    content?.interesting_fact || translate("fact_unavailable");
   const chips = [
-    content?.old_name ? `Ранее: ${content.old_name}` : null,
-    cityState.quiz_available ? "Тест доступен" : "Тест пока недоступен",
-    cityState.fact_challenge_available ? "Факт-вызов доступен" : "Факт-вызов пока недоступен",
-    cityState.unlocked_city_achievement ? "Достижение города открыто" : null,
+    content?.old_name ? translate("old_name_prefix", { name: content.old_name }) : null,
+    cityState.quiz_available ? translate("quiz_available") : translate("quiz_unavailable"),
+    cityState.fact_challenge_available ? translate("fact_available") : translate("fact_unavailable_chip"),
+    cityState.unlocked_city_achievement ? translate("city_achievement_unlocked") : null,
   ].filter(Boolean);
 
   elements.cityImage.src = getCityImage(cityState.city, state.selectedPeriodCode);
   elements.cityImage.alt = displayName;
-  setText(elements.cityEraBadge, getPeriodBadgeText(period));
-  setText(elements.cityRole, visual?.role || "Город периода");
+  setText(elements.cityEraBadge, getLocalizedPeriodBadgeText(period));
+  setText(elements.cityRole, getLocalizedCityRole(cityState.city, visual?.role));
   setText(elements.cityName, displayName);
   setText(elements.citySubtitle, subtitle);
   setText(elements.cityDescription, shortDescription);
@@ -437,16 +823,16 @@ function renderPanel() {
   );
 
   setText(elements.cityMetricPrimary, `${cityState.best_score_in_this_period}%`);
-  setText(elements.cityMetricPrimaryLabel, "Лучший результат");
+  setText(elements.cityMetricPrimaryLabel, translate("best_score"));
   setText(elements.cityMetricSecondary, String(cityState.total_attempts_in_this_period));
-  setText(elements.cityMetricSecondaryLabel, "Попыток в периоде");
-  setText(elements.cityHistoryTitle, "Краткая история");
+  setText(elements.cityMetricSecondaryLabel, translate("attempts_period"));
+  setText(elements.cityHistoryTitle, translate("short_history"));
   setText(elements.cityHistoryText, historySummary);
-  setText(elements.cityDidYouKnowTitle, "Интересный факт");
+  setText(elements.cityDidYouKnowTitle, translate("interesting_fact"));
   setText(elements.cityDidYouKnowText, interestingFact);
   setText(
     elements.cityProgressLabel,
-    cityState.passed_quiz_in_this_period ? "Тест по городу уже пройден" : "Тест по городу ещё не пройден"
+    cityState.passed_quiz_in_this_period ? translate("city_test_passed") : translate("city_test_not_passed")
   );
   setText(
     elements.cityProgressValue,
@@ -472,13 +858,13 @@ function renderFactState() {
 
   if (factSession) {
     setVisible(elements.factCancelButton, true);
-    setText(elements.factTitle, "Факт-вызов периода");
+    setText(elements.factTitle, translate("fact_challenge_period"));
     setText(elements.factText, factSession.fact_text);
     setText(
       elements.factHelper,
-      "Нажмите на один из подсвеченных городов на карте, чтобы отправить ответ."
+      translate("fact_helper_active")
     );
-    elements.startFactButton.textContent = "Факт-вызов активен";
+    elements.startFactButton.textContent = translate("fact_button_active");
     elements.startFactButton.disabled = true;
     return;
   }
@@ -489,31 +875,31 @@ function renderFactState() {
   if (state.factResult) {
     setText(
       elements.factTitle,
-      state.factResult.is_correct ? "Ответ принят" : "Ответ проверен"
+      state.factResult.is_correct ? translate("fact_answer_accepted") : translate("fact_answer_checked")
     );
     setText(
       elements.factText,
       state.factResult.is_correct
-        ? `Верно! Правильный город: ${state.factResult.correct_city}.`
-        : `Пока нет. Правильный город: ${state.factResult.correct_city}.`
+        ? translate("fact_correct", { city: state.factResult.correct_city })
+        : translate("fact_wrong", { city: state.factResult.correct_city })
     );
     setText(elements.factHelper, state.factResult.fact_text);
-    elements.startFactButton.textContent = "Начать новый факт-вызов";
+    elements.startFactButton.textContent = translate("fact_button_new");
     return;
   }
 
-  setText(elements.factTitle, "Факт-вызов");
+  setText(elements.factTitle, translate("fact_challenge"));
   setText(
     elements.factText,
-    "Получите короткий исторический факт и угадайте нужный город прямо на карте."
+    translate("fact_text_default")
   );
   setText(
     elements.factHelper,
     cityState?.fact_challenge_available
-      ? "Факт-вызов использует выбранный период и сохраняет результат в backend."
-      : "Для этого города в выбранном периоде факт-вызов пока недоступен."
+      ? translate("fact_helper_available")
+      : translate("fact_helper_unavailable")
   );
-  elements.startFactButton.textContent = "Начать факт-вызов";
+  elements.startFactButton.textContent = translate("start_fact_challenge");
 }
 
 function setStatusMessage(message, kind = "info") {
@@ -646,7 +1032,7 @@ async function startFactChallenge() {
   const cityState = getCurrentCityState();
   if (!cityState?.fact_challenge_available) {
     setStatusMessage(
-      "Для этого города в выбранном периоде факт-вызов пока недоступен.",
+      translate("fact_helper_unavailable"),
       "warning"
     );
     return;
@@ -654,7 +1040,7 @@ async function startFactChallenge() {
 
   clearStatusMessage();
   state.factResult = null;
-  setText(elements.startFactButton, "Загрузка...");
+  setText(elements.startFactButton, translate("loading"));
   elements.startFactButton.disabled = true;
 
   try {
@@ -709,7 +1095,7 @@ function openQuizChallenge() {
   const cityState = getCurrentCityState();
   if (!cityState?.quiz_available) {
     setStatusMessage(
-      "Для этого города в выбранном периоде тест пока недоступен.",
+      translate("quiz_unavailable_status"),
       "warning"
     );
     return;
@@ -785,8 +1171,15 @@ function cacheElements() {
 }
 
 async function init() {
-  mountLanguageMenu();
   cacheElements();
+  mountLanguageMenu({
+    onChange: (language) => {
+      currentLanguage = language;
+      applyStaticTranslations();
+      render();
+    },
+  });
+  applyStaticTranslations();
   bindEvents();
   clearActiveFactSession();
   state.factSession = null;
