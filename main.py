@@ -229,46 +229,39 @@ async def get_static_quiz(city: str) -> QuizResponse:
 async def start_city_test(payload: StartTestRequest) -> StartTestResponse:
     city_name = payload.city.strip()
     if city_name == "ENT_MODE" or city_name == "ЕНТ":
-        print("!!! ENT MODE TRIGGERED !!!")
-        try:
-            abs_path = r"C:\Users\aldiy\Desktop\тесты 150.json"
-            with open(abs_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            
-            questions = data.get("questions", [])
-            if not questions:
-                raise HTTPException(status_code=500, detail="В файле не найдено вопросов.")
-            
-            count = min(20, len(questions))
-            selected = random.sample(questions, count)
-            session_id = f"ent-{uuid.uuid4()}"
-            
-            session_questions = []
-            for q in selected:
-                session_questions.append({
-                    "id": str(q["id"]),
-                    "question": q["question_text"],
-                    "options": q["options"],
-                    "correct_index": q["correct_index"],
-                })
-            
-            _ent_sessions[session_id] = session_questions
-            
-            return StartTestResponse(
-                test_session_id=session_id,
-                city="ЕНТ",
-                period_code="ENT",
-                questions=[
-                    TestQuestion(
-                        id=q["id"],
-                        question=q["question"],
-                        options=q["options"]
-                    ) for q in session_questions
-                ]
-            )
-        except Exception as e:
-            print(f"CRITICAL ERROR: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Ошибка при загрузке ЕНТ: {str(e)}")
+        questions = _load_ent_questions()
+        if not questions:
+            raise HTTPException(status_code=500, detail="Нет вопросов для ЕНТ теста.")
+
+        count = min(payload.question_count, len(questions))
+        selected = random.sample(questions, count)
+        session_id = f"ent-{uuid.uuid4()}"
+
+        session_questions = [
+            {
+                "id": str(question["id"]),
+                "question": question["question_text"],
+                "options": question["options"],
+                "correct_index": question["correct_index"],
+            }
+            for question in selected
+        ]
+
+        _ent_sessions[session_id] = session_questions
+
+        return StartTestResponse(
+            test_session_id=session_id,
+            city="ЕНТ",
+            period_code="ENT",
+            questions=[
+                TestQuestion(
+                    id=question["id"],
+                    question=question["question"],
+                    options=question["options"],
+                )
+                for question in session_questions
+            ],
+        )
     
     return start_test(DB_PATH, payload)
 
