@@ -27,6 +27,8 @@ from .fact_challenge_validation import (
 from .period_validation import validate_period_quiz_bank
 from .validation import load_quiz_bank_json, validate_quiz_bank
 
+_ENSURED_DATABASES: set[str] = set()
+
 
 def connect_db(db_path: str | Path) -> sqlite3.Connection:
     connection = sqlite3.connect(db_path, timeout=10)
@@ -708,6 +710,10 @@ def _ensure_indexes(connection: sqlite3.Connection) -> None:
 
 
 def ensure_database(db_path: str | Path) -> None:
+    db_key = str(Path(db_path).resolve())
+    if db_key in _ENSURED_DATABASES:
+        return
+
     connection = connect_db(db_path)
     try:
         _create_target_tables(connection)
@@ -719,6 +725,7 @@ def ensure_database(db_path: str | Path) -> None:
         _migrate_users(connection)
         _ensure_indexes(connection)
         connection.commit()
+        _ENSURED_DATABASES.add(db_key)
     finally:
         connection.close()
 
@@ -2323,24 +2330,22 @@ def get_leaderboard(db_path: str | Path, limit: int = 50) -> list[dict[str, Any]
                 COALESCE(SUM(pcp.best_score), 0) AS total_score,
                 COALESCE(SUM(pcp.total_attempts), 0) AS total_tests,
                 COALESCE(AVG(pcp.best_score), 0) AS accuracy,
-                (
-                    SELECT COUNT(*)
-                    FROM player_achievements pa
-                    WHERE pa.player_id = u.id
-                ) AS achievements_count
+                COALESCE(pa.achievements_count, 0) AS achievements_count
             FROM users u
             LEFT JOIN player_city_progress pcp
                 ON pcp.player_id = u.id
                AND pcp.city != 'ЕНТ'
+            LEFT JOIN (
+                SELECT player_id, COUNT(*) AS achievements_count
+                FROM player_achievements
+                GROUP BY player_id
+            ) pa
+                ON pa.player_id = u.id
             WHERE u.id NOT LIKE '%smoke%'
               AND u.id != 'frontend-smoke-player'
-            GROUP BY u.id, u.username
+            GROUP BY u.id, u.username, pa.achievements_count
             HAVING COALESCE(SUM(pcp.total_attempts), 0) > 0
-                OR (
-                    SELECT COUNT(*)
-                    FROM player_achievements pa
-                    WHERE pa.player_id = u.id
-                ) > 0
+                OR COALESCE(pa.achievements_count, 0) > 0
             ORDER BY total_score DESC, accuracy DESC, total_tests DESC, username ASC
             LIMIT ?
             """,
