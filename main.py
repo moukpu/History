@@ -1,0 +1,693 @@
+import json
+import os
+import random
+import sqlite3
+import uuid
+from contextlib import asynccontextmanager
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlencode
+from urllib.request import urlopen
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from openai import AsyncOpenAI, OpenAIError
+from pydantic import ValidationError
+
+from quiz_bank.api_models import (
+    AchievementCatalogResponse,
+    AppBootstrapResponse,
+    AuthResolveRequest,
+    AuthResponse,
+    CityContentResponse,
+    CityContentSummariesResponse,
+    FactChallengeProgressResponse,
+    GoogleAuthConfigResponse,
+    GoogleAuthRequest,
+    LeaderboardResponse,
+    LoginRequest,
+    MapStateResponse,
+    PlayerAchievementsResponse,
+    PlayerProgressResponse,
+    QuizResponse,
+    RegisterRequest,
+    StartFactChallengeRequest,
+    StartFactChallengeResponse,
+    StartTestRequest,
+    StartTestResponse,
+    SubmitFactChallengeRequest,
+    SubmitFactChallengeResponse,
+    SubmitTestRequest,
+    SubmitTestResponse,
+    TestQuestion,
+    TimelineCitiesResponse,
+    TimelinePeriodsResponse,
+)
+from quiz_bank.database import (
+    authenticate_user,
+    check_email_exists,
+    check_username_exists,
+    create_user,
+    ensure_database,
+    fetch_random_quiz,
+    fetch_user_by_id,
+    fetch_user_by_email,
+    get_leaderboard,
+    seed_city_periods,
+    seed_city_period_content_if_empty,
+    seed_default_achievements,
+    seed_fact_challenges_if_empty,
+    seed_from_json_if_empty,
+    seed_timeline_periods,
+    upsert_player_city_progress,
+    upsert_google_user,
+    connect_db,
+    insert_test_result
+)
+from quiz_bank.constants import DEFAULT_PERIOD_DATA_PATH
+from quiz_bank.services import (
+    _utc_now_iso,
+    get_achievement_catalog_response,
+    get_app_bootstrap_response,
+    get_city_content_response,
+    get_city_content_summaries_response,
+    get_fact_challenge_progress_response,
+    get_map_state_response,
+    get_player_achievements_response,
+    get_player_progress_response,
+    get_timeline_cities_response,
+    get_timeline_periods_response,
+    start_fact_challenge,
+    start_test,
+    submit_fact_challenge,
+    submit_test,
+)
+
+
+def _load_dotenv_file(path: str = ".env") -> None:
+    if not os.path.exists(path):
+        return
+
+    with open(path, "r", encoding="utf-8") as env_file:
+        for raw_line in env_file:
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip("'\"")
+            if key:
+                os.environ.setdefault(key, value)
+
+
+_load_dotenv_file()
+
+DB_PATH = os.getenv("DB_PATH", "quizzes.db")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
+
+_openai_client: AsyncOpenAI | None = None
+
+
+def get_openai_client() -> AsyncOpenAI:
+    global _openai_client
+    if _openai_client is None:
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise HTTPException(
+                status_code=503,
+                detail="OPENAI_API_KEY is not configured on the server.",
+            )
+        _openai_client = AsyncOpenAI(api_key=api_key)
+    return _openai_client
+
+
+def verify_google_id_token(credential: str) -> dict[str, str]:
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(
+            status_code=503,
+            detail="Google sign-in is not configured on the server.",
+        )
+
+    try:
+        query = urlencode({"id_token": credential})
+        with urlopen(f"https://oauth2.googleapis.com/tokeninfo?{query}", timeout=10) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except Exception as error:
+        raise HTTPException(
+            status_code=401,
+            detail="Google sign-in token could not be verified.",
+        ) from error
+
+    if payload.get("aud") != GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=401, detail="Google token audience does not match this app.")
+
+    email = str(payload.get("email") or "").strip().lower()
+    if not email:
+        raise HTTPException(status_code=401, detail="Google account did not provide an email.")
+
+    if str(payload.get("email_verified", "")).lower() not in {"true", "1"}:
+        raise HTTPException(status_code=401, detail="Google email is not verified.")
+
+    subject = str(payload.get("sub") or "").strip()
+    if not subject:
+        raise HTTPException(status_code=401, detail="Google account id is missing.")
+
+    return {
+        "sub": subject,
+        "email": email,
+        "name": str(payload.get("name") or email.split("@", 1)[0]).strip(),
+        "picture": str(payload.get("picture") or "").strip(),
+    }
+
+
+def init_db() -> None:
+    ensure_database(DB_PATH)
+    seed_from_json_if_empty(DB_PATH, DEFAULT_PERIOD_DATA_PATH)
+    seed_timeline_periods(
+        DB_PATH,
+        created_at=datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+    )
+    seed_city_periods(DB_PATH)
+    seed_default_achievements(
+        DB_PATH,
+        created_at=datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+    )
+    seed_city_period_content_if_empty(DB_PATH)
+    seed_fact_challenges_if_empty(DB_PATH)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    init_db()
+    yield
+
+
+app = FastAPI(title="Kazakhstan Interactive Map API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.get("/api/quiz/static/{city}", response_model=QuizResponse)
+async def get_static_quiz(city: str) -> QuizResponse:
+    payload = fetch_random_quiz(DB_PATH, city)
+    if payload is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No quizzes found for city '{city}'.",
+        )
+    return QuizResponse(
+        question=payload["question"],
+        options=payload["options"],
+        correct_index=payload["correct_index"],
+        fact=payload["fact"]
+    )
+
+
+@app.post("/api/test/start", response_model=StartTestResponse)
+async def start_city_test(payload: StartTestRequest) -> StartTestResponse:
+    city_name = payload.city.strip()
+    if city_name == "ENT_MODE" or city_name == "ЕНТ":
+        print("!!! ENT MODE TRIGGERED !!!")
+        try:
+            abs_path = r"C:\Users\aldiy\Desktop\тесты 150.json"
+            with open(abs_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            
+            questions = data.get("questions", [])
+            if not questions:
+                raise HTTPException(status_code=500, detail="В файле не найдено вопросов.")
+            
+            count = min(20, len(questions))
+            selected = random.sample(questions, count)
+            session_id = f"ent-{uuid.uuid4()}"
+            
+            session_questions = []
+            for q in selected:
+                session_questions.append({
+                    "id": str(q["id"]),
+                    "question": q["question_text"],
+                    "options": q["options"],
+                    "correct_index": q["correct_index"],
+                })
+            
+            _ent_sessions[session_id] = session_questions
+            
+            return StartTestResponse(
+                test_session_id=session_id,
+                city="ЕНТ",
+                period_code="ENT",
+                questions=[
+                    TestQuestion(
+                        id=q["id"],
+                        question=q["question"],
+                        options=q["options"]
+                    ) for q in session_questions
+                ]
+            )
+        except Exception as e:
+            print(f"CRITICAL ERROR: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Ошибка при загрузке ЕНТ: {str(e)}")
+    
+    return start_test(DB_PATH, payload)
+
+
+@app.post("/api/test/submit", response_model=SubmitTestResponse)
+async def submit_city_test(payload: SubmitTestRequest) -> SubmitTestResponse:
+    print(f"DEBUG: submit_city_test received session_id: {payload.test_session_id}")
+    if payload.test_session_id.startswith("ent-"):
+        session_id = payload.test_session_id
+        if session_id not in _ent_sessions:
+            raise HTTPException(status_code=404, detail="Сессия ЕНТ не найдена.")
+            
+        questions = _ent_sessions[session_id]
+        correct_map = {q["id"]: q["correct_index"] for q in questions}
+        
+        correct_count = 0
+        for ans in payload.answers:
+            if ans.selected_index == correct_map.get(ans.question_id):
+                correct_count += 1
+                
+        total = len(questions)
+        percent = round((correct_count / total) * 100) if total > 0 else 0
+        
+        # Cleanup
+        del _ent_sessions[session_id]
+        
+        # Save to database
+        print(f"ENT SUBMIT: Starting save process for player_id='{payload.player_id}'")
+        try:
+            conn = connect_db(DB_PATH)
+            completed_at = _utc_now_iso()
+            passed = percent >= 70
+            
+            insert_test_result(
+                connection=conn,
+                player_id=payload.player_id,
+                city="ЕНТ",
+                period_code="ENT",
+                total_questions=total,
+                correct_answers=correct_count,
+                passed=passed,
+                completed_at=completed_at
+            )
+            
+            print(f"ENT SUBMIT: Calling upsert_player_city_progress...")
+            upsert_player_city_progress(
+                connection=conn,
+                player_id=payload.player_id,
+                city="ЕНТ",
+                period_code="ENT",
+                passed=passed,
+                score_percent=percent,
+                completed_at=completed_at
+            )
+            
+            print(f"ENT SUBMIT: Committing transaction...")
+            conn.commit()
+            conn.close()
+            print(f"ENT SUBMIT: DONE. Result saved successfully.")
+        except Exception as db_e:
+            print(f"!!! ENT SUBMIT CRITICAL DATABASE ERROR: {str(db_e)}")
+            import traceback
+            traceback.print_exc()
+            # Even if DB fails, we return the result to frontend to avoid "Failed to fetch"
+        
+        return SubmitTestResponse(
+            city="ЕНТ",
+            period_code="ENT",
+            correct_answers=correct_count,
+            total_questions=total,
+            score_percent=percent,
+            passed=percent >= 70,
+            unlocked_achievements=[],
+            all_player_achievements_count=0
+        )
+        
+    try:
+        return submit_test(DB_PATH, payload)
+    except HTTPException as e:
+        # Добавляем метку, чтобы понять, какой код выполняется
+        if "missing quiz questions" in str(e.detail):
+            e.detail = f"[MAIN_PY_FIXED] {e.detail}"
+        raise e
+
+
+@app.get("/api/achievements/catalog", response_model=AchievementCatalogResponse)
+async def achievement_catalog() -> AchievementCatalogResponse:
+    return get_achievement_catalog_response(DB_PATH)
+
+
+@app.get("/api/achievements/{player_id}", response_model=PlayerAchievementsResponse)
+async def player_achievements(player_id: str) -> PlayerAchievementsResponse:
+    return get_player_achievements_response(DB_PATH, player_id)
+
+
+@app.get("/api/progress/{player_id}", response_model=PlayerProgressResponse)
+async def player_progress(player_id: str) -> PlayerProgressResponse:
+    return get_player_progress_response(DB_PATH, player_id)
+
+
+@app.get("/api/timeline/periods", response_model=TimelinePeriodsResponse)
+async def timeline_periods() -> TimelinePeriodsResponse:
+    return get_timeline_periods_response(DB_PATH)
+
+
+@app.get("/api/timeline/cities/{period_code}", response_model=TimelineCitiesResponse)
+async def timeline_cities(period_code: str) -> TimelineCitiesResponse:
+    return get_timeline_cities_response(DB_PATH, period_code)
+
+
+@app.get("/api/city-content/{period_code}", response_model=CityContentSummariesResponse)
+async def city_content_by_period(period_code: str) -> CityContentSummariesResponse:
+    return get_city_content_summaries_response(DB_PATH, period_code)
+
+
+@app.get(
+    "/api/city-content/{period_code}/{city}",
+    response_model=CityContentResponse,
+)
+async def city_content(period_code: str, city: str) -> CityContentResponse:
+    return get_city_content_response(DB_PATH, period_code, city)
+
+
+@app.post(
+    "/api/fact-challenge/start",
+    response_model=StartFactChallengeResponse,
+)
+async def start_fact_game(payload: StartFactChallengeRequest) -> StartFactChallengeResponse:
+    return start_fact_challenge(DB_PATH, payload)
+
+
+@app.post(
+    "/api/fact-challenge/submit",
+    response_model=SubmitFactChallengeResponse,
+)
+async def submit_fact_game(
+    payload: SubmitFactChallengeRequest,
+) -> SubmitFactChallengeResponse:
+    return submit_fact_challenge(DB_PATH, payload)
+
+
+@app.get(
+    "/api/fact-challenge/progress/{player_id}",
+    response_model=FactChallengeProgressResponse,
+)
+async def fact_challenge_progress(player_id: str) -> FactChallengeProgressResponse:
+    return get_fact_challenge_progress_response(DB_PATH, player_id)
+
+
+@app.get("/api/app/bootstrap/{player_id}", response_model=AppBootstrapResponse)
+async def app_bootstrap(player_id: str) -> AppBootstrapResponse:
+    return get_app_bootstrap_response(DB_PATH, player_id)
+
+
+@app.get("/api/map-state/{player_id}/{period_code}", response_model=MapStateResponse)
+async def map_state(player_id: str, period_code: str) -> MapStateResponse:
+    return get_map_state_response(DB_PATH, player_id, period_code)
+
+
+SYSTEM_PROMPT = (
+    "Ты создаёшь один школьный вопрос-викторину о городе Казахстана. "
+    "Верни строго JSON-объект без markdown и без пояснений. "
+    "Все тексты должны быть только на русском языке. "
+    "Схема ответа: "
+    '{"question":"...", "options":["...","...","...","..."], "correct_index":0, "fact":"..."} '
+    "Вариантов ответа должно быть ровно 4, правильный ответ — только один, "
+    "fact должен быть коротким и понятным."
+)
+
+
+@app.get("/api/quiz/dynamic/{city}", response_model=QuizResponse)
+async def get_dynamic_quiz(city: str) -> QuizResponse:
+    try:
+        completion = await get_openai_client().chat.completions.create(
+            model=OPENAI_MODEL,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {
+                    "role": "user",
+                    "content": (
+                        "Сгенерируй один простой вопрос о городе Казахстана: "
+                        f"{city}."
+                    ),
+                },
+            ],
+            temperature=0.5,
+        )
+    except OpenAIError as error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"OpenAI API error: {error}",
+        ) from error
+
+    raw = completion.choices[0].message.content or ""
+    try:
+        payload = json.loads(raw)
+        return QuizResponse(**payload)
+    except (json.JSONDecodeError, ValidationError, TypeError) as error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Malformed quiz returned by the model: {error}",
+        ) from error
+
+
+# --- ENT Test (from local JSON file) ---
+
+ENT_QUESTIONS_PATH = os.path.join(os.path.dirname(__file__), "data", "ent_questions.json")
+_ent_questions: list[dict] | None = None
+_ent_sessions: dict[str, list[dict]] = {}
+
+
+def _load_ent_questions() -> list[dict]:
+    global _ent_questions
+    if _ent_questions is None:
+        with open(ENT_QUESTIONS_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        _ent_questions = data.get("questions", [])
+    return _ent_questions
+
+
+@app.post("/api/ent/start")
+async def start_ent_test(payload: dict) -> dict:
+    print(f"DEBUG: ENT test start requested with payload: {payload}")
+    questions = _load_ent_questions()
+    print(f"DEBUG: Loaded {len(questions)} ENT questions")
+    if not questions:
+        raise HTTPException(status_code=500, detail="Нет вопросов для ЕНТ теста.")
+
+    count = min(payload.get("question_count", 25), len(questions))
+    selected = random.sample(questions, count)
+    session_id = f"ent-{uuid.uuid4()}"
+
+    session_questions = []
+    for q in selected:
+        session_questions.append({
+            "id": q["id"],
+            "question": q["question_text"],
+            "options": q["options"],
+            "correct_index": q["correct_index"],
+            "topic": q.get("topic", ""),
+            "difficulty": q.get("difficulty", ""),
+        })
+
+    _ent_sessions[session_id] = session_questions
+
+    # Return questions without correct_index to the frontend
+    return {
+        "test_session_id": session_id,
+        "total_questions": len(session_questions),
+        "questions": [
+            {
+                "id": q["id"],
+                "question": q["question"],
+                "options": q["options"],
+                "topic": q["topic"],
+                "difficulty": q["difficulty"],
+            }
+            for q in session_questions
+        ],
+    }
+
+
+@app.post("/api/ent/submit")
+async def submit_ent_test(payload: dict) -> dict:
+    session_id = payload.get("test_session_id")
+    answers = payload.get("answers", [])
+
+    if session_id not in _ent_sessions:
+        raise HTTPException(status_code=404, detail="Сессия теста не найдена.")
+
+    questions = _ent_sessions[session_id]
+    correct_map = {q["id"]: q["correct_index"] for q in questions}
+
+    correct_count = 0
+    details = []
+    for ans in answers:
+        qid = ans.get("question_id")
+        selected = ans.get("selected_index")
+        expected = correct_map.get(qid)
+        is_correct = selected == expected
+        if is_correct:
+            correct_count += 1
+        details.append({
+            "question_id": qid,
+            "selected_index": selected,
+            "correct_index": expected,
+            "is_correct": is_correct,
+        })
+
+    total = len(questions)
+    percent = round((correct_count / total) * 100) if total > 0 else 0
+
+    # Clean up session
+    del _ent_sessions[session_id]
+
+    player_id = str(payload.get("player_id") or "").strip()
+    if player_id:
+        conn = None
+        try:
+            conn = connect_db(DB_PATH)
+            completed_at = _utc_now_iso()
+            passed = percent >= 50
+            with conn:
+                insert_test_result(
+                    connection=conn,
+                    player_id=player_id,
+                    city="ЕНТ",
+                    period_code="ENT",
+                    total_questions=total,
+                    correct_answers=correct_count,
+                    passed=passed,
+                    completed_at=completed_at,
+                )
+                upsert_player_city_progress(
+                    connection=conn,
+                    player_id=player_id,
+                    city="ЕНТ",
+                    period_code="ENT",
+                    passed=passed,
+                    score_percent=percent,
+                    completed_at=completed_at,
+                )
+        except Exception as error:
+            print(f"ENT submit save failed: {error}")
+        finally:
+            if conn is not None:
+                conn.close()
+
+    return {
+        "correct_answers": correct_count,
+        "total_questions": total,
+        "score_percent": percent,
+        "passed": percent >= 50,
+        "details": details,
+    }
+
+
+@app.get("/api/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+# --- Auth & Leaderboard ---
+
+
+@app.post("/api/auth/register", response_model=AuthResponse)
+async def register(payload: RegisterRequest) -> AuthResponse:
+    if check_email_exists(DB_PATH, payload.email):
+        raise HTTPException(status_code=409, detail="Аккаунт с этой почтой уже существует. Войдите в аккаунт.")
+    if check_username_exists(DB_PATH, payload.username):
+        raise HTTPException(status_code=409, detail="Имя пользователя уже занято.")
+
+    import uuid
+
+    user_id = f"player-{uuid.uuid4()}"
+    try:
+        user = create_user(DB_PATH, user_id, payload.username, payload.email, payload.password)
+    except sqlite3.IntegrityError as error:
+        message = str(error).lower()
+        if "email" in message or "users_email" in message:
+            raise HTTPException(
+                status_code=409,
+                detail="Аккаунт с этой почтой уже существует. Войдите в аккаунт.",
+            ) from error
+        if "username" in message or "users_username" in message:
+            raise HTTPException(status_code=409, detail="Имя пользователя уже занято.") from error
+        raise
+    return AuthResponse(**user)
+
+
+@app.post("/api/auth/login", response_model=AuthResponse)
+async def login(payload: LoginRequest) -> AuthResponse:
+    user = authenticate_user(DB_PATH, payload.email, payload.password)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Неверный email или пароль.")
+    return AuthResponse(**user)
+
+
+@app.get("/api/auth/google/config", response_model=GoogleAuthConfigResponse)
+async def google_auth_config() -> GoogleAuthConfigResponse:
+    return GoogleAuthConfigResponse(
+        enabled=bool(GOOGLE_CLIENT_ID),
+        client_id=GOOGLE_CLIENT_ID or None,
+    )
+
+
+@app.post("/api/auth/google", response_model=AuthResponse)
+async def google_auth(payload: GoogleAuthRequest) -> AuthResponse:
+    google_profile = verify_google_id_token(payload.credential)
+    user_id = f"player-{uuid.uuid4()}"
+    user = upsert_google_user(
+        DB_PATH,
+        user_id=user_id,
+        email=google_profile["email"],
+        username=google_profile["name"],
+        google_sub=google_profile["sub"],
+        avatar_url=google_profile["picture"] or None,
+    )
+    return AuthResponse(**user)
+
+
+@app.post("/api/auth/resolve", response_model=AuthResponse)
+async def resolve_auth(payload: AuthResolveRequest) -> AuthResponse:
+    user = fetch_user_by_id(DB_PATH, payload.id) if payload.id else None
+    if user is None and payload.email:
+        user = fetch_user_by_email(DB_PATH, payload.email)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Пользователь не найден.")
+    return AuthResponse(**user)
+
+
+@app.get("/api/auth/profile/{user_id}", response_model=AuthResponse)
+async def get_profile(user_id: str) -> AuthResponse:
+    user = fetch_user_by_id(DB_PATH, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Пользователь не найден.")
+    return AuthResponse(**user)
+
+
+@app.get("/api/leaderboard", response_model=LeaderboardResponse)
+async def leaderboard() -> LeaderboardResponse:
+    entries = get_leaderboard(DB_PATH, limit=50)
+    return LeaderboardResponse(entries=entries)
+
+
+@app.get("/", include_in_schema=False)
+async def frontend_index() -> RedirectResponse:
+    return RedirectResponse(url="/registration/code.html")
+
+
+if FRONTEND_DIR.exists():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

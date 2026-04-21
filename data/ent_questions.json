@@ -1,0 +1,1358 @@
+{
+  "version": "1.0",
+  "subject": "history_of_kazakhstan",
+  "language": "ru",
+  "total_questions": 150,
+  "questions": [
+    {
+      "id": "hkz_0001",
+      "topic": "ancient_history",
+      "subtopic": "stone_age_periodization",
+      "difficulty": "easy",
+      "question_text": "Какой период каменного века был самым древним?",
+      "options": ["Мезолит", "Неолит", "Палеолит", "Энеолит"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0002",
+      "topic": "ancient_history",
+      "subtopic": "botai_culture",
+      "difficulty": "easy",
+      "question_text": "Стоянка Ботай известна прежде всего как памятник, связанный с...",
+      "options": ["выплавкой железа", "одомашниванием лошади", "строительством городов", "возникновением письменности"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0003",
+      "topic": "ancient_history",
+      "subtopic": "eneolithic_age",
+      "difficulty": "easy",
+      "question_text": "Каким металлом люди начали широко пользоваться в эпоху энеолита?",
+      "options": ["Железом", "Серебром", "Оловом", "Медью"],
+      "correct_index": 3
+    },
+    {
+      "id": "hkz_0004",
+      "topic": "ancient_history",
+      "subtopic": "eneolithic_transition",
+      "difficulty": "easy",
+      "question_text": "Как называется переходный период между каменным и бронзовым веками?",
+      "options": ["Палеолит", "Энеолит", "Железный век", "Мезолит"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0005",
+      "topic": "ancient_history",
+      "subtopic": "petroglyphs",
+      "difficulty": "easy",
+      "question_text": "Где находится один из крупнейших центров наскального искусства Казахстана, известный как Тамгалы?",
+      "options": ["Мангистау", "Прииртышье", "Жетысу", "Приаралье"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0006",
+      "topic": "ancient_history",
+      "subtopic": "andronovo_economy",
+      "difficulty": "medium",
+      "question_text": "Для андроновской культуры наиболее характерным видом хозяйства было...",
+      "options": ["только охота", "морское рыболовство", "земледельческо-скотоводческое хозяйство", "плантационное земледелие"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0007",
+      "topic": "ancient_history",
+      "subtopic": "bronze_age_culture",
+      "difficulty": "medium",
+      "question_text": "Какая археологическая культура эпохи бронзы была широко распространена на территории Казахстана?",
+      "options": ["Андроновская", "Ботайская", "Срубная", "Тасмолинская"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0008",
+      "topic": "ancient_history",
+      "subtopic": "begazy_dandybay",
+      "difficulty": "medium",
+      "question_text": "Беғазы-Дандыбаевская культура относится к...",
+      "options": ["раннему палеолиту", "поздней бронзе", "раннему средневековью", "эпохе железа"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0009",
+      "topic": "ancient_history",
+      "subtopic": "anthropology_bronze_age",
+      "difficulty": "medium",
+      "question_text": "Какой антропологический тип преобладал у населения Казахстана в эпоху бронзы?",
+      "options": ["Австралоидный", "Европеоидный", "Негроидный", "Американоидный"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0010",
+      "topic": "ancient_history",
+      "subtopic": "botai_findings",
+      "difficulty": "medium",
+      "question_text": "Для памятников Ботайской культуры особенно характерно обнаружение...",
+      "options": ["большого количества костей лошади", "каменных статуй балбалов", "рунических надписей", "монет с арабской вязью"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0011",
+      "topic": "ancient_history",
+      "subtopic": "archaeologists",
+      "difficulty": "hard",
+      "question_text": "Какой ученый исследовал и выделил Беғазы-Дандыбаевскую культуру?",
+      "options": ["Чокан Валиханов", "Алькей Маргулан", "Каныш Сатпаев", "Мухтар Ауэзов"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0012",
+      "topic": "ancient_history",
+      "subtopic": "funerary_architecture",
+      "difficulty": "hard",
+      "question_text": "Какая особенность наиболее характерна для погребальных сооружений Беғазы-Дандыбаевской культуры?",
+      "options": ["деревянные курени", "монументальные каменные мавзолеи", "ледяные усыпальницы", "кирпичные минареты"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0013",
+      "topic": "early_nomads",
+      "subtopic": "saka_tomyris",
+      "difficulty": "easy",
+      "question_text": "Кто возглавил саков в борьбе против персидского царя Кира?",
+      "options": ["Томирис", "Спитамен", "Аттила", "Ширак"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0014",
+      "topic": "early_nomads",
+      "subtopic": "golden_man",
+      "difficulty": "easy",
+      "question_text": "В каком кургане был найден знаменитый «Золотой человек»?",
+      "options": ["Берельском", "Иссыкском", "Бесшатырском", "Шиликтинском"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0015",
+      "topic": "early_nomads",
+      "subtopic": "saka_economy",
+      "difficulty": "easy",
+      "question_text": "Основным видом хозяйства саков было...",
+      "options": ["кочевое скотоводство", "мореплавание", "чайное земледелие", "мануфактурное производство"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0016",
+      "topic": "early_nomads",
+      "subtopic": "animal_style",
+      "difficulty": "easy",
+      "question_text": "Какой художественный стиль характерен для сакского искусства?",
+      "options": ["Готический", "Барокко", "Звериный", "Классицистический"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0017",
+      "topic": "early_nomads",
+      "subtopic": "usun_location",
+      "difficulty": "easy",
+      "question_text": "Где в основном проживали усуни?",
+      "options": ["В Жетысу", "В Северном Причерноморье", "В Нижнем Поволжье", "На Алтае"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0018",
+      "topic": "early_nomads",
+      "subtopic": "saka_groups",
+      "difficulty": "medium",
+      "question_text": "Как в персидских источниках называли саков в остроконечных головных уборах?",
+      "options": ["Парадарайя", "Хаумаварга", "Тиграхауда", "Массагеты"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0019",
+      "topic": "early_nomads",
+      "subtopic": "usun_ruler",
+      "difficulty": "medium",
+      "question_text": "Как назывался титул правителя усуней в китайских источниках?",
+      "options": ["Шаньюй", "Гуньмо", "Каган", "Гурхан"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0020",
+      "topic": "early_nomads",
+      "subtopic": "usun_capital",
+      "difficulty": "medium",
+      "question_text": "Столицей государства усуней был город...",
+      "options": ["Суяб", "Янгикент", "Чигучен", "Тараз"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0021",
+      "topic": "early_nomads",
+      "subtopic": "kangju",
+      "difficulty": "medium",
+      "question_text": "Какое объединение племен проживало в Приаралье и среднем течении Сырдарьи?",
+      "options": ["Усуни", "Кангюй", "Найманы", "Кереи"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0022",
+      "topic": "early_nomads",
+      "subtopic": "huns_mode",
+      "difficulty": "medium",
+      "question_text": "Кто объединил гуннские племена в конце III века до н. э.?",
+      "options": ["Модэ", "Кир", "Дарий I", "Бумын"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0023",
+      "topic": "early_nomads",
+      "subtopic": "shirak",
+      "difficulty": "hard",
+      "question_text": "Какой сакский герой, по преданию, завел войско Дария I в безводную степь, пожертвовав собой ради спасения народа?",
+      "options": ["Ширак", "Томирис", "Модэ", "Анахарсис"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0024",
+      "topic": "early_nomads",
+      "subtopic": "kangju_chinese_sources",
+      "difficulty": "hard",
+      "question_text": "Какой союз племен в китайских источниках именовался «Канцзюй»?",
+      "options": ["Усуни", "Кангюй", "Саки", "Тюргеши"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0025",
+      "topic": "turkic_states",
+      "subtopic": "first_turkic_khaganate",
+      "difficulty": "easy",
+      "question_text": "Как называлось первое государство тюрков, возникшее в VI веке?",
+      "options": ["Огузское государство", "Тюркский каганат", "Караханидское государство", "Кыпчакское ханство"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0026",
+      "topic": "turkic_states",
+      "subtopic": "bumyn",
+      "difficulty": "easy",
+      "question_text": "Кто считается основателем Тюркского каганата?",
+      "options": ["Бумын каган", "Сулу каган", "Кутлуг", "Тоньюкук"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0027",
+      "topic": "turkic_states",
+      "subtopic": "split_khaganate",
+      "difficulty": "easy",
+      "question_text": "Какие государства образовались после распада единого Тюркского каганата?",
+      "options": ["Западно-Тюркский и Восточно-Тюркский каганаты", "Караханидское и Кыпчакское ханства", "Ак Орда и Золотая Орда", "Могулистан и Ногайская Орда"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0028",
+      "topic": "turkic_states",
+      "subtopic": "suyab",
+      "difficulty": "easy",
+      "question_text": "Столицей Западно-Тюркского каганата был город...",
+      "options": ["Отрар", "Суяб", "Сыгнак", "Сауран"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0029",
+      "topic": "turkic_states",
+      "subtopic": "tengri_belief",
+      "difficulty": "easy",
+      "question_text": "Кого древние тюрки почитали верховным небесным божеством?",
+      "options": ["Тенгри", "Зевса", "Шиву", "Ра"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0030",
+      "topic": "turkic_states",
+      "subtopic": "on_ok_budun",
+      "difficulty": "medium",
+      "question_text": "Племенной союз «он ок будун» был связан с...",
+      "options": ["Огузским государством", "Западно-Тюркским каганатом", "Кимакским каганатом", "Караханидским государством"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0031",
+      "topic": "turkic_states",
+      "subtopic": "turgesh_sulu",
+      "difficulty": "medium",
+      "question_text": "Кто укрепил государство тюргешей в первой половине VIII века?",
+      "options": ["Сулу каган", "Бумын каган", "Касым хан", "Есим хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0032",
+      "topic": "turkic_states",
+      "subtopic": "atlakh_year",
+      "difficulty": "medium",
+      "question_text": "В каком году произошла Атлахская битва?",
+      "options": ["603", "704", "751", "840"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0033",
+      "topic": "turkic_states",
+      "subtopic": "carluks_atlakh",
+      "difficulty": "medium",
+      "question_text": "Какие племена сыграли важную роль в исходе Атлахской битвы на стороне арабов?",
+      "options": ["Кыпчаки", "Карлуки", "Найманы", "Каракитаи"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0034",
+      "topic": "turkic_states",
+      "subtopic": "oguz_yangikent",
+      "difficulty": "medium",
+      "question_text": "Какое государство имело столицу в Янгикенте?",
+      "options": ["Огузское государство", "Тюргешский каганат", "Карлукский каганат", "Кимакский каганат"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0035",
+      "topic": "turkic_states",
+      "subtopic": "orkhon_inscriptions",
+      "difficulty": "hard",
+      "question_text": "Как называются памятники древнетюркской письменности, найденные в долине Орхона?",
+      "options": ["Клинописные таблички", "Орхон-Енисейские надписи", "Берестяные грамоты", "Манихейские кодексы"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0036",
+      "topic": "turkic_states",
+      "subtopic": "carluk_khaganate",
+      "difficulty": "hard",
+      "question_text": "Какое государство образовалось в Жетысу в 756 году после падения Тюргешского каганата?",
+      "options": ["Карлукский каганат", "Огузское государство", "Караханидское государство", "Найманское ханство"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0037",
+      "topic": "medieval_states",
+      "subtopic": "karakhanids_islam",
+      "difficulty": "easy",
+      "question_text": "Какое государство стало первым мусульманским государством на территории Казахстана?",
+      "options": ["Караханидское государство", "Кимакский каганат", "Огузское государство", "Ак Орда"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0038",
+      "topic": "medieval_states",
+      "subtopic": "satuk_bogra",
+      "difficulty": "easy",
+      "question_text": "Кто из правителей Караханидов принял ислам и способствовал его укреплению?",
+      "options": ["Сатук Богра хан", "Урус хан", "Тохтамыш", "Керей хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0039",
+      "topic": "medieval_states",
+      "subtopic": "balasagun",
+      "difficulty": "easy",
+      "question_text": "Одним из главных центров Караханидского государства был город...",
+      "options": ["Баласагун", "Сарай-Бату", "Отырар", "Сыгнак"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0040",
+      "topic": "medieval_states",
+      "subtopic": "kimaks_location",
+      "difficulty": "easy",
+      "question_text": "Государство кимаков располагалось преимущественно в...",
+      "options": ["Прииртышье и Северо-Восточном Казахстане", "Южном Казахстане и Фергане", "Нижнем Поволжье", "Крыму"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0041",
+      "topic": "medieval_states",
+      "subtopic": "kipchaks",
+      "difficulty": "easy",
+      "question_text": "Какая конфедерация в XI–XIII веках занимала степи от Иртыша до Волги?",
+      "options": ["Карлуки", "Кыпчаки", "Каракитаи", "Огузы"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0042",
+      "topic": "medieval_states",
+      "subtopic": "polovtsy",
+      "difficulty": "medium",
+      "question_text": "Как в русских летописях называли кыпчаков?",
+      "options": ["Половцы", "Печенеги", "Булгары", "Авары"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0043",
+      "topic": "medieval_states",
+      "subtopic": "desht_i_kipchak",
+      "difficulty": "medium",
+      "question_text": "Как называлась территория расселения кыпчаков в средневековых источниках?",
+      "options": ["Мавераннахр", "Дешт-и-Кыпчак", "Жетысу", "Семиречье Алатау"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0044",
+      "topic": "medieval_states",
+      "subtopic": "karakitai_overlordship",
+      "difficulty": "medium",
+      "question_text": "Какое государство в XII веке подчинило Караханидов?",
+      "options": ["Ак Орда", "Каракитайское государство", "Тюркский каганат", "Ногайская Орда"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0045",
+      "topic": "medieval_states",
+      "subtopic": "imakia",
+      "difficulty": "medium",
+      "question_text": "Какой город был столицей или важнейшим центром кимакского государства?",
+      "options": ["Суяб", "Имакия", "Янгикент", "Тараз"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0046",
+      "topic": "medieval_states",
+      "subtopic": "kutadgu_bilig",
+      "difficulty": "medium",
+      "question_text": "Кто является автором труда «Кутадгу билиг»?",
+      "options": ["Махмуд Кашгари", "Ахмед Яссауи", "Юсуф Баласагуни", "Мухаммед Хайдар Дулати"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0047",
+      "topic": "medieval_states",
+      "subtopic": "divan_lugat_at_turk",
+      "difficulty": "hard",
+      "question_text": "Какой ученый XI века создал труд «Диван лугат ат-турк»?",
+      "options": ["Юсуф Баласагуни", "Махмуд Кашгари", "Ахмед Яссауи", "Аль-Фараби"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0048",
+      "topic": "medieval_states",
+      "subtopic": "gurkhan_title",
+      "difficulty": "hard",
+      "question_text": "Как называли верховного правителя каракитаев?",
+      "options": ["Каган", "Гурхан", "Хан", "Эмир"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0049",
+      "topic": "mongol_postmongol",
+      "subtopic": "mongol_conquest",
+      "difficulty": "easy",
+      "question_text": "В каком году монголы начали завоевание Средней Азии?",
+      "options": ["1206", "1211", "1219", "1227"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0050",
+      "topic": "mongol_postmongol",
+      "subtopic": "ulus_of_jochi",
+      "difficulty": "easy",
+      "question_text": "Как назывался улус, в который вошла большая часть территории Казахстана после монгольского завоевания?",
+      "options": ["Улус Чагатая", "Улус Джучи", "Улус Угэдэя", "Улус Хубилая"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0051",
+      "topic": "mongol_postmongol",
+      "subtopic": "golden_horde_capital",
+      "difficulty": "easy",
+      "question_text": "Столицей Золотой Орды был город...",
+      "options": ["Баласагун", "Тараз", "Сарай-Бату", "Туркестан"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0052",
+      "topic": "mongol_postmongol",
+      "subtopic": "moghulistan",
+      "difficulty": "easy",
+      "question_text": "Как называлось государство, образованное в XIV веке в Жетысу и Восточном Туркестане?",
+      "options": ["Могулистан", "Караханидское государство", "Кимакский каганат", "Огузское государство"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0053",
+      "topic": "mongol_postmongol",
+      "subtopic": "urus_khan",
+      "difficulty": "medium",
+      "question_text": "Какой хан Белой Орды значительно усилил это государство в XIV веке?",
+      "options": ["Урус хан", "Барак хан", "Есим хан", "Нуралы хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0054",
+      "topic": "mongol_postmongol",
+      "subtopic": "nogai_orda",
+      "difficulty": "medium",
+      "question_text": "Ногайская Орда получила свое название по имени...",
+      "options": ["Ногая", "Нуралы", "Наяна", "Наймана"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0055",
+      "topic": "mongol_postmongol",
+      "subtopic": "ak_orda",
+      "difficulty": "medium",
+      "question_text": "Какая часть улуса Джучи называлась Ак Ордой?",
+      "options": ["Западная часть", "Южная часть", "Восточная часть", "Северная часть"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0056",
+      "topic": "mongol_postmongol",
+      "subtopic": "moghulistan_origin",
+      "difficulty": "medium",
+      "question_text": "Какое государство возникло на территории между Сырдарьей и Жетысу после распада Чагатайского улуса?",
+      "options": ["Могулистан", "Ногайская Орда", "Каракитайское государство", "Огузское государство"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0057",
+      "topic": "mongol_postmongol",
+      "subtopic": "decimal_system",
+      "difficulty": "medium",
+      "question_text": "Как называлась монгольская система организации войска и населения по десяткам, сотням и тысячам?",
+      "options": ["Уделенная система", "Десятичная система", "Вассальная система", "Городская система"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0058",
+      "topic": "mongol_postmongol",
+      "subtopic": "timur_tokhtamysh",
+      "difficulty": "hard",
+      "question_text": "Кто нанес поражение Тохтамышу и ускорил ослабление Золотой Орды?",
+      "options": ["Керей хан", "Есим хан", "Амир Темир", "Сатук Богра хан"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0059",
+      "topic": "mongol_postmongol",
+      "subtopic": "tokhtamysh",
+      "difficulty": "hard",
+      "question_text": "Какой хан сумел временно объединить Белую и Синюю Орду и восстановить влияние Золотой Орды?",
+      "options": ["Тохтамыш", "Урус хан", "Батый", "Жанибек хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0060",
+      "topic": "mongol_postmongol",
+      "subtopic": "yasa",
+      "difficulty": "hard",
+      "question_text": "Как назывался свод норм монгольского права, традиционно связываемый с именем Чингисхана?",
+      "options": ["Жеты Жаргы", "Яса", "Каска жол", "Шариат"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0061",
+      "topic": "kazakh_khanate",
+      "subtopic": "founders",
+      "difficulty": "easy",
+      "question_text": "Кто считается основателями Казахского ханства?",
+      "options": ["Керей и Жанибек", "Касым и Хакназар", "Абылай и Абулхаир", "Тауке и Есим"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0062",
+      "topic": "kazakh_khanate",
+      "subtopic": "foundation_year",
+      "difficulty": "easy",
+      "question_text": "Какой год принято считать годом образования Казахского ханства?",
+      "options": ["1219", "1465", "1511", "1731"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0063",
+      "topic": "kazakh_khanate",
+      "subtopic": "western_zhetysu",
+      "difficulty": "easy",
+      "question_text": "Какая территория стала центром образования Казахского ханства?",
+      "options": ["Западное Жетысу", "Прикаспийская низменность", "Прииртышье", "Мангистау"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0064",
+      "topic": "kazakh_khanate",
+      "subtopic": "kasym_khan",
+      "difficulty": "easy",
+      "question_text": "Какой хан значительно расширил территорию Казахского ханства в начале XVI века?",
+      "options": ["Касым хан", "Болат хан", "Кенесары хан", "Нуралы хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0065",
+      "topic": "kazakh_khanate",
+      "subtopic": "qasym_laws",
+      "difficulty": "easy",
+      "question_text": "Как назывался свод законов Касыма хана?",
+      "options": ["Жеты Жаргы", "Касым ханның қасқа жолы", "Есім ханның ескі жолы", "Яса"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0066",
+      "topic": "kazakh_khanate",
+      "subtopic": "tauke_laws",
+      "difficulty": "easy",
+      "question_text": "Какой хан ввел свод законов «Жеты Жаргы»?",
+      "options": ["Есим хан", "Абылай хан", "Тауке хан", "Керей хан"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0067",
+      "topic": "kazakh_khanate",
+      "subtopic": "tauke_stability",
+      "difficulty": "easy",
+      "question_text": "При каком хане Казахское ханство достигло наибольшей политической стабильности в конце XVII века?",
+      "options": ["Тауке хане", "Болат хане", "Жангир хане", "Нуралы хане"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0068",
+      "topic": "kazakh_khanate",
+      "subtopic": "turkestan_center",
+      "difficulty": "medium",
+      "question_text": "Какой город был важным политическим центром Казахского ханства на Сырдарье?",
+      "options": ["Туркестан", "Верный", "Сарай-Бату", "Янгикент"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0069",
+      "topic": "kazakh_khanate",
+      "subtopic": "tauyekel",
+      "difficulty": "medium",
+      "question_text": "Какой хан известен активной борьбой за города Южного Казахстана и походом на Бухару в конце XVI века?",
+      "options": ["Тауекель хан", "Болат хан", "Керей хан", "Айшуак хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0070",
+      "topic": "kazakh_khanate",
+      "subtopic": "janibek_son",
+      "difficulty": "medium",
+      "question_text": "Кто был сыном Жанибека и одним из наиболее влиятельных ханов XVI века?",
+      "options": ["Касым хан", "Есим хан", "Абылай хан", "Кенесары хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0071",
+      "topic": "kazakh_khanate",
+      "subtopic": "esim_laws",
+      "difficulty": "medium",
+      "question_text": "Как назывался свод законов Есима хана?",
+      "options": ["Жеты Жаргы", "Яса Чингисхана", "Есім ханның ескі жолы", "Касым ханның қасқа жолы"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0072",
+      "topic": "kazakh_khanate",
+      "subtopic": "great_disaster",
+      "difficulty": "medium",
+      "question_text": "Какой хан правил в годы начала джунгарского нашествия 1723 года, известного как «Ақтабан шұбырынды, Алқакөл сұлама»?",
+      "options": ["Болат хан", "Тауке хан", "Касым хан", "Керей хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0073",
+      "topic": "kazakh_khanate",
+      "subtopic": "bogenbay_batyr",
+      "difficulty": "medium",
+      "question_text": "Какой батыр прославился как один из выдающихся полководцев в борьбе казахов с джунгарами?",
+      "options": ["Бөгенбай батыр", "Сырым Датулы", "Исатай Тайманов", "Есет Котибарулы"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0074",
+      "topic": "kazakh_khanate",
+      "subtopic": "abulkhair_russia",
+      "difficulty": "medium",
+      "question_text": "Кто был ханом Младшего жуза, начавшим переговоры о принятии российского подданства?",
+      "options": ["Абулхаир хан", "Абылай хан", "Тауке хан", "Хакназар хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0075",
+      "topic": "kazakh_khanate",
+      "subtopic": "haqnazar",
+      "difficulty": "hard",
+      "question_text": "Какой хан правил в 1538–1580 годах и восстановил позиции Казахского ханства после периода междоусобиц?",
+      "options": ["Хакназар хан", "Болат хан", "Айшуак хан", "Нуралы хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0076",
+      "topic": "kazakh_khanate",
+      "subtopic": "tauyekel_campaign",
+      "difficulty": "hard",
+      "question_text": "Какой хан вел борьбу с Бухарским ханством и умер после похода на Бухару?",
+      "options": ["Тауекель хан", "Касым хан", "Есим хан", "Тауке хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0077",
+      "topic": "kazakh_khanate",
+      "subtopic": "dzungar_invasion",
+      "difficulty": "hard",
+      "question_text": "Какой джунгарский правитель вторгся в казахские земли в 1723 году, начав годы великого бедствия?",
+      "options": ["Галдан Бошокту", "Цэван-Рабдан", "Амурсана", "Кутлуг"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0078",
+      "topic": "kazakh_khanate",
+      "subtopic": "anyrakai_battle",
+      "difficulty": "hard",
+      "question_text": "Какая битва 1729–1730 годов стала крупной победой казахского ополчения над джунгарами?",
+      "options": ["Аныракайская битва", "Атлахская битва", "Орбулакская битва", "Булантинская битва"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0079",
+      "topic": "russian_imperial_period",
+      "subtopic": "junior_zhuz_1731",
+      "difficulty": "easy",
+      "question_text": "В каком году Младший жуз принял подданство России?",
+      "options": ["1718", "1731", "1822", "1868"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0080",
+      "topic": "russian_imperial_period",
+      "subtopic": "zailiyskoye_fortification",
+      "difficulty": "easy",
+      "question_text": "Как называлось военное укрепление, основанное в 1854 году на месте будущего Алматы?",
+      "options": ["Заилийское", "Верный", "Капальское", "Пишпекское"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0081",
+      "topic": "russian_imperial_period",
+      "subtopic": "speransky_charter_1822",
+      "difficulty": "easy",
+      "question_text": "Какой документ 1822 года ликвидировал ханскую власть в Среднем жузе?",
+      "options": ["Устав о сибирских киргизах", "Жеты Жаргы", "Временное положение 1867 года", "Манифест 1905 года"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0082",
+      "topic": "russian_imperial_period",
+      "subtopic": "speransky",
+      "difficulty": "easy",
+      "question_text": "Кто подготовил «Устав о сибирских киргизах»?",
+      "options": ["П. А. Столыпин", "М. М. Сперанский", "И. Кириллов", "В. Н. Татищев"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0083",
+      "topic": "russian_imperial_period",
+      "subtopic": "junior_zhuz_1824",
+      "difficulty": "easy",
+      "question_text": "В каком году была окончательно ликвидирована ханская власть в Младшем жузе?",
+      "options": ["1731", "1824", "1861", "1891"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0084",
+      "topic": "russian_imperial_period",
+      "subtopic": "turkestan_governorate",
+      "difficulty": "easy",
+      "question_text": "Какой город стал центром Туркестанского генерал-губернаторства?",
+      "options": ["Ташкент", "Кокшетау", "Костанай", "Петропавловск"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0085",
+      "topic": "russian_imperial_period",
+      "subtopic": "temporary_regulation_1867_1868",
+      "difficulty": "medium",
+      "question_text": "Как называлась реформа 1867–1868 годов, усилившая колониальное управление в Казахстане?",
+      "options": ["Степная дума", "Временное положение", "Устав о сибирских киргизах", "Положение о земствах"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0086",
+      "topic": "russian_imperial_period",
+      "subtopic": "volost_management",
+      "difficulty": "medium",
+      "question_text": "Как назывался выборный руководитель волости после реформ XIX века?",
+      "options": ["Бек", "Волостной управитель", "Гурхан", "Баскак"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0087",
+      "topic": "russian_imperial_period",
+      "subtopic": "resettlement_policy_effect",
+      "difficulty": "medium",
+      "question_text": "К чему прежде всего привела переселенческая политика конца XIX — начала XX века в Казахстане?",
+      "options": ["К расширению ханской власти", "К изъятию земель у казахов", "К отмене налогов", "К объединению жузов"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0088",
+      "topic": "russian_imperial_period",
+      "subtopic": "valikhanov_kashgaria",
+      "difficulty": "medium",
+      "question_text": "Какой казахский ученый XIX века совершил известное путешествие в Кашгарию?",
+      "options": ["Чокан Валиханов", "Ибрай Алтынсарин", "Абай Кунанбаев", "Каныш Сатпаев"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0089",
+      "topic": "russian_imperial_period",
+      "subtopic": "steppe_regulation_1891",
+      "difficulty": "medium",
+      "question_text": "В каком году было принято «Положение об управлении областями Акмолинской, Семипалатинской, Семиреченской, Уральской и Тургайской областей»?",
+      "options": ["1822", "1868", "1891", "1905"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0090",
+      "topic": "russian_imperial_period",
+      "subtopic": "court_of_biis",
+      "difficulty": "medium",
+      "question_text": "Какой традиционный судебный институт сохранялся у казахов наряду с имперской администрацией?",
+      "options": ["Суд присяжных", "Суд биев", "Магистрат", "Военно-полевой суд"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0091",
+      "topic": "russian_imperial_period",
+      "subtopic": "temporary_regulation_1867",
+      "difficulty": "hard",
+      "question_text": "Как назывался документ 1867 года, регулировавший управление в Семиреченской и Сырдарьинской областях?",
+      "options": ["Временное положение об управлении в Семиреченской и Сырдарьинской областях", "Устав о сибирских киргизах", "Положение 1891 года", "Жеты Жаргы"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0092",
+      "topic": "russian_imperial_period",
+      "subtopic": "west_siberian_governor_generalship",
+      "difficulty": "hard",
+      "question_text": "К какому генерал-губернаторству относились Акмолинская и Семипалатинская области по реформе 1867–1868 годов?",
+      "options": ["Кавказскому", "Западно-Сибирскому", "Туркестанскому", "Оренбургскому"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0093",
+      "topic": "russian_imperial_period",
+      "subtopic": "stolypin_reform",
+      "difficulty": "hard",
+      "question_text": "Какой российский государственный деятель инициировал аграрную реформу, усилившую переселение крестьян в казахскую степь в начале XX века?",
+      "options": ["М. М. Сперанский", "П. А. Столыпин", "С. Ю. Витте", "А. В. Колчак"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0094",
+      "topic": "russian_imperial_period",
+      "subtopic": "kenesary_uprising",
+      "difficulty": "hard",
+      "question_text": "Какое восстание 1837–1847 годов стало крупнейшим антиколониальным движением первой половины XIX века?",
+      "options": ["Восстание Сырыма Датулы", "Восстание Исатая и Махамбета", "Восстание Кенесары Касымова", "Восстание 1916 года"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0095",
+      "topic": "national_liberation_movements",
+      "subtopic": "syrym_datuly",
+      "difficulty": "easy",
+      "question_text": "Кто возглавил восстание в Младшем жузе в 1783–1797 годах?",
+      "options": ["Сырым Датулы", "Кенесары Касымов", "Жанходжа Нурмухамедулы", "Амангельды Иманов"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0096",
+      "topic": "national_liberation_movements",
+      "subtopic": "isatai_makhambet",
+      "difficulty": "easy",
+      "question_text": "Кто были руководителями восстания 1836–1838 годов в Букеевской Орде?",
+      "options": ["Сырым и Айшуак", "Кенесары и Наурызбай", "Исатай Тайманов и Махамбет Утемисов", "Жанходжа и Есет"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0097",
+      "topic": "national_liberation_movements",
+      "subtopic": "kenesary",
+      "difficulty": "easy",
+      "question_text": "Кто возглавил национально-освободительное движение 1837–1847 годов?",
+      "options": ["Кенесары Касымов", "Исатай Тайманов", "Сырым Датулы", "Жангир хан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0098",
+      "topic": "national_liberation_movements",
+      "subtopic": "jankhoja",
+      "difficulty": "easy",
+      "question_text": "Кто возглавил восстание в Приаралье в 1856–1857 годах?",
+      "options": ["Есет Котибарулы", "Жанходжа Нурмухамедулы", "Махамбет Утемисов", "Бекболат Ашекеев"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0099",
+      "topic": "national_liberation_movements",
+      "subtopic": "syrym_causes",
+      "difficulty": "medium",
+      "question_text": "Какова была одна из главных причин восстания Сырыма Датулы?",
+      "options": ["Запрет на кочевки и земельные ограничения", "Введение всеобщего избирательного права", "Закрытие медресе", "Отмена торговли с Хивой"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0100",
+      "topic": "national_liberation_movements",
+      "subtopic": "jangir_khan",
+      "difficulty": "medium",
+      "question_text": "Против политики какого хана выступили Исатай Тайманов и Махамбет Утемисов?",
+      "options": ["Жангир хана", "Тауке хана", "Абылай хана", "Касыма хана"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0101",
+      "topic": "national_liberation_movements",
+      "subtopic": "kenesary_goals",
+      "difficulty": "medium",
+      "question_text": "Какую главную цель ставило движение Кенесары Касымова?",
+      "options": ["Восстановление независимости и ханской власти", "Присоединение к Китаю", "Создание советской республики", "Отмена кочевого скотоводства"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0102",
+      "topic": "national_liberation_movements",
+      "subtopic": "makhambet",
+      "difficulty": "medium",
+      "question_text": "Кто был ближайшим соратником Исатая Тайманова и прославился как поэт и борец?",
+      "options": ["Махамбет Утемисов", "Ахмет Байтурсынов", "Бухар жырау", "Шакарим"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0103",
+      "topic": "national_liberation_movements",
+      "subtopic": "eset_kotibaruly",
+      "difficulty": "hard",
+      "question_text": "Какой батыр возглавил восстание в Западном Казахстане в 1855–1858 годах?",
+      "options": ["Есет Котибарулы", "Бөгенбай батыр", "Наурызбай батыр", "Кабанбай батыр"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0104",
+      "topic": "national_liberation_movements",
+      "subtopic": "akmolinsk_1838",
+      "difficulty": "hard",
+      "question_text": "Какую крепость отряды Кенесары сожгли в 1838 году?",
+      "options": ["Верный", "Омск", "Акмолинскую", "Оренбургскую"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0105",
+      "topic": "early_20th_century",
+      "subtopic": "uprising_1916",
+      "difficulty": "easy",
+      "question_text": "В каком году произошло национально-освободительное восстание в Казахстане в период Первой мировой войны?",
+      "options": ["1905", "1916", "1918", "1921"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0106",
+      "topic": "early_20th_century",
+      "subtopic": "decree_1916",
+      "difficulty": "easy",
+      "question_text": "Какой царский указ стал непосредственным поводом к восстанию 1916 года?",
+      "options": ["О создании земств", "О мобилизации на тыловые работы инородческого населения", "О ликвидации ханской власти", "О введении продразверстки"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0107",
+      "topic": "early_20th_century",
+      "subtopic": "amangeldy_imanov",
+      "difficulty": "easy",
+      "question_text": "Кто был одним из главных руководителей восстания 1916 года в Тургайской области?",
+      "options": ["Амангельды Иманов", "Алихан Бокейханов", "Сырым Датулы", "Динмухамед Кунаев"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0108",
+      "topic": "early_20th_century",
+      "subtopic": "alash_party",
+      "difficulty": "easy",
+      "question_text": "Как называлась казахская национальная партия начала XX века?",
+      "options": ["Жас Тулпар", "Алаш", "Азат", "Орда"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0109",
+      "topic": "early_20th_century",
+      "subtopic": "alikhan_bokeikhanov",
+      "difficulty": "medium",
+      "question_text": "Кто возглавил правительство Алаш-Орда?",
+      "options": ["Ахмет Байтурсынов", "Алихан Бокейханов", "Турар Рыскулов", "Миржакып Дулатов"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0110",
+      "topic": "early_20th_century",
+      "subtopic": "baitursynov",
+      "difficulty": "medium",
+      "question_text": "Какой общественный деятель, лингвист и реформатор был одним из лидеров движения Алаш?",
+      "options": ["Ахмет Байтурсынов", "Олжас Сулейменов", "Каныш Сатпаев", "Сакен Сейфуллин"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0111",
+      "topic": "early_20th_century",
+      "subtopic": "alash_center",
+      "difficulty": "medium",
+      "question_text": "Какой город стал центром Алаш-Орды?",
+      "options": ["Семипалатинск", "Тараз", "Кызылорда", "Шымкент"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0112",
+      "topic": "early_20th_century",
+      "subtopic": "kazakh_newspaper",
+      "difficulty": "medium",
+      "question_text": "Как называлась общенациональная казахская газета начала XX века, издававшаяся при участии Ахмета Байтурсынова?",
+      "options": ["Айкап", "Казах", "Туркестан уалаяты", "Егемен"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0113",
+      "topic": "early_20th_century",
+      "subtopic": "alash_orda_body",
+      "difficulty": "medium",
+      "question_text": "Как назывался орган власти, созданный в декабре 1917 года для управления автономией Алаш?",
+      "options": ["Казревком", "Алаш-Орда", "Совнарком", "Учредительное собрание"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0114",
+      "topic": "early_20th_century",
+      "subtopic": "dulatov",
+      "difficulty": "hard",
+      "question_text": "Кто из деятелей Алаша является автором романа «Несчастная Жамал»?",
+      "options": ["Миржакып Дулатов", "Ахмет Байтурсынов", "Алихан Бокейханов", "Мағжан Жумабаев"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0115",
+      "topic": "early_20th_century",
+      "subtopic": "first_all_kazakh_congress",
+      "difficulty": "hard",
+      "question_text": "В каком городе в июле 1917 года состоялся Первый Всеказахский съезд?",
+      "options": ["Верный", "Оренбург", "Семей", "Ташкент"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0116",
+      "topic": "early_20th_century",
+      "subtopic": "bekbolat_ashekeev",
+      "difficulty": "hard",
+      "question_text": "Какой регион стал крупным центром восстания 1916 года под руководством Бекболата Ашекеева?",
+      "options": ["Жетысу", "Прииртышье", "Мангистау", "Западный Казахстан"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0117",
+      "topic": "soviet_period",
+      "subtopic": "kirghiz_assr_1920",
+      "difficulty": "easy",
+      "question_text": "В каком году была образована Киргизская АССР, с 1925 года переименованная в Казахскую АССР?",
+      "options": ["1917", "1920", "1925", "1936"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0118",
+      "topic": "soviet_period",
+      "subtopic": "union_republic_1936",
+      "difficulty": "easy",
+      "question_text": "В каком году Казахская АССР была преобразована в союзную республику?",
+      "options": ["1924", "1936", "1941", "1954"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0119",
+      "topic": "soviet_period",
+      "subtopic": "alma_ata_capital",
+      "difficulty": "easy",
+      "question_text": "Как называлась столица Казахстана с 1929 по 1997 год?",
+      "options": ["Акмола", "Кызылорда", "Алма-Ата", "Туркестан"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0120",
+      "topic": "soviet_period",
+      "subtopic": "kunayev",
+      "difficulty": "easy",
+      "question_text": "Какой руководитель Компартии Казахстана был смещен в декабре 1986 года?",
+      "options": ["Геннадий Колбин", "Динмухамед Кунаев", "Нурсултан Назарбаев", "Левон Мирзоян"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0121",
+      "topic": "soviet_period",
+      "subtopic": "zheltoksan",
+      "difficulty": "easy",
+      "question_text": "Как называются декабрьские события 1986 года в Алма-Ате?",
+      "options": ["Желтоксан", "Алаш", "Невада", "Тайбурыл"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0122",
+      "topic": "soviet_period",
+      "subtopic": "collectivization_famine",
+      "difficulty": "medium",
+      "question_text": "Какое тяжелое последствие имела коллективизация для казахского населения?",
+      "options": ["Массовый голод", "Отмена грамотности", "Роспуск школ", "Запрет на города"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0123",
+      "topic": "soviet_period",
+      "subtopic": "virgin_lands",
+      "difficulty": "medium",
+      "question_text": "В каком году началась кампания освоения целины в Казахстане?",
+      "options": ["1945", "1954", "1961", "1978"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0124",
+      "topic": "soviet_period",
+      "subtopic": "semipalatinsk_test_site",
+      "difficulty": "medium",
+      "question_text": "Как назывался крупнейший ядерный испытательный полигон на территории Казахстана?",
+      "options": ["Байконур", "Капустин Яр", "Семипалатинский полигон", "Азгир"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0125",
+      "topic": "soviet_period",
+      "subtopic": "nevada_semipalatinsk",
+      "difficulty": "medium",
+      "question_text": "Кто возглавил антиядерное движение «Невада — Семипалатинск»?",
+      "options": ["Олжас Сулейменов", "Мухтар Ауэзов", "Динмухамед Кунаев", "Каныш Сатпаев"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0126",
+      "topic": "soviet_period",
+      "subtopic": "polygon_closed",
+      "difficulty": "medium",
+      "question_text": "В каком году был закрыт Семипалатинский ядерный полигон?",
+      "options": ["1986", "1991", "1995", "2001"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0127",
+      "topic": "soviet_period",
+      "subtopic": "kzyl_orda_capital",
+      "difficulty": "hard",
+      "question_text": "Какое название носила столица Казахской АССР в 1925–1929 годах?",
+      "options": ["Оренбург", "Кызылорда", "Верный", "Петропавловск"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0128",
+      "topic": "soviet_period",
+      "subtopic": "kolbin_1986",
+      "difficulty": "hard",
+      "question_text": "Какое решение декабрьского пленума 1986 года стало поводом к событиям Желтоксана?",
+      "options": ["Принятие новой Конституции", "Назначение Геннадия Колбина первым секретарем Компартии Казахстана", "Закрытие полигона", "Объявление независимости"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0129",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "independence_1991",
+      "difficulty": "easy",
+      "question_text": "В каком году Казахстан провозгласил государственную независимость?",
+      "options": ["1989", "1991", "1993", "1995"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0130",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "independence_day",
+      "difficulty": "easy",
+      "question_text": "Какой государственный праздник отмечается 16 декабря в Казахстане?",
+      "options": ["День Конституции", "День Республики", "День Независимости", "День Первого Президента"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0131",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "capital_transfer",
+      "difficulty": "easy",
+      "question_text": "В какой город была перенесена столица Казахстана в 1997 году?",
+      "options": ["Шымкент", "Туркестан", "Акмола", "Актобе"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0132",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "tenge",
+      "difficulty": "easy",
+      "question_text": "Какая национальная валюта была введена в Казахстане в 1993 году?",
+      "options": ["Сом", "Тенге", "Рубль", "Манат"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0133",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "nuclear_free_status",
+      "difficulty": "easy",
+      "question_text": "Какой международный статус закрепил за собой Казахстан после отказа от ядерного арсенала?",
+      "options": ["Ядерная держава", "Безъядерное государство", "Военный блок", "Закрытая страна"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0134",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "constitution_general",
+      "difficulty": "easy",
+      "question_text": "Как называется основной закон Республики Казахстан?",
+      "options": ["Кодекс", "Хартия", "Конституция", "Указ"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0135",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "constitution_1995",
+      "difficulty": "medium",
+      "question_text": "В каком году была принята действующая Конституция Республики Казахстан?",
+      "options": ["1991", "1993", "1995", "1998"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0136",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "astana_1998",
+      "difficulty": "medium",
+      "question_text": "В каком году столица Казахстана была переименована из Акмолы в Астану?",
+      "options": ["1997", "1998", "2001", "2005"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0137",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "strategy_2030",
+      "difficulty": "medium",
+      "question_text": "Как называлась долгосрочная стратегия развития, объявленная в 1997 году?",
+      "options": ["Казахстан-2050", "Путь в Европу", "Казахстан-2030", "Мангилик Ел"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0138",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "flag_symbolism",
+      "difficulty": "medium",
+      "question_text": "Какой государственный символ Казахстана изображает парящего беркута на фоне солнца?",
+      "options": ["Герб", "Флаг", "Гимн", "Печать"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0139",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "constitution_1993",
+      "difficulty": "hard",
+      "question_text": "В каком году была принята первая Конституция независимого Казахстана?",
+      "options": ["1991", "1993", "1995", "1998"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0140",
+      "topic": "independence_modern_kazakhstan",
+      "subtopic": "sco",
+      "difficulty": "hard",
+      "question_text": "Как называется международная организация, одним из основателей которой стал Казахстан в 2001 году?",
+      "options": ["НАТО", "ЕАЭС", "Шанхайская организация сотрудничества", "ОПЕК"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0141",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "abai_words_of_edification",
+      "difficulty": "easy",
+      "question_text": "Кто является автором «Слов назидания»?",
+      "options": ["Абай Кунанбаев", "Мухтар Ауэзов", "Ибрай Алтынсарин", "Шакарим"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0142",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "satpayev",
+      "difficulty": "easy",
+      "question_text": "Кто стал первым академиком из казахов и основателем Академии наук Казахской ССР?",
+      "options": ["Каныш Сатпаев", "Чокан Валиханов", "Алькей Маргулан", "Сакен Сейфуллин"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0143",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "kurmangazy",
+      "difficulty": "easy",
+      "question_text": "Кто был выдающимся казахским кюйши, автором кюя «Сарыарка»?",
+      "options": ["Курмангазы Сагырбайулы", "Дина Нурпеисова", "Биржан сал", "Жаяу Муса"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0144",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "margulan",
+      "difficulty": "easy",
+      "question_text": "Кто является выдающимся казахским археологом и исследователем Центрального Казахстана?",
+      "options": ["Алькей Маргулан", "Чокан Валиханов", "Каныш Сатпаев", "Олжас Сулейменов"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0145",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "path_of_abai",
+      "difficulty": "medium",
+      "question_text": "Кому принадлежит роман-эпопея «Путь Абая»?",
+      "options": ["Сакену Сейфуллину", "Мухтару Ауэзову", "Габиту Мусрепову", "Беимбету Майлину"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0146",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "altynsarin",
+      "difficulty": "medium",
+      "question_text": "Какой педагог и просветитель открыл первые русско-казахские школы?",
+      "options": ["Ибрай Алтынсарин", "Абай Кунанбаев", "Кенесары Касымов", "Курмангазы"],
+      "correct_index": 0
+    },
+    {
+      "id": "hkz_0147",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "az_i_ya",
+      "difficulty": "medium",
+      "question_text": "Кто написал произведение «Аз и Я», вызвавшее широкий общественный резонанс?",
+      "options": ["Мухтар Ауэзов", "Олжас Сулейменов", "Мағжан Жумабаев", "Габиден Мустафин"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0148",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "birzhan_and_sara",
+      "difficulty": "medium",
+      "question_text": "Кто является композитором оперы «Биржан и Сара»?",
+      "options": ["Ахмет Жубанов", "Латиф Хамиди", "Мухан Тулебаев", "Еркегали Рахмадиев"],
+      "correct_index": 2
+    },
+    {
+      "id": "hkz_0149",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "tarikh_i_rashidi",
+      "difficulty": "hard",
+      "question_text": "Как называется труд Мухаммеда Хайдара Дулати, являющийся важным источником по истории Могулистана и Казахского ханства?",
+      "options": ["Кутадгу билиг", "Тарих-и Рашиди", "Диван лугат ат-турк", "Жами ат-тауарих"],
+      "correct_index": 1
+    },
+    {
+      "id": "hkz_0150",
+      "topic": "culture_literature_science_figures",
+      "subtopic": "shakarim_genealogy",
+      "difficulty": "hard",
+      "question_text": "Кому принадлежит произведение «Түрік, қырғыз, қазақ һәм хандар шежіресі»?",
+      "options": ["Шакариму Кудайбердиеву", "Абаю Кунанбаеву", "Ахмету Байтурсынову", "Мухтару Ауэзову"],
+      "correct_index": 0
+    }
+  ]
+}

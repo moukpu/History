@@ -1,0 +1,267 @@
+<!DOCTYPE html><html class="light" lang="ru"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Sapar Quest - The Living Storybook of Kazakhstan</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f1f1ed",
+              "error-container": "#fb5151",
+              "on-primary-fixed": "#004344",
+              "primary-dim": "#00595b",
+              surface: "#f7f6f2",
+              outline: "#767774",
+              "surface-container": "#e8e8e4",
+              "on-error-container": "#570008",
+              "surface-dim": "#d4d5d0",
+              "on-secondary-fixed-variant": "#665500",
+              "on-secondary": "#fff2cd",
+              primary: "#006668",
+              "on-primary": "#befeff",
+              "surface-container-high": "#e3e3de",
+              "outline-variant": "#adadaa",
+              secondary: "#6c5a00",
+              "surface-container-lowest": "#ffffff",
+              "inverse-surface": "#0d0f0d",
+              background: "#f7f6f2",
+              "on-primary-container": "#005859",
+              "surface-container-highest": "#ddddd8",
+              "secondary-container": "#ffd709",
+              "on-secondary-container": "#5b4b00",
+              "primary-fixed-dim": "#3de4e7",
+              "on-surface-variant": "#5b5c59",
+              "secondary-fixed": "#ffd709",
+              "on-error": "#ffefee",
+              "surface-tint": "#006668",
+              "secondary-dim": "#5e4e00",
+              "surface-bright": "#f7f6f2",
+              "on-secondary-fixed": "#453900",
+              "on-surface": "#2e2f2d",
+              "error-dim": "#9f0519",
+              "secondary-fixed-dim": "#efc900",
+              "on-tertiary-fixed-variant": "#005c74",
+              "surface-variant": "#ddddd8",
+              "tertiary-dim": "#00576e",
+              tertiary: "#04647d",
+              "on-background": "#2e2f2d",
+              "tertiary-container": "#9ae1ff",
+              "primary-container": "#52f2f5",
+              "inverse-on-surface": "#9d9d9a",
+              "on-tertiary-container": "#005267",
+              "on-tertiary": "#e3f6ff",
+              "on-primary-fixed-variant": "#006264",
+              "tertiary-fixed": "#9ae1ff",
+              "tertiary-fixed-dim": "#8cd3f0",
+              error: "#b31b25",
+              "inverse-primary": "#5dfbfe",
+              "primary-fixed": "#52f2f5",
+              "on-tertiary-fixed": "#003d4f",
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              lg: "2rem",
+              xl: "3rem",
+              full: "9999px",
+            },
+            fontFamily: {
+              headline: ["Montserrat", "sans-serif"],
+              body: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+        font-family: 'Material Symbols Outlined';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f7f6f2;
+      }
+      h1, h2, h3, h4 {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-on-background min-h-screen flex flex-col overflow-x-hidden">
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] flex items-center px-8 h-20">
+      <a class="text-2xl font-black bg-gradient-to-br from-[#006668] to-[#52f2f5] bg-clip-text text-transparent tracking-tighter" href="./code.html">
+        Sapar Quest
+      </a>
+      
+      <div class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+        <a data-i18n="nav_explore" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#006668] border-b-4 border-[#ffd709] pb-1 hover:scale-105 hover:opacity-100 transition-all" href="./code.html">Главная</a>
+        <a data-i18n="nav_map" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../map_hub/code.html">Карта</a>
+        <a data-i18n="nav_leaderboard" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../leaderboard/code.html">Рейтинг</a>
+      </div>
+
+      <div class="ml-auto flex items-center gap-4">
+        <div class="relative" data-language-menu>
+          <button type="button" data-language-toggle aria-haspopup="true" aria-expanded="false" class="h-11 min-w-[7.75rem] rounded-full border border-outline-variant/30 bg-white/95 px-4 shadow-[0_10px_24px_rgba(46,47,45,0.08)] hover:border-primary/45 hover:bg-primary-container/20 transition-all flex items-center justify-between gap-2">
+            <span data-language-current class="text-sm font-black text-on-surface">Русский</span>
+            <span class="material-symbols-outlined text-primary text-[20px] transition-transform" data-language-arrow>expand_more</span>
+          </button>
+          <div data-language-options class="hidden absolute right-0 top-full mt-2 z-[70] w-52 rounded-2xl border border-outline-variant/20 bg-white p-2 shadow-[0_24px_56px_rgba(46,47,45,0.18)]">
+            <button type="button" data-language-option="ru" class="w-full rounded-xl px-3 py-3 text-left transition-colors hover:bg-surface-container-low flex items-center gap-3">
+              <span class="h-8 w-8 rounded-full bg-primary/10 text-primary text-xs font-black flex items-center justify-center">RU</span>
+              <span class="flex-1 text-sm font-black text-on-surface">Русский</span>
+              <span data-language-check class="material-symbols-outlined text-primary text-[18px] opacity-0">check</span>
+            </button>
+            <button type="button" data-language-option="en" class="w-full rounded-xl px-3 py-3 text-left transition-colors hover:bg-surface-container-low flex items-center gap-3">
+              <span class="h-8 w-8 rounded-full bg-primary/10 text-primary text-xs font-black flex items-center justify-center">EN</span>
+              <span class="flex-1 text-sm font-black text-on-surface">English</span>
+              <span data-language-check class="material-symbols-outlined text-primary text-[18px] opacity-0">check</span>
+            </button>
+            <button type="button" data-language-option="kk" class="w-full rounded-xl px-3 py-3 text-left transition-colors hover:bg-surface-container-low flex items-center gap-3">
+              <span class="h-8 w-8 rounded-full bg-primary/10 text-primary text-xs font-black flex items-center justify-center">KZ</span>
+              <span class="flex-1 text-sm font-black text-on-surface">Қазақша</span>
+              <span data-language-check class="material-symbols-outlined text-primary text-[18px] opacity-0">check</span>
+            </button>
+          </div>
+        </div>
+        <a class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container hover:scale-105 transition-transform shadow-md" href="../profile/code.html">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+        </a>
+      </div>
+    </nav>
+
+    <div id="home-error" data-home-error="" data-i18n="home_error_default" class="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-error-container text-on-error-container px-6 py-3 rounded-xl shadow-xl hidden">
+      Ошибка загрузки главной страницы.
+    </div>
+
+    <main class="pt-20 flex-1 flex flex-col md:flex-row">
+      <section class="flex-1 px-8 md:px-16 lg:px-24 py-16 md:py-24 flex flex-col justify-center items-start bg-surface relative z-10">
+        <div class="max-w-3xl">
+          <span data-i18n="nav_map" class="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6 inline-block">Карта</span>
+          <h1 data-i18n="hero_title" class="text-6xl md:text-7xl font-black text-on-surface leading-[0.9] tracking-tighter mb-8">Открой историю степи</h1>
+          <p data-i18n="hero_subtitle" class="text-xl text-on-surface-variant leading-relaxed max-w-xl font-medium mb-10 opacity-90">Интерактивное путешествие по эпохам Казахстана. Пройди путь от древних поселений до современных мегаполисов.</p>
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            <a data-i18n="btn_start_exploring" data-start-exploring="" class="w-full sm:w-auto justify-center bg-primary text-on-primary px-8 sm:px-10 py-5 rounded-full font-black text-lg sm:text-xl hover:scale-105 hover:shadow-2xl transition-all active:scale-95 shadow-xl flex items-center gap-3 text-center" href="../map_hub/code.html">
+              Начать путешествие <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+            <a data-i18n="btn_about_project" class="w-full sm:w-auto justify-center bg-white text-primary px-8 py-5 rounded-full font-black text-lg sm:text-xl border border-primary/15 hover:bg-primary-container hover:scale-105 transition-all active:scale-95 shadow-lg flex items-center gap-3 text-center" href="../about/code.html">
+              Узнать о проекте <span class="material-symbols-outlined">info</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="flex-1 relative min-h-[500px] md:min-h-0 bg-surface-container-low overflow-hidden">
+        <div class="absolute inset-0 z-0">
+          <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjzx4M2ZZ8DDndE4qfP7T8-gO5h5517UeEQir3IK0tXYj6Qfy8xlFLm2u9DoN4dfpfmdp6grab7t74H_qbEEptLYwrz3_PsOB8X0V97i5kMHdsyAs_O9P93Lz5HVrWqCYlNTm1k8WfQyGCcBL-_Lu7UD_KGlJwym0iM2g6MlMTTJjeGac-p-VsxE3l__KyWBh_FWHnkBvE17bpjWUl3I6FvssJ_x_HJMDBAFjlQPRvWO-w_lqAMe8RsNw8vKn6JKWqHCzM9Eua-A">
+          <div class="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-surface md:to-surface"></div>
+        </div>
+        <div class="absolute top-12 right-12 z-10 rotate-6 hidden" aria-hidden="true">
+          <div class="bg-tertiary-container text-on-tertiary-container px-6 py-3 rounded-xl font-bold text-sm shadow-lg border-2 border-white/50 backdrop-blur-sm">
+            <span data-era-badge></span>
+          </div>
+        </div>
+        <div class="absolute bottom-12 right-12 z-20 w-80">
+          <div class="bg-surface-container-lowest/90 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border-t border-white/50 flex items-start gap-4 transform hover:-translate-y-2 transition-transform cursor-pointer group">
+            <div class="bg-secondary-container w-14 h-14 rounded-full flex items-center justify-center text-on-secondary-container shadow-inner">
+              <span class="material-symbols-outlined text-3xl font-bold" style="font-variation-settings: 'FILL' 1">explore</span>
+            </div>
+            <div>
+              <span data-i18n="label_current_quest" class="text-xs font-bold text-primary tracking-widest block mb-1 uppercase">ТЕКУЩИЙ КВЕСТ</span>
+              <h3 data-current-quest-title="" class="text-xl font-black text-on-surface leading-tight group-hover:text-primary transition-colors">Историческая карта Казахстана</h3>
+              <p data-current-quest-subtitle="" class="text-on-surface-variant text-sm mt-2 flex items-center gap-1 font-medium">Доступно 7 периодов и живая карта городов.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section class="bg-surface px-8 md:px-16 lg:px-24 py-24">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-3xl font-black mb-12 text-on-surface flex items-center gap-4">
+          <span class="w-12 h-1 bg-secondary-container rounded-full"></span>
+          <span data-i18n="section_legendary">Легендарные места</span>
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="md:col-span-2 relative h-[400px] rounded-3xl overflow-hidden shadow-xl bg-surface-container-lowest">
+            <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB50YtxZMl7CklAXznfMdINJwB_zOp3BeiOOWAa4qXUz-zuUi1WAvoATdGF5VFcQtfFSO5bnUVH3mTqNHI0hGVr8SzPpUt9z5jcCBbSzhQHJRv7NsClnKSDejGJWeSeDsmQnqEiede6ufcLjvEkfko_gegbIYso4o9kgiA6B3to8bbdOe-Fr3LIAvfz32bWKj0MNWWWQXLQralR9VTbULg7rngP93s0BpZ9M568riDPe1mZIR3_n2qn4EeSRY-9n8HcfjkWCMqcdQ">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+            <div class="absolute bottom-10 left-10 text-white">
+              <span data-i18n="badge_popular" class="bg-primary-container text-on-primary-container px-4 py-1 rounded-full text-xs font-bold mb-4 inline-block uppercase">ПОПУЛЯРНОЕ</span>
+              <h4 data-i18n="card_popular_title" class="text-4xl font-black">Потерянный оазис Отрара</h4>
+              <p data-i18n="card_popular_desc" class="text-white/80 mt-3 max-w-md font-medium">Откройте города Казахстана в разные эпохи и сравните, как менялась карта страны.</p>
+            </div>
+          </div>
+
+          <div class="h-[400px] bg-primary rounded-3xl overflow-hidden p-10 flex flex-col justify-between text-on-primary shadow-2xl">
+            <div>
+              <span class="material-symbols-outlined text-6xl mb-6">workspace_premium</span>
+              <h4 data-i18n="card_victories_title" class="text-3xl font-black mb-4 leading-tight">История ваших побед</h4>
+              <p data-i18n="card_victories_desc" class="text-on-primary/70 leading-relaxed font-medium">Ваши тесты и достижения всегда под рукой в вашем профиле.</p>
+            </div>
+            <a data-i18n="btn_view_profile" data-view-standings="" class="bg-on-primary text-primary w-full py-5 rounded-full font-black text-lg hover:bg-primary-container transition-all active:scale-95 text-center shadow-lg" href="../profile/code.html">Открыть профиль</a>
+          </div>
+
+          <div class="h-[400px] bg-white rounded-3xl p-10 flex flex-col items-center justify-center text-center space-y-6 shadow-xl border border-surface-container">
+            <div class="w-24 h-24 bg-primary-container rounded-full flex items-center justify-center shadow-inner">
+              <span class="material-symbols-outlined text-5xl text-on-primary-container">school</span>
+            </div>
+            <h4 data-i18n="card_ent_title" class="text-3xl font-black text-on-surface">Подготовка к ЕНТ</h4>
+            <p data-i18n="card_ent_desc" class="text-on-surface-variant font-medium">Решайте исторические тесты, проверяйте свои знания и уверенно сдавайте ЕНТ.</p>
+            <a href="../ent_test/code.html?new=true" class="inline-flex items-center gap-2 px-10 py-5 bg-secondary text-on-secondary rounded-full font-black text-xl hover:scale-105 transition-all active:scale-95 shadow-xl group">
+              <span data-i18n="btn_take_test">Пройти тест</span>
+              <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+            </a>
+          </div>
+
+          <div class="md:col-span-2 relative h-[400px] rounded-3xl overflow-hidden shadow-xl bg-surface-container-lowest">
+            <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBziLV4FAv1LdbP8mDekyhZNpKliFsS_lSN9t2Rbd-FqLksGPMDozBDBIYNX7KA4UWSV95PtdQnU8eA4NAZir98qeePICIBTclc_mahlh2K3sAJy4ugqvKB5nAQOIObjoSum_pAER09UoOO-8ku6YRDrrRD4G0Z2Jn9WOXgV0tF07DYxLwCpkzIfOIeHpLTku1j-C6Sr4gF5po_RxWYNF4Q2NarUora08x6i_kUXPHpZvhYID7pdO383xj7u1AKzKgY-KwSyNjLAQ">
+            <div class="absolute inset-0 bg-gradient-to-r from-primary/60 to-transparent"></div>
+            <div class="absolute top-10 left-10 text-white max-w-sm">
+              <h4 data-i18n="card_ancestors_title" class="text-4xl font-black">Следы предков</h4>
+              <p data-i18n="card_ancestors_desc" class="text-white/90 font-medium text-lg">Перейдите к карте и начните путь через 7 исторических периодов Казахстана.</p>
+            </div>
+            <div class="absolute bottom-10 right-10">
+              <a data-map-location="" class="bg-white text-on-surface px-8 py-4 rounded-full font-black text-lg flex items-center gap-3 hover:bg-primary-container hover:scale-105 transition-all shadow-2xl" href="../map_hub/code.html">
+                <span data-i18n="btn_map_location">Открыть карту</span> <span class="material-symbols-outlined">map</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="mt-auto bg-[#f1f1ed] w-full py-10 rounded-t-[3rem] flex flex-col items-center gap-4">
+      <div class="flex gap-10 font-bold text-sm text-[#2e2f2d]/60">
+        <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+        <a class="hover:text-primary transition-colors" href="#">Parental Guide</a>
+        <a class="hover:text-primary transition-colors" href="#">Help Center</a>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <span class="font-black text-[#2e2f2d] text-lg tracking-tighter">Sapar Quest</span>
+        <p class="font-bold text-xs text-[#2e2f2d]/40">© 2026 Sapar Quest — Твоя живая история</p>
+      </div>
+    </footer>
+
+    
+    <script type="module" src="../shared/home-page.js"></script>
+  
+
+</body></html>

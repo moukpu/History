@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+<title id="title">Современный Казахстан — карта с 15 городами, 2025</title>
+<desc id="desc">SVG карта современного Казахстана с 15 крупными городами для временной линии проекта.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#F6F6F3"/>
+    <stop offset="100%" stop-color="#F2F1EE"/>
+  </linearGradient>
+  <filter id="panelShadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="14" stdDeviation="24" flood-color="#000000" flood-opacity="0.08"/>
+  </filter>
+  <filter id="mapShadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#2D2D2D" flood-opacity="0.10"/>
+  </filter>
+  <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+    <circle cx="2" cy="2" r="1.1" fill="#D9D8D3"/>
+  </pattern>
+  <style><![CDATA[
+    .title { font: 700 34px Inter, Arial, sans-serif; fill: #2D2D2D; letter-spacing: .2px; }
+    .subtitle { font: 500 18px Inter, Arial, sans-serif; fill: #6E6E6E; }
+    .badge-text { font: 700 18px Inter, Arial, sans-serif; fill: #2D2D2D; }
+    .country { fill: #FCFBF7; stroke: #2D2D2D; stroke-width: 5.5; stroke-linejoin: round; }
+    .country-shade { fill: #D9D8D3; opacity: .35; }
+    .leader { stroke: #9BA7B0; stroke-width: 2.5; stroke-linecap: round; opacity: .9; }
+    .ring { fill: #FFFFFF; stroke: rgba(0,119,194,.14); stroke-width: 8; }
+    .pulse { fill: rgba(255,215,0,.36); }
+    .dot { fill: #0077C2; stroke: #FFFFFF; stroke-width: 3.5; }
+    .label-bg { fill: rgba(255,255,255,.92); stroke: rgba(45,45,45,.10); stroke-width: 1; }
+    .label { font: 700 24px Inter, Arial, sans-serif; fill: #2D2D2D; dominant-baseline: middle; }
+    .legend-title { font: 700 16px Inter, Arial, sans-serif; fill: #2D2D2D; }
+    .legend-text { font: 500 15px Inter, Arial, sans-serif; fill: #6E6E6E; }
+  ]]></style>
+</defs>
+
+<rect width="1600" height="900" fill="url(#bg)"/>
+<rect width="1600" height="900" fill="url(#dots)" opacity=".55"/>
+
+<g filter="url(#panelShadow)">
+  <rect x="38" y="34" width="1524" height="832" rx="28" fill="#FFFFFF" stroke="rgba(45,45,45,.08)"/>
+</g>
+
+<g>
+  <rect x="74" y="72" width="122" height="42" rx="21" fill="#FFD700" opacity=".85"/>
+  <text x="135" y="99" text-anchor="middle" class="badge-text">2025</text>
+  <text x="74" y="155" class="title">Современный Казахстан</text>
+  <text x="74" y="188" class="subtitle">15 крупных городов для current timeline state</text>
+</g>
+
+<g transform="translate(70 90)">
+  <path d="M944.56,747.21 L924.09,756.75 L877.00,792.73 L861.38,829.67 L848.08,830.00 L838.30,805.55 L792.89,803.87 L785.63,761.59 L768.23,761.23 L770.90,709.45 L728.15,671.75 L666.92,675.77 L625.06,683.29 L590.97,636.76 L561.75,617.24 L506.41,580.28 L499.74,575.80 L407.83,606.30 L409.24,796.64 L390.92,799.16 L365.93,758.68 L341.80,744.22 L301.28,754.96 L285.50,772.13 L283.50,759.55 L292.27,738.04 L285.46,720.05 L244.08,702.46 L227.98,656.11 L208.26,643.05 L207.07,626.23 L241.80,631.13 L243.17,593.39 L273.54,585.01 L304.72,592.72 L311.15,542.36 L304.79,510.44 L269.06,512.93 L238.71,500.33 L197.37,523.03 L164.07,533.85 L145.93,525.51 L149.56,498.94 L126.80,464.46 L100.30,465.90 L70.00,430.88 L90.61,391.76 L80.18,381.23 L108.67,324.52 L145.38,354.45 L149.83,316.75 L223.53,260.61 L279.30,259.27 L357.99,295.01 L400.27,315.89 L438.15,294.12 L494.75,293.08 L540.41,319.83 L550.78,304.51 L600.93,306.74 L609.88,282.29 L552.02,246.79 L586.29,221.64 L579.60,207.58 L613.88,194.16 L588.10,158.80 L604.47,141.18 L738.07,123.22 L755.50,110.47 L844.84,91.42 L876.94,70.00 L941.10,81.12 L952.34,134.63 L989.61,122.06 L1035.47,139.67 L1032.51,167.84 L1066.76,164.90 L1156.24,116.19 L1143.17,132.37 L1188.72,172.25 L1268.50,303.35 L1287.53,276.32 L1336.71,306.06 L1388.01,292.80 L1407.72,302.08 L1424.91,331.91 L1449.87,341.93 L1465.07,363.84 L1511.06,356.93 L1530.00,388.51 L1502.82,422.88 L1473.17,427.70 L1471.47,479.47 L1451.61,502.80 L1380.78,485.81 L1355.02,578.23 L1336.75,589.72 L1266.02,610.35 L1298.16,700.02 L1273.66,713.45 L1276.51,742.88 L1254.51,735.31 L1236.60,716.76 L1183.63,711.36 L1124.43,709.95 L1111.46,715.63 L1060.62,693.93 L1040.35,704.62 L1034.80,735.09 L976.06,717.31 L952.56,724.59 L944.56,747.21 Z" transform="translate(12,22)" class="country-shade"/>
+  <path d="M944.56,747.21 L924.09,756.75 L877.00,792.73 L861.38,829.67 L848.08,830.00 L838.30,805.55 L792.89,803.87 L785.63,761.59 L768.23,761.23 L770.90,709.45 L728.15,671.75 L666.92,675.77 L625.06,683.29 L590.97,636.76 L561.75,617.24 L506.41,580.28 L499.74,575.80 L407.83,606.30 L409.24,796.64 L390.92,799.16 L365.93,758.68 L341.80,744.22 L301.28,754.96 L285.50,772.13 L283.50,759.55 L292.27,738.04 L285.46,720.05 L244.08,702.46 L227.98,656.11 L208.26,643.05 L207.07,626.23 L241.80,631.13 L243.17,593.39 L273.54,585.01 L304.72,592.72 L311.15,542.36 L304.79,510.44 L269.06,512.93 L238.71,500.33 L197.37,523.03 L164.07,533.85 L145.93,525.51 L149.56,498.94 L126.80,464.46 L100.30,465.90 L70.00,430.88 L90.61,391.76 L80.18,381.23 L108.67,324.52 L145.38,354.45 L149.83,316.75 L223.53,260.61 L279.30,259.27 L357.99,295.01 L400.27,315.89 L438.15,294.12 L494.75,293.08 L540.41,319.83 L550.78,304.51 L600.93,306.74 L609.88,282.29 L552.02,246.79 L586.29,221.64 L579.60,207.58 L613.88,194.16 L588.10,158.80 L604.47,141.18 L738.07,123.22 L755.50,110.47 L844.84,91.42 L876.94,70.00 L941.10,81.12 L952.34,134.63 L989.61,122.06 L1035.47,139.67 L1032.51,167.84 L1066.76,164.90 L1156.24,116.19 L1143.17,132.37 L1188.72,172.25 L1268.50,303.35 L1287.53,276.32 L1336.71,306.06 L1388.01,292.80 L1407.72,302.08 L1424.91,331.91 L1449.87,341.93 L1465.07,363.84 L1511.06,356.93 L1530.00,388.51 L1502.82,422.88 L1473.17,427.70 L1471.47,479.47 L1451.61,502.80 L1380.78,485.81 L1355.02,578.23 L1336.75,589.72 L1266.02,610.35 L1298.16,700.02 L1273.66,713.45 L1276.51,742.88 L1254.51,735.31 L1236.60,716.76 L1183.63,711.36 L1124.43,709.95 L1111.46,715.63 L1060.62,693.93 L1040.35,704.62 L1034.80,735.09 L976.06,717.31 L952.56,724.59 L944.56,747.21 Z" class="country" filter="url(#mapShadow)"/>
+  <line x1="961.94" y1="287.62" x2="991.94" y2="271.62" class="leader"/><circle cx="961.94" cy="287.62" r="18" class="pulse"/><circle cx="961.94" cy="287.62" r="13" class="ring"/><circle cx="961.94" cy="287.62" r="8.5" class="dot"/><line x1="1156.19" y1="697.00" x2="1178.19" y2="689.00" class="leader"/><circle cx="1156.19" cy="697.00" r="18" class="pulse"/><circle cx="1156.19" cy="697.00" r="13" class="ring"/><circle cx="1156.19" cy="697.00" r="8.5" class="dot"/><line x1="895.57" y1="743.31" x2="877.57" y2="761.31" class="leader"/><circle cx="895.57" cy="743.31" r="18" class="pulse"/><circle cx="895.57" cy="743.31" r="13" class="ring"/><circle cx="895.57" cy="743.31" r="8.5" class="dot"/><line x1="452.00" y1="333.33" x2="470.00" y2="315.33" class="leader"/><circle cx="452.00" cy="333.33" r="18" class="pulse"/><circle cx="452.00" cy="333.33" r="13" class="ring"/><circle cx="452.00" cy="333.33" r="8.5" class="dot"/><line x1="1020.35" y1="358.00" x2="1048.35" y2="386.00" class="leader"/><circle cx="1020.35" cy="358.00" r="18" class="pulse"/><circle cx="1020.35" cy="358.00" r="13" class="ring"/><circle cx="1020.35" cy="358.00" r="8.5" class="dot"/><line x1="958.96" y1="714.47" x2="982.96" y2="744.47" class="leader"/><circle cx="958.96" cy="714.47" r="18" class="pulse"/><circle cx="958.96" cy="714.47" r="13" class="ring"/><circle cx="958.96" cy="714.47" r="8.5" class="dot"/><line x1="1158.96" y1="229.93" x2="1182.96" y2="207.93" class="leader"/><circle cx="1158.96" cy="229.93" r="18" class="pulse"/><circle cx="1158.96" cy="229.93" r="13" class="ring"/><circle cx="1158.96" cy="229.93" r="8.5" class="dot"/><line x1="1361.06" y1="350.66" x2="1387.06" y2="334.66" class="leader"/><circle cx="1361.06" cy="350.66" r="18" class="pulse"/><circle cx="1361.06" cy="350.66" r="13" class="ring"/><circle cx="1361.06" cy="350.66" r="8.5" class="dot"/><line x1="1275.35" y1="326.77" x2="1303.35" y2="350.77" class="leader"/><circle cx="1275.35" cy="326.77" r="18" class="pulse"/><circle cx="1275.35" cy="326.77" r="13" class="ring"/><circle cx="1275.35" cy="326.77" r="8.5" class="dot"/><line x1="264.84" y1="497.97" x2="246.84" y2="475.97" class="leader"/><circle cx="264.84" cy="497.97" r="18" class="pulse"/><circle cx="264.84" cy="497.97" r="13" class="ring"/><circle cx="264.84" cy="497.97" r="8.5" class="dot"/><line x1="682.59" y1="182.06" x2="670.59" y2="160.06" class="leader"/><circle cx="682.59" cy="182.06" r="18" class="pulse"/><circle cx="682.59" cy="182.06" r="13" class="ring"/><circle cx="682.59" cy="182.06" r="8.5" class="dot"/><line x1="748.91" y1="613.89" x2="728.91" y2="637.89" class="leader"/><circle cx="748.91" cy="613.89" r="18" class="pulse"/><circle cx="748.91" cy="613.89" r="13" class="ring"/><circle cx="748.91" cy="613.89" r="8.5" class="dot"/><line x1="245.66" y1="284.61" x2="227.66" y2="264.61" class="leader"/><circle cx="245.66" cy="284.61" r="18" class="pulse"/><circle cx="245.66" cy="284.61" r="13" class="ring"/><circle cx="245.66" cy="284.61" r="8.5" class="dot"/><line x1="880.32" y1="96.32" x2="880.32" y2="70.32" class="leader"/><circle cx="880.32" cy="96.32" r="18" class="pulse"/><circle cx="880.32" cy="96.32" r="13" class="ring"/><circle cx="880.32" cy="96.32" r="8.5" class="dot"/><line x1="238.91" y1="675.72" x2="220.91" y2="695.72" class="leader"/><circle cx="238.91" cy="675.72" r="18" class="pulse"/><circle cx="238.91" cy="675.72" r="13" class="ring"/><circle cx="238.91" cy="675.72" r="8.5" class="dot"/>
+  <g class="label-wrap"><rect x="977.94" y="242.62" width="118.72" height="38" rx="19" class="label-bg"/><text x="991.94" y="271.62" class="label" text-anchor="start">Астана</text></g><g class="label-wrap"><rect x="1164.19" y="660.00" width="118.72" height="38" rx="19" class="label-bg"/><text x="1178.19" y="689.00" class="label" text-anchor="start">Алматы</text></g><g class="label-wrap"><rect x="757.97" y="732.31" width="133.60" height="38" rx="19" class="label-bg"/><text x="877.57" y="761.31" class="label" text-anchor="end">Шымкент</text></g><g class="label-wrap"><rect x="456.00" y="286.33" width="118.72" height="38" rx="19" class="label-bg"/><text x="470.00" y="315.33" class="label" text-anchor="start">Актобе</text></g><g class="label-wrap"><rect x="1034.35" y="357.00" width="163.36" height="38" rx="19" class="label-bg"/><text x="1048.35" y="386.00" class="label" text-anchor="start">Караганда</text></g><g class="label-wrap"><rect x="968.96" y="715.47" width="103.84" height="38" rx="19" class="label-bg"/><text x="982.96" y="744.47" class="label" text-anchor="start">Тараз</text></g><g class="label-wrap"><rect x="1168.96" y="178.93" width="148.48" height="38" rx="19" class="label-bg"/><text x="1182.96" y="207.93" class="label" text-anchor="start">Павлодар</text></g><g class="label-wrap"><rect x="1373.06" y="305.66" width="133.60" height="38" rx="19" class="label-bg"/><text x="1387.06" y="334.66" class="label" text-anchor="start">Оскемен</text></g><g class="label-wrap"><rect x="1289.35" y="321.77" width="103.84" height="38" rx="19" class="label-bg"/><text x="1303.35" y="350.77" class="label" text-anchor="start">Семей</text></g><g class="label-wrap"><rect x="142.12" y="446.97" width="118.72" height="38" rx="19" class="label-bg"/><text x="246.84" y="475.97" class="label" text-anchor="end">Атырау</text></g><g class="label-wrap"><rect x="536.11" y="131.06" width="148.48" height="38" rx="19" class="label-bg"/><text x="670.59" y="160.06" class="label" text-anchor="end">Костанай</text></g><g class="label-wrap"><rect x="579.55" y="608.89" width="163.36" height="38" rx="19" class="label-bg"/><text x="728.91" y="637.89" class="label" text-anchor="end">Кызылорда</text></g><g class="label-wrap"><rect x="152.70" y="235.61" width="88.96" height="38" rx="19" class="label-bg"/><text x="227.66" y="264.61" class="label" text-anchor="end">Орал</text></g><g class="label-wrap"><rect x="798.64" y="41.32" width="163.36" height="38" rx="19" class="label-bg"/><text x="880.32" y="70.32" class="label" text-anchor="middle">Петропавл</text></g><g class="label-wrap"><rect x="131.07" y="666.72" width="103.84" height="38" rx="19" class="label-bg"/><text x="220.91" y="695.72" class="label" text-anchor="end">Актау</text></g>
+</g>
+
+<g transform="translate(1240 82)">
+  <rect width="260" height="116" rx="22" fill="#F0EFEC" stroke="rgba(45,45,45,.08)"/>
+  <circle cx="30" cy="34" r="9" fill="#0077C2"/>
+  <text x="50" y="39" class="legend-title">Крупные города</text>
+  <text x="50" y="63" class="legend-text">Primary marker</text>
+  <circle cx="30" cy="82" r="9" fill="#00A86B"/>
+  <text x="50" y="87" class="legend-title">Timeline-ready</text>
+  <text x="50" y="111" class="legend-text">SVG for modern_2025 layer</text>
+</g>
+</svg>

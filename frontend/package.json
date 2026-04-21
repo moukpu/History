@@ -1,0 +1,13 @@
+{
+  "name": "kazakhstan-timeline-map-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static frontend for the Kazakhstan interactive timeline map",
+  "scripts": {
+    "start": "node scripts/serve-static.mjs",
+    "dev": "node scripts/serve-static.mjs"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0"
+  }
+}

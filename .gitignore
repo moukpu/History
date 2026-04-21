@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+*.db
+!quizzes.db
+.env
+.DS_Store
+.idea/
+.vscode/
+frontend/node_modules/
+*.log
+*.err
+timeline_*.txt

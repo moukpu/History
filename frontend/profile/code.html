@@ -1,0 +1,337 @@
+<!DOCTYPE html><html class="light" lang="ru"><head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Sapar Quest - Профиль</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#3de4e7",
+              "secondary-container": "#ffd709",
+              "on-secondary-container": "#5b4b00",
+              "on-primary-fixed-variant": "#006264",
+              "tertiary-dim": "#00576e",
+              "surface-container-highest": "#ddddd8",
+              "on-error-container": "#570008",
+              "primary-container": "#52f2f5",
+              "error-container": "#fb5151",
+              "primary-fixed": "#52f2f5",
+              "tertiary-container": "#9ae1ff",
+              "secondary-fixed-dim": "#efc900",
+              primary: "#006668",
+              error: "#b31b25",
+              "on-secondary-fixed": "#453900",
+              "inverse-on-surface": "#9d9d9a",
+              "on-tertiary-container": "#005267",
+              "primary-dim": "#00595b",
+              "outline-variant": "#adadaa",
+              "on-surface-variant": "#5b5c59",
+              "on-error": "#ffefee",
+              "secondary-dim": "#5e4e00",
+              "on-tertiary-fixed-variant": "#005c74",
+              "surface-container-high": "#e3e3de",
+              outline: "#767774",
+              "on-primary-fixed": "#004344",
+              "on-tertiary-fixed": "#003d4f",
+              "inverse-primary": "#5dfbfe",
+              "on-tertiary": "#e3f6ff",
+              "on-surface": "#2e2f2d",
+              "on-primary": "#befeff",
+              surface: "#f7f6f2",
+              "on-background": "#2e2f2d",
+              "on-primary-container": "#005859",
+              "surface-container-low": "#f1f1ed",
+              tertiary: "#04647d",
+              "surface-container": "#e8e8e4",
+              secondary: "#6c5a00",
+              "tertiary-fixed-dim": "#8cd3f0",
+              background: "#f7f6f2",
+              "on-secondary": "#fff2cd",
+              "surface-dim": "#d4d5d0",
+              "secondary-fixed": "#ffd709",
+              "surface-container-lowest": "#ffffff",
+              "error-dim": "#9f0519",
+              "inverse-surface": "#0d0f0d",
+              "tertiary-fixed": "#9ae1ff",
+              "surface-variant": "#ddddd8",
+              "surface-bright": "#f7f6f2",
+              "surface-tint": "#006668",
+              "on-secondary-fixed-variant": "#665500",
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              lg: "2rem",
+              xl: "3rem",
+              full: "9999px",
+            },
+            fontFamily: {
+              headline: ["Montserrat", "sans-serif"],
+              body: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+        font-family: 'Material Symbols Outlined';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f7f6f2;
+      }
+      h1, h2, h3, h4 {
+        font-family: "Montserrat", sans-serif;
+      }
+      .avatar-crop-stage {
+        width: 288px;
+        height: 288px;
+        aspect-ratio: 1 / 1;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.5rem;
+        background: #fdfdfb;
+        touch-action: none;
+      }
+      .avatar-crop-mask {
+        position: absolute;
+        inset: 16px;
+        border-radius: 9999px;
+        box-shadow: 0 0 0 999px rgba(15, 23, 42, 0.65), inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+        pointer-events: none;
+        z-index: 10;
+      }
+      .avatar-crop-image {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        display: block;
+        padding: 0;
+        margin: 0;
+        border: none;
+        max-width: none;
+        user-select: none;
+        -webkit-user-drag: none;
+        cursor: grab;
+      }
+      .avatar-crop-image.is-dragging {
+        cursor: grabbing !important;
+      }
+      .avatar-template-tile.is-selected {
+        border-color: rgba(0, 102, 104, 0.55);
+        box-shadow: 0 0 0 3px rgba(82, 242, 245, 0.18);
+      }
+      .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scroll::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scroll::-webkit-scrollbar-thumb {
+        background: #006668;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body class="antialiased min-h-screen pb-28 md:pb-0 pt-20 md:pt-24 relative overflow-x-hidden flex flex-col">
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] flex items-center px-8 h-20">
+      <a class="text-2xl font-black bg-gradient-to-br from-[#006668] to-[#52f2f5] bg-clip-text text-transparent tracking-tighter" href="../home_page/code.html">
+        Sapar Quest
+      </a>
+      
+      <div class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+        <a data-i18n="nav_explore" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../home_page/code.html">Главная</a>
+        <a data-i18n="nav_map" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../map_hub/code.html">Карта</a>
+        <a data-i18n="nav_leaderboard" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../leaderboard/code.html">Рейтинг</a>
+      </div>
+
+      <div class="ml-auto flex items-center gap-4">
+        <a class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container hover:scale-105 transition-transform shadow-md" href="./code.html">
+          <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+        </a>
+      </div>
+    </nav>
+
+    <div id="profile-error" data-profile-error="" class="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-error-container text-on-error-container px-6 py-3 rounded-xl shadow-xl hidden"></div>
+
+    <main class="max-w-6xl mx-auto px-6 py-12 w-full flex-1">
+      <header class="flex flex-col md:flex-row items-center md:items-start gap-10 mb-16">
+        <div class="relative group">
+          <div class="w-40 h-40 md:w-48 md:h-48 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-surface-container-low flex items-center justify-center relative">
+            <img alt="Аватар" class="w-full h-full object-cover hidden" data-profile-avatar-image="">
+            <div class="flex flex-col items-center justify-center text-outline-variant" data-profile-avatar-fallback="">
+              <span class="material-symbols-outlined text-6xl" style="font-variation-settings: 'FILL' 1;">person</span>
+            </div>
+          </div>
+          <button class="absolute bottom-2 right-2 bg-primary text-on-primary w-12 h-12 rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-90 transition-all" data-profile-avatar-button="">
+            <span class="material-symbols-outlined">photo_camera</span>
+          </button>
+        </div>
+
+        <div class="flex-1 text-center md:text-left pt-4">
+          <h1 class="text-4xl md:text-6xl font-black text-primary mb-2 tracking-tighter" data-profile-username="">Загрузка...</h1>
+          <p class="text-lg md:text-xl font-medium text-on-surface-variant mb-8" data-profile-email=""></p>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-surface-container-low p-6 rounded-2xl border border-outline/5 transition-all hover:shadow-md">
+              <div data-i18n="stat_xp" class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-2">Опыт</div>
+              <div class="text-3xl font-black text-primary flex items-baseline gap-1">
+                <span data-profile-score="">0</span>
+                <span class="text-xs font-bold opacity-60">XP</span>
+              </div>
+            </div>
+
+            <div class="bg-surface-container-low p-6 rounded-2xl border border-outline/5 transition-all hover:shadow-md">
+              <div data-i18n="stat_tests" class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-2">Пройдено тестов</div>
+              <div class="text-3xl font-black text-on-surface" data-profile-tests="">0</div>
+            </div>
+            <div class="bg-surface-container-low p-6 rounded-2xl border border-outline/5 transition-all hover:shadow-md">
+              <div data-i18n="stat_achievements" class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-2">Достижения</div>
+              <div class="text-3xl font-black text-on-surface" data-profile-achievements-count="">0</div>
+            </div>
+            <div class="bg-surface-container-low p-6 rounded-2xl border border-outline/5 transition-all hover:shadow-md">
+              <div data-i18n="stat_accuracy" class="text-on-surface-variant text-[10px] font-black uppercase tracking-widest mb-2">Точность</div>
+              <div class="text-3xl font-black text-on-surface">
+                <span data-profile-accuracy="">0</span><span class="text-xl font-bold opacity-50">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="flex flex-col lg:flex-row gap-8 items-start">
+        <!-- Левая колонка: Достижения (со своим скроллом) -->
+        <div class="lg:w-2/5 lg:sticky lg:top-24">
+          <div class="bg-surface-container-low rounded-3xl p-8 shadow-sm">
+            <h2 class="text-2xl font-black text-on-surface mb-6 flex items-center gap-3 tracking-tight">
+              <span class="material-symbols-outlined text-secondary text-3xl">emoji_events</span>
+              <span data-i18n="achievements_title">Мои достижения</span>
+            </h2>
+            <div class="overflow-y-auto max-h-[420px] pr-1 custom-scroll">
+              <div class="grid grid-cols-3 sm:grid-cols-4 gap-4" data-achievements-grid="">
+                <div data-i18n="loading" class="text-center text-on-surface-variant py-8 col-span-full font-medium">Загрузка...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Правая колонка: История тестов + ЕНТ друг над другом -->
+        <div class="lg:w-3/5 space-y-8">
+          <div class="bg-surface-container-low rounded-3xl p-8 shadow-sm">
+            <h2 class="text-2xl font-black text-on-surface mb-6 flex items-center gap-3 tracking-tight">
+              <span class="material-symbols-outlined text-tertiary text-3xl">history</span>
+              <span data-i18n="recent_title">Последняя активность</span>
+            </h2>
+            <div class="space-y-4 overflow-y-auto max-h-[380px] pr-1 custom-scroll" data-recent-results="">
+              <div data-i18n="loading" class="text-center text-on-surface-variant py-8 font-medium">Загрузка...</div>
+            </div>
+          </div>
+
+          <div class="bg-surface-container-low rounded-3xl p-8 shadow-sm">
+            <h2 class="text-2xl font-black text-on-surface mb-6 flex items-center gap-3 tracking-tight">
+              <span class="material-symbols-outlined text-primary text-3xl">school</span>
+              <span data-i18n="ent_title">История ЕНТ</span>
+            </h2>
+            <div class="space-y-4 overflow-y-auto max-h-[380px] pr-1 custom-scroll" data-ent-results="">
+              <div data-i18n="loading" class="text-center text-on-surface-variant py-8 font-medium">Загрузка...</div>
+            </div>
+          </div>
+
+          <button class="w-full bg-white border border-outline/10 text-error font-black py-5 rounded-2xl shadow-sm hover:bg-error-container/5 active:scale-95 transition-all flex items-center justify-center gap-2" data-logout-button="">
+            <span class="material-symbols-outlined">logout</span>
+            <span data-i18n="logout">Выйти</span>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <footer class="mt-auto bg-[#f1f1ed] w-full py-10 rounded-t-[3rem] flex flex-col items-center gap-4">
+      <div class="flex gap-10 font-bold text-sm text-[#2e2f2d]/60">
+        <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+        <a class="hover:text-primary transition-colors" href="#">Parental Guide</a>
+        <a class="hover:text-primary transition-colors" href="#">Help Center</a>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <span class="font-black text-[#2e2f2d] text-lg tracking-tighter">Sapar Quest</span>
+        <p class="font-bold text-xs text-[#2e2f2d]/40">© 2026 Sapar Quest — Твоя живая история</p>
+      </div>
+    </footer>
+
+    <!-- Avatar Modal -->
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden" data-avatar-modal="">
+      <div class="bg-surface-container-lowest w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="px-8 py-6 border-b border-outline/5 flex items-center justify-between">
+          <h3 data-i18n="avatar_modal_title" class="text-2xl font-black text-on-surface tracking-tight">Настройка аватара</h3>
+          <button class="text-on-surface-variant hover:text-on-surface transition-colors" data-avatar-modal-close="" data-avatar-close-button="">
+            <span class="material-symbols-outlined text-3xl">close</span>
+          </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-10 flex flex-col md:flex-row gap-10">
+          <div class="flex flex-col items-center gap-6">
+            <div class="avatar-crop-stage" data-avatar-crop-stage="">
+              <img alt="Редактирование" class="avatar-crop-image hidden" data-avatar-crop-image="" draggable="false">
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-outline-variant p-6 text-center" data-avatar-crop-empty="">
+                <span class="material-symbols-outlined text-5xl mb-2">image</span>
+                <p data-i18n="avatar_crop_empty" class="text-xs font-bold">Выберите шаблон или загрузите своё фото</p>
+              </div>
+              <div class="avatar-crop-mask"></div>
+            </div>
+            <div class="flex gap-4 w-full">
+              <button class="flex-1 bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant font-black py-4 rounded-2xl text-xs transition-all flex items-center justify-center gap-2" data-avatar-upload-trigger="">
+                <span class="material-symbols-outlined text-lg">upload</span>
+                <span data-i18n="avatar_upload">Загрузить</span>
+              </button>
+              <button class="w-14 h-14 bg-error-container/10 text-error hover:bg-error-container/20 rounded-2xl flex items-center justify-center transition-all" data-avatar-reset-button="">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+            <input class="hidden" data-avatar-file-input="" type="file" accept="image/*">
+          </div>
+          <div class="flex-1 space-y-8">
+            <div>
+              <label data-i18n="avatar_templates" class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4">Шаблоны</label>
+              <div class="grid grid-cols-4 gap-3" data-avatar-template-grid=""></div>
+            </div>
+            <div class="pt-8 border-t border-outline/5">
+              <label data-i18n="avatar_preview" class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4">Предпросмотр</label>
+              <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg flex items-center justify-center bg-surface">
+                <img alt="Превью" class="w-full h-full object-cover hidden" data-avatar-preview-image="">
+                <span class="material-symbols-outlined text-4xl text-outline-variant" data-avatar-preview-fallback="">person</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-8 border-t border-outline/5 bg-surface-container-low flex flex-col gap-4">
+          <div id="avatar-error" data-avatar-error="" class="text-error text-xs font-bold hidden bg-error-container/10 p-3 rounded-xl"></div>
+          <div class="flex gap-4">
+            <button data-i18n="avatar_cancel" class="flex-1 bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-black py-5 rounded-2xl transition-all" data-avatar-cancel-button="">Отмена</button>
+            <button data-i18n="avatar_save" class="flex-1 bg-primary text-on-primary font-black py-5 rounded-2xl shadow-xl hover:bg-primary-dim transition-all active:scale-95" data-avatar-save-button="">Сохранить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <script type="module" src="../shared/profile.js"></script>
+  
+
+</body></html>

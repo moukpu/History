@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html class="light" lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Sapar Quest - Interactive Map Hub</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Be+Vietnam+Pro:wght@300;400;500;600&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f1f1ed",
+              "error-container": "#fb5151",
+              "on-primary-fixed": "#004344",
+              "primary-dim": "#00595b",
+              surface: "#f7f6f2",
+              outline: "#767774",
+              "surface-container": "#e8e8e4",
+              "on-error-container": "#570008",
+              "surface-dim": "#d4d5d0",
+              "on-secondary-fixed-variant": "#665500",
+              "on-secondary": "#fff2cd",
+              primary: "#006668",
+              "on-primary": "#befeff",
+              "surface-container-high": "#e3e3de",
+              "outline-variant": "#adadaa",
+              secondary: "#6c5a00",
+              "surface-container-lowest": "#ffffff",
+              "inverse-surface": "#0d0f0d",
+              background: "#f7f6f2",
+              "on-primary-container": "#005859",
+              "surface-container-highest": "#ddddd8",
+              "secondary-container": "#ffd709",
+              "on-secondary-container": "#5b4b00",
+              "primary-fixed-dim": "#3de4e7",
+              "on-surface-variant": "#5b5c59",
+              "secondary-fixed": "#ffd709",
+              "on-error": "#ffefee",
+              "surface-tint": "#006668",
+              "secondary-dim": "#5e4e00",
+              "surface-bright": "#f7f6f2",
+              "on-secondary-fixed": "#453900",
+              "on-surface": "#2e2f2d",
+              "error-dim": "#9f0519",
+              "secondary-fixed-dim": "#efc900",
+              "on-tertiary-fixed-variant": "#005c74",
+              "surface-variant": "#ddddd8",
+              "tertiary-dim": "#00576e",
+              tertiary: "#04647d",
+              "on-background": "#2e2f2d",
+              "tertiary-container": "#9ae1ff",
+              "primary-container": "#52f2f5",
+              "inverse-on-surface": "#9d9d9a",
+              "on-tertiary-container": "#005267",
+              "on-tertiary": "#e3f6ff",
+              "on-primary-fixed-variant": "#006264",
+              "tertiary-fixed": "#9ae1ff",
+              "tertiary-fixed-dim": "#8cd3f0",
+              error: "#b31b25",
+              "inverse-primary": "#5dfbfe",
+              "primary-fixed": "#52f2f5",
+              "on-tertiary-fixed": "#003d4f",
+            },
+            borderRadius: {
+              DEFAULT: "1rem",
+              lg: "2rem",
+              xl: "3rem",
+              full: "9999px",
+            },
+            fontFamily: {
+              headline: ["Plus Jakarta Sans"],
+              body: ["Be Vietnam Pro"],
+              label: ["Plus Jakarta Sans"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+      .fill-icon {
+        font-variation-settings: "FILL" 1;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #006668;
+        border-radius: 10px;
+      }
+      .no-border-tonal-stepping {
+        border: none !important;
+      }
+      .map-page-shell {
+        min-height: calc(100svh - 5rem);
+      }
+      .map-page-stage,
+      .map-page-aside {
+        min-height: 0;
+      }
+      .map-page-aside {
+        overscroll-behavior: contain;
+      }
+      [data-city-name] {
+        font-size: 2.35rem !important;
+        line-height: 1;
+      }
+      [data-city-subtitle],
+      [data-city-description] {
+        font-size: 0.95rem;
+      }
+      [data-active-era-label] {
+        display: none !important;
+      }
+      [data-map-backdrop],
+      [data-map-markers] {
+        transition: inset 0.45s ease, opacity 0.45s ease;
+      }
+      [data-map-backdrop].is-svg-mode {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image: none !important;
+        mix-blend-mode: normal !important;
+        filter: none !important;
+        opacity: 1 !important;
+      }
+      [data-map-backdrop].is-svg-mode svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        user-select: none;
+      }
+      [data-map-backdrop].is-svg-mode .map-city {
+        cursor: pointer;
+        transform-box: fill-box;
+        transform-origin: center;
+        transition: transform 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
+      }
+      [data-map-backdrop].is-svg-mode .map-city:focus-visible {
+        outline: none;
+      }
+      [data-map-backdrop].is-svg-mode .map-city .map-city-core,
+      [data-map-backdrop].is-svg-mode .map-city .map-city-ring,
+      [data-map-backdrop].is-svg-mode .map-city .map-city-label {
+        transition: fill 0.18s ease, stroke 0.18s ease, opacity 0.18s ease;
+      }
+      [data-map-backdrop].is-svg-mode .map-city:hover:not(.is-disabled):not(.is-static),
+      [data-map-backdrop].is-svg-mode .map-city.is-active {
+        transform: scale(1.04);
+      }
+      [data-map-backdrop].is-svg-mode .map-city.is-static {
+        cursor: default;
+        pointer-events: none;
+      }
+      [data-map-backdrop].is-svg-mode .map-city.is-disabled {
+        cursor: default;
+        opacity: 0.18;
+        pointer-events: none;
+      }
+      [data-map-backdrop].is-svg-mode .map-city.is-capital:not(.is-active):not([data-preserve-svg-colors="true"]) .map-city-core {
+        fill: #d62828;
+        stroke: #1a1a2e;
+      }
+      [data-map-backdrop].is-svg-mode .map-city.is-capital:not(.is-active):not([data-preserve-svg-colors="true"]) .map-city-ring {
+        opacity: 0.45;
+        stroke: #d62828;
+      }
+      [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-core {
+        fill: #ffd709;
+        stroke: #5b4b00;
+      }
+      [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-ring {
+        opacity: 1;
+        stroke: #ffd709;
+      }
+      @media (min-width: 1024px) {
+        .map-page-shell {
+          height: calc(100svh - 5rem);
+          max-height: calc(100svh - 5rem);
+        }
+        .map-page-aside {
+          height: 100%;
+          overflow-y: auto;
+        }
+        [data-city-name] {
+          font-size: 2.75rem !important;
+        }
+        [data-map-backdrop],
+        [data-map-markers] {
+          top: 1.85rem !important;
+          right: 2.35rem !important;
+          bottom: 10rem !important;
+          left: 2.35rem !important;
+        }
+        [data-map-backdrop] {
+          background-size: contain !important;
+          background-repeat: no-repeat !important;
+          background-position: center !important;
+        }
+      }
+      @media (min-width: 1440px) {
+        [data-map-backdrop],
+        [data-map-markers] {
+          top: 2rem !important;
+          right: 3rem !important;
+          bottom: 10.25rem !important;
+          left: 3rem !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden overflow-y-auto min-h-[100svh] flex flex-col">
+    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] no-border-tonal-stepping flex items-center px-8 h-20">
+      <a class="text-2xl font-extrabold bg-gradient-to-br from-[#006668] to-[#52f2f5] bg-clip-text text-transparent" href="../home_page/code.html">Sapar Quest</a>
+      <div class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+        <a class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../home_page/code.html">Главная</a>
+        <a class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#006668] border-b-4 border-[#ffd709] pb-1 hover:scale-105 hover:opacity-100 transition-all" href="./code.html">Карта</a>
+        <a class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../leaderboard/code.html">Рейтинг</a>
+      </div>
+      <div class="ml-auto flex items-center gap-4 text-[#006668]">
+        <a class="material-symbols-outlined scale-95 duration-200 active:scale-90 hover:scale-105" href="../profile/code.html" style="font-variation-settings: 'FILL' 1;">account_circle</a>
+      </div>
+    </nav>
+
+    <main class="map-page-shell relative mt-20 flex flex-col lg:flex-row flex-none overflow-hidden">
+      <div class="map-page-stage relative flex-1 min-h-[30rem] bg-surface-container-low overflow-hidden">
+        <div class="absolute inset-0 z-0 transition-all duration-500 mix-blend-multiply grayscale contrast-125 bg-cover bg-center" data-map-backdrop></div>
+
+        <div class="absolute top-6 left-6 z-20 max-w-md" data-loading-state>
+          <div class="bg-surface-container-lowest/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-outline-variant/10">
+            <div class="flex items-center gap-3 text-primary">
+              <span class="material-symbols-outlined animate-spin">progress_activity</span>
+              <span class="font-headline font-bold">Загрузка карты и прогресса...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="absolute top-6 left-6 z-20 max-w-md hidden" data-error-state>
+          <div class="bg-surface-container-lowest/90 backdrop-blur-md p-5 rounded-xl shadow-lg border border-error/20">
+            <p class="text-sm text-error mb-4" data-error-message>Ошибка загрузки.</p>
+            <button class="bg-primary text-on-primary px-5 py-3 rounded-full font-headline font-bold" data-retry-button>Повторить</button>
+          </div>
+        </div>
+
+        <div class="absolute top-5 right-5 z-20 w-[18.5rem] max-w-[calc(100%-2.5rem)] pointer-events-none">
+          <div class="bg-surface-container-lowest/88 backdrop-blur-md p-3.5 rounded-xl shadow-lg border border-outline-variant/10">
+            <div class="grid grid-cols-2 gap-2.5">
+              <div class="bg-surface-container-low p-3.5 rounded-lg">
+                <div class="text-[10px] font-bold uppercase tracking-[0.18em] text-outline">Тесты</div>
+                <div class="mt-1.5 font-headline text-xl font-extrabold text-primary" data-player-tests>0 / 0</div>
+              </div>
+              <div class="bg-surface-container-low p-3.5 rounded-lg">
+                <div class="text-[10px] font-bold uppercase tracking-[0.18em] text-outline">Достижения</div>
+                <div class="mt-1.5 font-headline text-xl font-extrabold text-primary" data-player-achievements>0</div>
+              </div>
+            </div>
+            <div class="mt-2.5 flex flex-wrap gap-1.5" data-achievement-preview></div>
+          </div>
+        </div>
+
+        <div class="absolute inset-0 z-10" data-map-markers></div>
+
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-[84%] max-w-[50rem] z-20">
+          <div class="bg-surface-container-lowest/92 backdrop-blur-md px-4 py-5 lg:px-5 lg:py-6 rounded-xl shadow-lg border border-outline-variant/10">
+            <div class="flex justify-between items-center mb-4 px-2">
+              <h3 class="font-headline font-bold text-sm lg:text-base text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">history_edu</span>
+                Лента времени степи
+              </h3>
+              <span class="text-secondary font-bold px-3 py-1 bg-secondary-container rounded-full text-sm" data-active-era-label>Активный период</span>
+            </div>
+            <div class="relative flex min-h-[4.5rem] items-center justify-between px-3 pb-2">
+              <div class="absolute h-1.5 w-full bg-surface-container-highest rounded-full top-1/2 -translate-y-1/2"></div>
+              <div class="absolute h-1.5 bg-primary rounded-full top-1/2 -translate-y-1/2 transition-all duration-300" data-timeline-fill style="width:0%"></div>
+              <div class="relative w-full flex items-center justify-between" data-timeline-points></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="map-page-aside w-full lg:w-[372px] xl:w-[384px] shrink-0 bg-surface p-6 lg:p-7 lg:overflow-y-auto custom-scrollbar shadow-[-12px_0_32px_rgba(0,0,0,0.03)] z-30">
+        <div class="flex flex-col gap-5 lg:gap-6 pb-6">
+          <div class="order-1 relative rounded-xl overflow-hidden aspect-[4/3] shadow-xl group">
+            <img alt="City illustration" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-city-image />
+            <div class="absolute top-3 right-3 bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full font-bold text-xs flex items-center gap-1.5 shadow-lg">
+              <span class="material-symbols-outlined text-[14px]">history</span>
+              <span data-city-era-badge>Исторический период</span>
+            </div>
+          </div>
+
+          <div class="order-2 space-y-2.5">
+            <div class="flex items-center gap-2 text-primary">
+              <span class="material-symbols-outlined text-sm">location_city</span>
+              <span class="text-xs font-bold uppercase tracking-[0.2em]" data-city-role>Город периода</span>
+            </div>
+            <h1 class="font-headline text-5xl font-extrabold text-on-surface tracking-tighter" data-city-name>Выберите город</h1>
+            <p class="text-on-surface-variant leading-relaxed" data-city-subtitle>На карте появятся доступные города выбранного периода.</p>
+          </div>
+
+          <div class="hidden" data-city-chips></div>
+
+          <p class="order-3 text-on-surface-variant leading-relaxed text-sm" data-city-description>
+            Исторический контент загрузится после выбора города.
+          </p>
+
+          <div class="order-5 grid grid-cols-2 gap-3">
+            <div class="bg-surface-container-low p-4 rounded-lg flex flex-col gap-1">
+              <span class="text-primary font-bold text-2xl" data-city-metric-primary>0%</span>
+              <span class="text-xs text-outline font-medium uppercase" data-city-metric-primary-label>Лучший результат</span>
+            </div>
+            <div class="bg-surface-container-low p-4 rounded-lg flex flex-col gap-1">
+              <span class="text-primary font-bold text-2xl" data-city-metric-secondary>0</span>
+              <span class="text-xs text-outline font-medium uppercase" data-city-metric-secondary-label>Попыток</span>
+            </div>
+          </div>
+
+          <div class="hidden bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden">
+            <div class="absolute -right-4 -bottom-4 opacity-10">
+              <span class="material-symbols-outlined text-8xl">menu_book</span>
+            </div>
+            <h4 class="font-headline font-bold text-lg mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary fill-icon">history_edu</span>
+              <span data-city-history-title>Краткая история</span>
+            </h4>
+            <p class="text-on-surface-variant leading-relaxed text-sm" data-city-history-text>
+              Историческая справка появится после выбора города.
+            </p>
+          </div>
+
+          <div class="hidden bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm relative overflow-hidden">
+            <div class="absolute -right-4 -bottom-4 opacity-10">
+              <span class="material-symbols-outlined text-8xl">lightbulb</span>
+            </div>
+            <h4 class="font-headline font-bold text-lg mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary fill-icon">lightbulb</span>
+              <span data-city-fact-title>Интересный факт</span>
+            </h4>
+            <p class="text-on-surface-variant leading-relaxed text-sm" data-city-fact-text>
+              Короткий факт о городе будет показан после загрузки контента.
+            </p>
+          </div>
+
+          <div class="hidden bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm">
+            <div class="flex justify-between items-end">
+              <span class="text-xs font-bold text-outline uppercase" data-city-progress-label>Прогресс по городу</span>
+              <span class="text-sm font-bold text-primary" data-city-progress-value>0%</span>
+            </div>
+            <div class="mt-3 h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+              <div class="h-full bg-primary-container rounded-full transition-all duration-300" data-city-progress-bar style="width:4%"></div>
+            </div>
+          </div>
+
+          <div class="hidden bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <h4 class="font-headline font-bold text-lg text-on-surface" data-fact-title>Факт-вызов</h4>
+                <p class="text-on-surface-variant text-sm mt-2 leading-relaxed" data-fact-text>
+                  Получите короткий исторический факт и угадайте нужный город прямо на карте.
+                </p>
+                <p class="text-xs text-outline mt-3 leading-relaxed" data-fact-helper>
+                  Результат сохранится в backend и повлияет на прогресс игрока.
+                </p>
+              </div>
+              <button class="hidden bg-surface-container-highest text-on-surface px-4 py-2 rounded-full font-headline text-sm font-bold hover:bg-surface-dim transition-all" data-fact-cancel-button>Сбросить</button>
+            </div>
+          </div>
+
+          <div class="order-6 hidden" data-status-message></div>
+
+          <div class="order-4 grid grid-cols-1 gap-4">
+            <button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold text-lg lg:text-xl py-5 rounded-full shadow-[0px_8px_24px_rgba(0,102,104,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3" data-start-quiz-button>
+              <span class="material-symbols-outlined fill-icon">play_arrow</span>
+              Начать тест
+            </button>
+            <button class="hidden w-full bg-secondary-container text-on-secondary-container font-headline font-bold text-lg py-5 rounded-full shadow-[0px_8px_24px_rgba(255,215,9,0.16)] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3" data-start-fact-button>
+              <span class="material-symbols-outlined">flare</span>
+              Начать факт-вызов
+            </button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="mt-12 bg-[#e7e3d8] w-full py-14 rounded-t-[3rem] flex flex-col items-center gap-5 z-40 relative shrink-0 border-t border-[#2e2f2d]/15 shadow-[0_-14px_36px_rgba(46,47,45,0.08)]">
+      <div class="flex flex-wrap justify-center gap-10 font-bold text-sm text-[#2e2f2d]/60">
+        <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+        <a class="hover:text-primary transition-colors" href="#">Parental Guide</a>
+        <a class="hover:text-primary transition-colors" href="#">Help Center</a>
+      </div>
+      <div class="flex flex-col items-center gap-1">
+        <span class="font-black text-[#2e2f2d] text-lg tracking-tighter">Sapar Quest</span>
+        <p class="font-bold text-xs text-[#2e2f2d]/40">© 2026 Sapar Quest — Твоя живая история</p>
+      </div>
+    </footer>
+
+    <script type="module" src="../shared/map-hub.js"></script>
+  </body>
+</html>

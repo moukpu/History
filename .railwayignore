@@ -1,0 +1,8 @@
+.env
+.venv
+__pycache__
+*.pyc
+*.log
+*.err
+timeline_*.txt
+frontend/node_modules
