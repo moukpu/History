@@ -11,6 +11,7 @@ from urllib.request import urlopen
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from openai import AsyncOpenAI, OpenAIError
@@ -188,6 +189,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Kazakhstan Interactive Map API", lifespan=lifespan)
+
+app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 app.add_middleware(
     CORSMiddleware,

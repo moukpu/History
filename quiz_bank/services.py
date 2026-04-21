@@ -2,6 +2,7 @@ import math
 import random
 import sqlite3
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from uuid import uuid4
 
@@ -93,6 +94,66 @@ from .database import (
 TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW = True
 
 
+def _db_cache_key(db_path: str | Path) -> str:
+    return str(Path(db_path).resolve())
+
+
+@lru_cache(maxsize=8)
+def _cached_timeline_periods(db_path_key: str) -> tuple[tuple[tuple[str, object], ...], ...]:
+    return tuple(
+        tuple(dict(item).items())
+        for item in list_timeline_periods(db_path_key)
+    )
+
+
+@lru_cache(maxsize=128)
+def _cached_period_cities(
+    db_path_key: str,
+    period_code: str,
+    only_available: bool,
+) -> tuple[tuple[tuple[str, object], ...], ...]:
+    return tuple(
+        tuple(dict(item).items())
+        for item in list_period_cities(db_path_key, period_code, only_available=only_available)
+    )
+
+
+@lru_cache(maxsize=128)
+def _cached_city_content_summaries(
+    db_path_key: str,
+    period_code: str,
+) -> tuple[tuple[tuple[str, object], ...], ...]:
+    return tuple(
+        tuple(dict(item).items())
+        for item in list_city_period_content_summaries(db_path_key, period_code)
+    )
+
+
+def _list_timeline_periods_cached(db_path: str | Path) -> list[dict[str, object]]:
+    return [dict(item) for item in _cached_timeline_periods(_db_cache_key(db_path))]
+
+
+def _list_period_cities_cached(
+    db_path: str | Path,
+    period_code: str,
+    only_available: bool = True,
+) -> list[dict[str, object]]:
+    return [
+        dict(item)
+        for item in _cached_period_cities(_db_cache_key(db_path), period_code, only_available)
+    ]
+
+
+def _list_city_period_content_summaries_cached(
+    db_path: str | Path,
+    period_code: str,
+) -> list[dict[str, object]]:
+    return [
+        dict(item)
+        for item in _cached_city_content_summaries(_db_cache_key(db_path), period_code)
+    ]
+
+
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
@@ -135,7 +196,7 @@ def _build_period_progress_snapshot(
     player_id: str,
 ) -> dict[str, object]:
     periods = sorted(
-        list_timeline_periods(db_path),
+        _list_timeline_periods_cached(db_path),
         key=lambda item: int(item["sort_order"]),
     )
     player_progress = get_player_progress(db_path, player_id)
@@ -147,7 +208,7 @@ def _build_period_progress_snapshot(
     states: list[dict[str, object]] = []
     for index, period in enumerate(periods):
         period_code = str(period["code"])
-        cities = list_period_cities(db_path, period_code, only_available=True)
+        cities = _list_period_cities_cached(db_path, period_code, only_available=True)
         total_cities = len(cities)
         passed_cities = sum(
             1
@@ -418,7 +479,7 @@ def _is_period_mastered(
     db_path: str | Path,
     period_code: str,
 ) -> bool:
-    period_cities = list_period_cities(db_path, period_code, only_available=True)
+    period_cities = _list_period_cities_cached(db_path, period_code, only_available=True)
     progress_by_city = {
         str(item["city"]): item
         for item in player_progress["city_progress"]
@@ -794,7 +855,7 @@ def start_fact_challenge(
                     ),
                 )
 
-            period_cities = list_period_cities(
+            period_cities = _list_period_cities_cached(
                 db_path,
                 payload.period_code,
                 only_available=True,
@@ -968,7 +1029,7 @@ def get_achievement_catalog_response(db_path: str | Path) -> AchievementCatalogR
 
 
 def get_timeline_periods_response(db_path: str | Path) -> TimelinePeriodsResponse:
-    periods = list_timeline_periods(db_path)
+    periods = _list_timeline_periods_cached(db_path)
     return TimelinePeriodsResponse(
         periods=[TimelinePeriodItem(**period) for period in periods]
     )
@@ -985,7 +1046,7 @@ def get_timeline_cities_response(
     finally:
         connection.close()
 
-    cities = list_period_cities(db_path, period_code, only_available=True)
+    cities = _list_period_cities_cached(db_path, period_code, only_available=True)
     return TimelineCitiesResponse(
         cities=[TimelineCityItem(**city) for city in cities]
     )
@@ -1024,7 +1085,7 @@ def get_city_content_summaries_response(
     finally:
         connection.close()
 
-    items = list_city_period_content_summaries(db_path, period_code)
+    items = _list_city_period_content_summaries_cached(db_path, period_code)
     return CityContentSummariesResponse(
         cities=[CityContentSummaryItem(**item) for item in items]
     )
@@ -1055,10 +1116,10 @@ def _build_period_city_frontend_rows(
     is_locked_for_testing: bool = False,
     player_achievements: list[dict[str, object]] | None = None,
 ) -> list[dict[str, object]]:
-    period_cities = list_period_cities(db_path, period_code, only_available=True)
+    period_cities = _list_period_cities_cached(db_path, period_code, only_available=True)
     content_summaries = {
         item["city"]: item
-        for item in list_city_period_content_summaries(db_path, period_code)
+        for item in _list_city_period_content_summaries_cached(db_path, period_code)
     }
     player_progress = get_player_progress(db_path, player_id)
     progress_by_city = {
