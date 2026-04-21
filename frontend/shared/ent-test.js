@@ -17,6 +17,10 @@ import {
 const STORAGE_KEY = "sapar-ent-test-state";
 const ENT_QUESTION_COUNT = 20;
 const ENT_DURATION_MS = 10 * 60 * 1000;
+const START_BUTTON_READY_TEXT = "Окей, начать";
+const START_BUTTON_LOADING_TEXT = "Вопросы загружаются...";
+const START_STATUS_LOADING_TEXT = "Вопросы уже загружаются на фоне.";
+const START_STATUS_READY_TEXT = "Вопросы готовы. Нажмите кнопку, чтобы запустить таймер.";
 
 const state = {
   playerId: null,
@@ -113,6 +117,16 @@ function setStartModalVisible(visible) {
   }
 }
 
+function setStartModalLoading(loading) {
+  if (!elements.startConfirmButton) {
+    return;
+  }
+
+  elements.startConfirmButton.disabled = loading;
+  setText(elements.startConfirmButton, loading ? START_BUTTON_LOADING_TEXT : START_BUTTON_READY_TEXT);
+  setText(elements.startStatus, loading ? START_STATUS_LOADING_TEXT : START_STATUS_READY_TEXT);
+}
+
 function stopTimer() {
   if (state.timerId) {
     window.clearInterval(state.timerId);
@@ -122,17 +136,17 @@ function stopTimer() {
 
 function syncTimerDisplay() {
   if (!state.quiz) {
-    setText(elements.scoreCounter, "10:00");
+    elements.scoreCounters.forEach((counter) => setText(counter, "10:00"));
     return;
   }
 
   if (state.result) {
-    setText(elements.scoreCounter, "0:00");
+    elements.scoreCounters.forEach((counter) => setText(counter, "0:00"));
     return;
   }
 
   const remainingMs = isTimerStarted() ? getRemainingMs() : ENT_DURATION_MS;
-  setText(elements.scoreCounter, formatTime(remainingMs));
+  elements.scoreCounters.forEach((counter) => setText(counter, formatTime(remainingMs)));
 }
 
 function startCountdown() {
@@ -446,9 +460,13 @@ function cacheElements() {
   elements.closeButton = queryRequired("[data-close-quiz]");
   elements.progressBar = queryRequired("[data-progress-bar]");
   elements.progressCounter = queryRequired("[data-progress-counter]");
-  elements.scoreCounter = queryRequired("[data-score-counter]");
+  elements.scoreCounters = Array.from(document.querySelectorAll("[data-score-counter]"));
+  if (elements.scoreCounters.length === 0) {
+    throw new Error("Missing required element: [data-score-counter]");
+  }
   elements.startModal = queryRequired("[data-ent-start-modal]");
   elements.startConfirmButton = queryRequired("[data-ent-start-confirm]");
+  elements.startStatus = queryRequired("[data-ent-start-status]");
   elements.questionSection = queryRequired("[data-question-section]");
   elements.questionTitle = queryRequired("[data-question-title]");
   elements.questionBody = queryRequired("[data-question-body]");
@@ -476,6 +494,10 @@ async function init() {
 
   cacheElements();
   bindEvents();
+  setStartModalLoading(true);
+  setStartModalVisible(true);
+  syncTimerDisplay();
+
   await reconcileStoredAuthUser();
   state.playerId = getOrCreatePlayerId();
   hideError();
@@ -485,6 +507,7 @@ async function init() {
     await startEntTest();
     console.log("ENT Test: Questions loaded successfully", state.quiz);
     render();
+    setStartModalLoading(false);
     if (state.quiz?.awaitingStart || !isTimerStarted()) {
       setStartModalVisible(true);
       syncTimerDisplay();
@@ -494,6 +517,9 @@ async function init() {
     }
   } catch (error) {
     console.error("ENT Test: Failed to load questions", error);
+    elements.startConfirmButton.disabled = true;
+    setText(elements.startConfirmButton, START_BUTTON_LOADING_TEXT);
+    setText(elements.startStatus, "Не удалось загрузить вопросы. Обновите страницу и попробуйте снова.");
     throw error;
   }
 }
