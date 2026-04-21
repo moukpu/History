@@ -1789,50 +1789,37 @@ def get_player_progress(db_path: str | Path, player_id: str) -> dict[str, Any]:
     ensure_database(db_path)
     connection = connect_db(db_path)
     try:
-        total_tests_completed = connection.execute(
+        metrics = connection.execute(
             """
-            SELECT COUNT(*)
-            FROM test_results
-            WHERE player_id = ?
+            SELECT
+                (
+                    SELECT COUNT(*)
+                    FROM test_results
+                    WHERE player_id = ?
+                ) AS total_tests_completed,
+                (
+                    SELECT COUNT(*)
+                    FROM test_results
+                    WHERE player_id = ? AND passed = 1
+                ) AS total_passed_tests,
+                (
+                    SELECT COALESCE(SUM(correct_answers) * 100 / NULLIF(SUM(total_questions), 0), 0)
+                    FROM test_results
+                    WHERE player_id = ? AND city != 'ЕНТ'
+                ) AS overall_accuracy_percent,
+                (
+                    SELECT COUNT(DISTINCT city)
+                    FROM player_city_progress
+                    WHERE player_id = ? AND passed_count > 0
+                ) AS distinct_cities_passed,
+                (
+                    SELECT COUNT(*)
+                    FROM player_achievements
+                    WHERE player_id = ?
+                ) AS total_achievements_unlocked
             """,
-            (player_id,),
-        ).fetchone()[0]
-
-        total_passed_tests = connection.execute(
-            """
-            SELECT COUNT(*)
-            FROM test_results
-            WHERE player_id = ? AND passed = 1
-            """,
-            (player_id,),
-        ).fetchone()[0]
-
-        overall_accuracy_percent = connection.execute(
-            """
-            SELECT COALESCE(SUM(correct_answers) * 100 / NULLIF(SUM(total_questions), 0), 0)
-            FROM test_results
-            WHERE player_id = ? AND city != 'ЕНТ'
-            """,
-            (player_id,),
-        ).fetchone()[0]
-
-        distinct_cities_passed = connection.execute(
-            """
-            SELECT COUNT(DISTINCT city)
-            FROM player_city_progress
-            WHERE player_id = ? AND passed_count > 0
-            """,
-            (player_id,),
-        ).fetchone()[0]
-
-        total_achievements_unlocked = connection.execute(
-            """
-            SELECT COUNT(*)
-            FROM player_achievements
-            WHERE player_id = ?
-            """,
-            (player_id,),
-        ).fetchone()[0]
+            (player_id, player_id, player_id, player_id, player_id),
+        ).fetchone()
 
         city_rows = connection.execute(
             """
@@ -1890,13 +1877,13 @@ def get_player_progress(db_path: str | Path, player_id: str) -> dict[str, Any]:
         )
 
     return {
-        "total_tests_completed": total_tests_completed,
-        "total_passed_tests": total_passed_tests,
-        "overall_accuracy_percent": int(overall_accuracy_percent),
-        "distinct_cities_passed": distinct_cities_passed,
+        "total_tests_completed": metrics["total_tests_completed"],
+        "total_passed_tests": metrics["total_passed_tests"],
+        "overall_accuracy_percent": int(metrics["overall_accuracy_percent"]),
+        "distinct_cities_passed": metrics["distinct_cities_passed"],
         "city_progress": [dict(row) for row in city_rows],
         "ent_attempts": ent_attempts,
-        "total_achievements_unlocked": total_achievements_unlocked,
+        "total_achievements_unlocked": metrics["total_achievements_unlocked"],
     }
 
 
@@ -1904,23 +1891,16 @@ def get_fact_challenge_progress(db_path: str | Path, player_id: str) -> dict[str
     ensure_database(db_path)
     connection = connect_db(db_path)
     try:
-        total_attempts = connection.execute(
+        totals = connection.execute(
             """
-            SELECT COUNT(*)
+            SELECT
+                COUNT(*) AS total_attempts,
+                COALESCE(SUM(is_correct), 0) AS total_correct
             FROM fact_challenge_results
             WHERE player_id = ?
             """,
             (player_id,),
-        ).fetchone()[0]
-
-        total_correct = connection.execute(
-            """
-            SELECT COUNT(*)
-            FROM fact_challenge_results
-            WHERE player_id = ? AND is_correct = 1
-            """,
-            (player_id,),
-        ).fetchone()[0]
+        ).fetchone()
 
         period_rows = connection.execute(
             """
@@ -1940,9 +1920,9 @@ def get_fact_challenge_progress(db_path: str | Path, player_id: str) -> dict[str
     finally:
         connection.close()
 
-    accuracy_percent = (
-        round((total_correct / total_attempts) * 100) if total_attempts else 0
-    )
+    total_attempts = int(totals["total_attempts"] or 0)
+    total_correct = int(totals["total_correct"] or 0)
+    accuracy_percent = round((total_correct / total_attempts) * 100) if total_attempts else 0
     per_period_summary = []
     for row in period_rows:
         attempts = row["total_attempts"]
