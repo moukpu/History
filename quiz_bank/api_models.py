@@ -92,7 +92,7 @@ class SubmittedAnswer(BaseModel):
 class SubmitTestRequest(BaseModel):
     player_id: PlayerId
     test_session_id: SessionId
-    answers: list[SubmittedAnswer] = Field(..., min_length=1)
+    answers: list[SubmittedAnswer] = Field(default_factory=list)
 
 
 class AchievementCatalogItem(BaseModel):

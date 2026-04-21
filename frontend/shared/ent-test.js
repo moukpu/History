@@ -15,11 +15,16 @@ import {
 } from "./helpers.js";
 
 const STORAGE_KEY = "sapar-ent-test-state";
+const ENT_QUESTION_COUNT = 20;
+const ENT_DURATION_MS = 10 * 60 * 1000;
 
 const state = {
   playerId: null,
   quiz: null,
   result: null,
+  resultTimedOut: false,
+  timerId: null,
+  submitting: false,
 };
 
 const elements = {};
@@ -75,6 +80,85 @@ function clearState() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+function isTimerStarted() {
+  return Boolean(state.quiz?.startedAt && state.quiz?.expiresAt);
+}
+
+function getRemainingMs() {
+  if (!state.quiz?.expiresAt || state.result) {
+    return 0;
+  }
+
+  return Math.max(0, Number(state.quiz.expiresAt) - Date.now());
+}
+
+function formatTime(ms) {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function setStartModalVisible(visible) {
+  if (!elements.startModal) {
+    return;
+  }
+
+  elements.startModal.classList.toggle("hidden", !visible);
+  elements.startModal.classList.toggle("flex", visible);
+}
+
+function stopTimer() {
+  if (state.timerId) {
+    window.clearInterval(state.timerId);
+    state.timerId = null;
+  }
+}
+
+function syncTimerDisplay() {
+  if (!state.quiz) {
+    setText(elements.scoreCounter, "10:00");
+    return;
+  }
+
+  if (state.result) {
+    setText(elements.scoreCounter, "0:00");
+    return;
+  }
+
+  const remainingMs = isTimerStarted() ? getRemainingMs() : ENT_DURATION_MS;
+  setText(elements.scoreCounter, formatTime(remainingMs));
+}
+
+function startCountdown() {
+  stopTimer();
+  syncTimerDisplay();
+
+  state.timerId = window.setInterval(() => {
+    syncTimerDisplay();
+    if (state.quiz && isTimerStarted() && getRemainingMs() <= 0) {
+      stopTimer();
+      submitQuiz({ allowIncomplete: true, timedOut: true }).catch((error) => {
+        showError(getErrorMessage(error));
+      });
+    }
+  }, 250);
+}
+
+function beginTimedTest() {
+  if (!state.quiz || isTimerStarted()) {
+    return;
+  }
+
+  const now = Date.now();
+  state.quiz.startedAt = now;
+  state.quiz.expiresAt = now + ENT_DURATION_MS;
+  saveState();
+  setStartModalVisible(false);
+  startCountdown();
+  render();
+}
+
 function renderHeader() {
   if (!state.quiz) return;
 
@@ -89,9 +173,7 @@ function renderHeader() {
   elements.progressBar.style.width = `${progressPercent}%`;
   setText(elements.progressCounter, `${progressValue} / ${state.quiz.questions.length}`);
 
-  const answered = Object.keys(state.quiz.answers).length;
-  const unit = window.saparI18n?.t("label_answers_short") || "отв.";
-  setText(elements.scoreCounter, `${answered} ${unit}`);
+  syncTimerDisplay();
 }
 
 function renderQuestion() {
@@ -107,7 +189,8 @@ function renderQuestion() {
 
   setVisible(elements.questionSection, true);
   setVisible(elements.resultSection, false);
-  setVisible(elements.submitButton, true);
+  setVisible(elements.submitButton, isTimerStarted());
+  setVisible(elements.prevButton, isTimerStarted() && state.quiz.currentIndex > 0);
 
   setText(elements.questionTitle, question.question);
   
@@ -115,9 +198,6 @@ function renderQuestion() {
     .replace("{current}", state.quiz.currentIndex + 1)
     .replace("{total}", state.quiz.questions.length);
   setText(elements.questionBody, qHint);
-
-  // Show/hide prev button
-  setVisible(elements.prevButton, state.quiz.currentIndex > 0);
 
   const selectedIndex = getSelectedAnswerIndex();
   const letters = ["A", "B", "C", "D"];
@@ -170,6 +250,7 @@ function renderQuestion() {
 function renderResult() {
   if (!state.result) return;
 
+  stopTimer();
   setVisible(elements.questionSection, false);
   setVisible(elements.resultSection, true);
   setVisible(elements.submitButton, false);
@@ -191,7 +272,12 @@ function renderResult() {
   setText(elements.resultBody, bodyText);
 
   const secondaryKey = passed ? "result_success_secondary" : "result_fail_secondary";
-  setText(elements.resultSecondary, window.saparI18n?.t(secondaryKey) || (passed ? "Продолжайте готовиться — вы на верном пути к успешной сдаче ЕНТ!" : "Не расстраивайтесь, повторите материал и пройдите тест заново."));
+  setText(
+    elements.resultSecondary,
+    state.resultTimedOut
+      ? "Время вышло. Тест сдан автоматически, неотвеченные вопросы засчитаны как 0 баллов."
+      : window.saparI18n?.t(secondaryKey) || (passed ? "Продолжайте готовиться — вы на верном пути к успешной сдаче ЕНТ!" : "Не расстраивайтесь, повторите материал и пройдите тест заново.")
+  );
 }
 
 function render() {
@@ -199,20 +285,43 @@ function render() {
   renderQuestion();
 }
 
-async function submitQuiz() {
+async function submitQuiz({ allowIncomplete = false, timedOut = false } = {}) {
+  if (state.submitting || !state.quiz) {
+    return;
+  }
+
+  state.submitting = true;
+  stopTimer();
+  hideError();
+
+  const answers = state.quiz.questions
+    .filter((question) => state.quiz.answers[question.id] !== undefined)
+    .map((question) => ({
+      question_id: question.id,
+      selected_index: state.quiz.answers[question.id],
+    }));
+
+  if (!allowIncomplete && answers.length !== state.quiz.questions.length) {
+    state.submitting = false;
+    startCountdown();
+    return;
+  }
+
   const payload = {
     player_id: state.playerId,
     test_session_id: state.quiz.testSessionId,
-    answers: state.quiz.questions.map((question) => ({
-      question_id: question.id,
-      selected_index: state.quiz.answers[question.id],
-    })),
+    answers,
   };
 
-  const response = await api.submitTest(payload);
-  state.result = response;
-  clearState();
-  render();
+  try {
+    const response = await api.submitTest(payload);
+    state.result = response;
+    state.resultTimedOut = timedOut;
+    clearState();
+    render();
+  } finally {
+    state.submitting = false;
+  }
 }
 
 async function handleContinue() {
@@ -220,6 +329,10 @@ async function handleContinue() {
 
   if (state.result) {
     window.location.href = "../home_page/code.html";
+    return;
+  }
+
+  if (!isTimerStarted()) {
     return;
   }
 
@@ -280,7 +393,7 @@ async function startEntTest() {
     player_id: state.playerId,
     city: "ENT_MODE",
     period_code: "ENT",
-    question_count: 20,
+    question_count: ENT_QUESTION_COUNT,
   });
 
   state.quiz = {
@@ -289,6 +402,8 @@ async function startEntTest() {
     questions: response.questions,
     answers: {},
     currentIndex: 0,
+    startedAt: null,
+    expiresAt: null,
   };
   saveState();
 }
@@ -299,6 +414,7 @@ function bindEvents() {
   });
   elements.submitButton.addEventListener("click", handleContinue);
   elements.prevButton.addEventListener("click", handlePrev);
+  elements.startConfirmButton.addEventListener("click", beginTimedTest);
 }
 
 function cacheElements() {
@@ -306,6 +422,8 @@ function cacheElements() {
   elements.progressBar = queryRequired("[data-progress-bar]");
   elements.progressCounter = queryRequired("[data-progress-counter]");
   elements.scoreCounter = queryRequired("[data-score-counter]");
+  elements.startModal = queryRequired("[data-ent-start-modal]");
+  elements.startConfirmButton = queryRequired("[data-ent-start-confirm]");
   elements.questionSection = queryRequired("[data-question-section]");
   elements.questionTitle = queryRequired("[data-question-title]");
   elements.questionBody = queryRequired("[data-question-body]");
@@ -342,6 +460,13 @@ async function init() {
     await startEntTest();
     console.log("ENT Test: Questions loaded successfully", state.quiz);
     render();
+    if (isTimerStarted()) {
+      setStartModalVisible(false);
+      startCountdown();
+    } else {
+      setStartModalVisible(true);
+      syncTimerDisplay();
+    }
   } catch (error) {
     console.error("ENT Test: Failed to load questions", error);
     throw error;
