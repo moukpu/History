@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { translateAchievement } from "./achievements-i18n.js";
 import { escapeHtml, setHtml, setText } from "./helpers.js";
 import { clearStoredPlayerId, reconcileStoredAuthUser } from "./storage.js";
 import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
@@ -806,23 +807,26 @@ function renderAchievements(data, catalogData) {
   const html = items
     .map((item) => {
       const unlocked = unlockedCodes.has(item.code);
+      const translatedAchievement = translateAchievement(item, currentLanguage);
+      const achievementName = translatedAchievement.name || item.name || item.code;
+      const achievementDescription = translatedAchievement.description || item.description || "";
       if (unlocked) {
         return `
-          <div class="flex flex-col items-center text-center group cursor-pointer">
+          <div class="flex flex-col items-center text-center group cursor-pointer" title="${escapeHtml(achievementDescription)}">
             <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-secondary-container p-1 shadow-[0_8px_24px_rgba(46,47,45,0.06)] group-hover:scale-105 transition-transform flex items-center justify-center">
               <span class="material-symbols-outlined text-on-secondary-container text-3xl" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
             </div>
-            <span class="text-xs font-bold text-on-surface mt-2 leading-tight">${escapeHtml(item.name)}</span>
+            <span class="text-xs font-bold text-on-surface mt-2 leading-tight">${escapeHtml(achievementName)}</span>
           </div>
         `;
       }
 
       return `
-        <div class="flex flex-col items-center text-center opacity-50 grayscale group cursor-pointer">
+        <div class="flex flex-col items-center text-center opacity-50 grayscale group cursor-pointer" title="${escapeHtml(achievementDescription)}">
           <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-surface-container-highest p-1 border-2 border-dashed border-outline flex items-center justify-center">
             <span class="material-symbols-outlined text-outline">lock</span>
           </div>
-          <span class="text-xs font-bold text-on-surface mt-2 leading-tight">${escapeHtml(item.name)}</span>
+          <span class="text-xs font-bold text-on-surface mt-2 leading-tight">${escapeHtml(achievementName)}</span>
         </div>
       `;
     })

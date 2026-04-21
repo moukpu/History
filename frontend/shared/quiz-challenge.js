@@ -1,6 +1,7 @@
 import { api } from "./api.js";
+import { translateAchievement } from "./achievements-i18n.js";
 import { getCityImage, getPeriodBadgeText } from "./city-visuals.js";
-import { mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
 import {
   clearActiveQuizState,
   clearPendingQuizContext,
@@ -232,10 +233,15 @@ function renderResult() {
       elements.resultAchievements,
       state.result.unlocked_achievements
         .map(
-          (achievement) =>
+          (achievement) => {
+            const translatedAchievement = translateAchievement(achievement, getCurrentLanguage());
+            const achievementName = translatedAchievement.name || achievement.name || achievement.code;
+            return (
             `<span class="inline-flex bg-surface-container px-4 py-2 rounded-full text-sm font-semibold text-on-surface">${escapeHtml(
-              achievement.name
+              achievementName
             )}</span>`
+            );
+          }
         )
         .join("")
     );
@@ -416,7 +422,7 @@ async function init() {
   state.playerId = getOrCreatePlayerId();
   hideError();
 
-  window.addEventListener('sapar-lang-changed', () => {
+  window.addEventListener("sapar-language-change", () => {
     render();
   });
 

@@ -898,24 +898,18 @@ def build_period_quiz_coverage_matrix() -> list[CoverageEntry]:
     2. добавить curated-вопросы или сменить источник на legacy subset
     """
 
-    availability = {
-        (item["city"], item["period_code"]): int(item["is_available"])
+    return [
+        CoverageEntry(
+            city=str(item["city"]),
+            period_code=str(item["period_code"]),
+            question_count=PERIOD_TOTAL_QUESTION_TARGET,
+            source="external_json",
+            note="SaparQuest external multilingual quiz bank.",
+            easy_question_count=PERIOD_EASY_QUESTION_TARGET,
+            hard_question_count=PERIOD_HARD_QUESTION_TARGET,
+        )
         for item in build_city_period_catalog()
-    }
-    invalid_pairs = [
-        entry
-        for entry in PERIOD_QUIZ_COVERAGE_PLAN
-        if not availability.get((entry.city, entry.period_code), 0)
     ]
-    if invalid_pairs:
-        formatted = ", ".join(
-            f"{entry.city}/{entry.period_code}" for entry in invalid_pairs
-        )
-        raise ValueError(
-            "Матрица покрытия ссылается на недоступные пары город-период: "
-            + formatted
-        )
-    return list(PERIOD_QUIZ_COVERAGE_PLAN)
 
 
 def _load_legacy_modern_records(
