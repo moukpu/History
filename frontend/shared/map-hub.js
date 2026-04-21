@@ -935,11 +935,295 @@ const soviet1925CityContentTranslations = {
   },
 };
 
+const independence1991CityContentTranslations = {
+  en: {
+    "Астана": {
+      subtitle: "Целиноград on the Ishim before its future capital stage.",
+      short_description:
+        "In 1991, Целиноград was a large city of northern Kazakhstan and an important center of the steppe region.",
+      history_summary:
+        "In the year the USSR collapsed, the city was not yet the capital of the country. It was associated with the Virgin Lands legacy, northern agriculture, and the railway.",
+      interesting_fact: "The name Akmola appeared after 1991, and Astana came even later.",
+      role: "Northern steppe center",
+    },
+    "Алматы": {
+      subtitle: "Алма-Ата was the republic's capital near the Trans-Ili Alatau.",
+      short_description:
+        "In 1991, Алма-Ата was the capital of the Kazakh SSR and then of independent Kazakhstan.",
+      history_summary:
+        "At the start of independence, the country's main state institutions worked here. The city remained the largest cultural, scientific, and business center of the republic.",
+      interesting_fact: "The name Алматы became official after 1991.",
+      role: "Capital city",
+    },
+    "Шымкент": {
+      subtitle: "Чимкент was a large southern city near the Turkestan-route roads.",
+      short_description:
+        "In 1991, Чимкент was one of the largest cities of southern Kazakhstan and an important center of trade and industry.",
+      history_summary:
+        "The city served the southern region, linked roads toward Turkestan and Tashkent, and kept its role as a major industrial hub.",
+      interesting_fact: "The form Шымкент became official later, while the 1991 map shows Чимкент.",
+      role: "Southern industrial city",
+    },
+    "Актобе": {
+      subtitle: "Актюбинск was a large western city on the Ilek River.",
+      short_description:
+        "In 1991, Актюбинск was a notable industrial center of western Kazakhstan and an important railway hub.",
+      history_summary:
+        "The city connected western parts of the country with central and northern routes. In the early 1990s, its industry, transport, and closeness to resource areas were especially important.",
+      interesting_fact: "The modern form Актобе became established later than the spelling Актюбинск.",
+      role: "Western industrial hub",
+    },
+    "Караганда": {
+      subtitle: "Караганда was the main industrial city of central Kazakhstan.",
+      short_description:
+        "In 1991, Караганда remained one of the main industrial centers of Kazakhstan.",
+      history_summary:
+        "The city was closely tied to the coal basin, metallurgy, large factories, and central transport routes of the country.",
+      interesting_fact: "Караганда is especially known for its coal basin.",
+      role: "Central industrial city",
+    },
+    "Тараз": {
+      subtitle: "Джамбул was a southern oblast center on the Talas River.",
+      short_description:
+        "In 1991, Джамбул was an important southern city with a very deep history.",
+      history_summary:
+        "The city on the Talas kept its role as an oblast center and recalled the ancient past of southern Kazakhstan. Later, its historical name Тараз would be restored.",
+      interesting_fact:
+        "The historical name Тараз would return later, while in 1991 the map signed the city as Джамбул.",
+      role: "Southern oblast center",
+    },
+    "Павлодар": {
+      subtitle: "Павлодар was a large industrial city on the Irtysh.",
+      short_description:
+        "In 1991, Павлодар was an important industrial and energy center of northeastern Kazakhstan.",
+      history_summary:
+        "Its location on the Irtysh helped the city remain a major production and transport hub. It was associated with factories, energy, and the Irtysh region.",
+      interesting_fact: "Павлодар is associated with the Irtysh and northeastern industry.",
+      role: "Northeastern industrial center",
+    },
+    "Оскемен": {
+      subtitle: "Усть-Каменогорск was an eastern industrial city near the meeting of rivers.",
+      short_description:
+        "In 1991, Усть-Каменогорск was one of the main industrial centers of eastern Kazakhstan.",
+      history_summary:
+        "The city was associated with non-ferrous metallurgy, energy, and roads toward the Altai mountain districts. It remained the key hub of the eastern industrial region.",
+      interesting_fact:
+        "The modern Kazakh name Өскемен became common later, while the 1991 map shows Усть-Каменогорск.",
+      role: "Eastern industrial hub",
+    },
+    "Семей": {
+      subtitle: "Семипалатинск was a large historical city on the Irtysh.",
+      short_description:
+        "In 1991, Семипалатинск remained a well-known city of eastern Kazakhstan with rich cultural history.",
+      history_summary:
+        "The city on the Irtysh kept its role as a transport and cultural center of the east. It was often connected with Abai's name and the region's long history.",
+      interesting_fact: "Later, the shorter name Семей would be restored for the city.",
+      role: "Eastern cultural center",
+    },
+    "Атырау": {
+      subtitle: "Гурьев was a western city near the Ural and the Caspian direction.",
+      short_description:
+        "In 1991, Гурьев was an important western city connected with oil, the Ural, and the Caspian.",
+      history_summary:
+        "The city near the lower Ural played a notable role in the oil region and western transport links. Later, the name Атырау would be restored.",
+      interesting_fact: "The modern name Атырау became established after 1991.",
+      role: "Western oil city",
+    },
+    "Костанай": {
+      subtitle: "Кустанай was a northern oblast center of the grain region.",
+      short_description:
+        "In 1991, Кустанай was an important city of Kazakhstan's northern agricultural belt.",
+      history_summary:
+        "The city on the Tobol served the grain region, connected roads to the north, and remained a notable oblast center in the first years of independence.",
+      interesting_fact: "The spelling later became fixed as Костанай.",
+      role: "Northern grain center",
+    },
+    "Кызылорда": {
+      subtitle: "Кзыл-Орда was an oblast center on the Syr Darya.",
+      short_description:
+        "In 1991, Кзыл-Орда remained an important city on the Syr Darya and recalled early Kazakh statehood.",
+      history_summary:
+        "The city on the Syr Darya served as an oblast center and remained known because it had already been the capital of the Kazak ASSR in the 1920s.",
+      interesting_fact:
+        "The modern spelling Кызылорда became established later than the form Кзыл-Орда shown on the 1991 map.",
+      role: "Syr Darya oblast center",
+    },
+    "Орал": {
+      subtitle: "Уральск was a western city on the Ural River.",
+      short_description:
+        "In 1991, Уральск remained an important western city with trade and border links.",
+      history_summary:
+        "The city on the Ural had long connected western parts of the country with border territories, trade, and transport. Later, the name Орал would strengthen in Kazakh usage.",
+      interesting_fact: "Historically, this city traces back to Yaitsky Gorodok.",
+      role: "Western border city",
+    },
+    "Петропавл": {
+      subtitle: "Петропавловск was a northern city on the Ishim and the railway.",
+      short_description:
+        "In 1991, Петропавловск was an important transport and oblast center of northern Kazakhstan.",
+      history_summary:
+        "The city served the northern region, the grain belt, and railway directions. It remained a major center of the northern part of the country.",
+      interesting_fact: "The modern short Kazakh form of the name is Петропавл.",
+      role: "Northern transport center",
+    },
+    "Актау": {
+      subtitle: "Актау was Kazakhstan's main sea city on the Caspian.",
+      short_description:
+        "In 1991, Актау was Kazakhstan's main seaport and an important city of the western coast.",
+      history_summary:
+        "The Caspian city was connected with the port, sea routes, and oil and gas logistics of western Kazakhstan. At the start of independence, its role in Caspian connections remained very visible.",
+      interesting_fact: "The city was earlier known as Shevchenko, but the 1991 map already shows Актау.",
+      role: "Caspian port city",
+    },
+  },
+  kk: {
+    "Астана": {
+      subtitle: "Целиноград Есіл бойындағы, болашақ астаналық кезеңге дейінгі қала болды.",
+      short_description:
+        "1991 жылы Целиноград солтүстік Қазақстанның ірі қаласы және дала өңірінің маңызды орталығы болды.",
+      history_summary:
+        "КСРО тараған жылы қала әлі ел астанасы болған жоқ. Ол тың игеру тарихымен, солтүстік ауыл шаруашылығымен және теміржолмен байланысты болды.",
+      interesting_fact: "Ақмола атауы 1991 жылдан кейін, ал Астана атауы одан да кейін пайда болды.",
+      role: "Солтүстік дала орталығы",
+    },
+    "Алматы": {
+      subtitle: "Алма-Ата Заилий Алатауы етегіндегі республиканың астанасы болды.",
+      short_description:
+        "1991 жылы Алма-Ата Қазақ КСР-інің, кейін тәуелсіз Қазақстанның астанасы болды.",
+      history_summary:
+        "Тәуелсіздіктің басында елдің басты мемлекеттік мекемелері осы жерде жұмыс істеді. Қала республиканың ең ірі мәдени, ғылыми және іскерлік орталығы болып қалды.",
+      interesting_fact: "Алматы атауы 1991 жылдан кейін ресми болды.",
+      role: "Астана қаласы",
+    },
+    "Шымкент": {
+      subtitle: "Чимкент Түркістан бағыты жолдары маңындағы ірі оңтүстік қала болды.",
+      short_description:
+        "1991 жылы Чимкент оңтүстік Қазақстанның ең ірі қалаларының бірі және сауда мен өнеркәсіптің маңызды орталығы болды.",
+      history_summary:
+        "Қала оңтүстік өңірге қызмет етіп, Түркістан мен Ташкент бағытына апаратын жолдарды байланыстырды және ірі өнеркәсіп торабы рөлін сақтады.",
+      interesting_fact: "«Шымкент» түрі кейін ресми болды, ал 1991 жылғы картада «Чимкент» нұсқасы көрінеді.",
+      role: "Оңтүстік өнеркәсіп қаласы",
+    },
+    "Актобе": {
+      subtitle: "Актюбинск Елек өзеніндегі ірі батыс қала болды.",
+      short_description:
+        "1991 жылы Актюбинск батыс Қазақстанның көрнекті өнеркәсіп орталығы және маңызды теміржол торабы болды.",
+      history_summary:
+        "Қала елдің батыс аудандарын орталық және солтүстік бағыттармен байланыстырды. 1990-жылдардың басында оның өнеркәсібі, көлігі және шикізат аудандарына жақындығы маңызды болды.",
+      interesting_fact: "Қазіргі «Актобе» түрі «Актюбинск» жазылуынан кейін орнықты.",
+      role: "Батыс өнеркәсіп торабы",
+    },
+    "Караганда": {
+      subtitle: "Караганда елдің орталық бөлігіндегі басты индустриялық қала болды.",
+      short_description:
+        "1991 жылы Караганда Қазақстанның басты өнеркәсіп орталықтарының бірі болып қалды.",
+      history_summary:
+        "Қала көмір бассейнімен, металлургиямен, ірі зауыттармен және елдің орталық көлік жолдарымен тығыз байланысты болды.",
+      interesting_fact: "Караганда әсіресе көмір бассейнімен белгілі.",
+      role: "Орталық индустриялық қала",
+    },
+    "Тараз": {
+      subtitle: "Джамбул Талас өзеніндегі оңтүстік облыс орталығы болды.",
+      short_description:
+        "1991 жылы Джамбул өте терең тарихы бар маңызды оңтүстік қала болды.",
+      history_summary:
+        "Талас өзеніндегі қала облыс орталығы рөлін сақтап, Оңтүстік Қазақстанның көне өткенін еске салды. Кейін оған тарихи Тараз атауы қайтарылады.",
+      interesting_fact:
+        "Тараз тарихи атауы қалаға кейін қайтарылады, ал 1991 жылғы картада ол Джамбул деп көрсетілген.",
+      role: "Оңтүстік облыс орталығы",
+    },
+    "Павлодар": {
+      subtitle: "Павлодар Ертіс бойындағы ірі өнеркәсіп қаласы болды.",
+      short_description:
+        "1991 жылы Павлодар солтүстік-шығыс Қазақстанның маңызды өнеркәсіп және энергетика орталығы болды.",
+      history_summary:
+        "Ертіс бойындағы орны қалаға ірі өндірістік және көлік торабы болып қалуға көмектесті. Ол зауыттармен, энергетикамен және Ертіс өңірімен байланыстырылды.",
+      interesting_fact: "Павлодар Ертіспен және елдің солтүстік-шығыс өнеркәсібімен байланыстырылады.",
+      role: "Солтүстік-шығыс өнеркәсіп орталығы",
+    },
+    "Оскемен": {
+      subtitle: "Усть-Каменогорск өзендер түйіскен жердегі шығыс өнеркәсіп қаласы болды.",
+      short_description:
+        "1991 жылы Усть-Каменогорск шығыс Қазақстанның басты индустриялық орталықтарының бірі болды.",
+      history_summary:
+        "Қала түсті металлургиямен, энергетикамен және Алтайдың таулы аудандарына апаратын жолдармен байланысты болды. Ол шығыс өнеркәсіп өңірінің басты торабы болып қалды.",
+      interesting_fact:
+        "Қазіргі қазақша Өскемен атауы кейін кеңірек қолданылды, ал 1991 жылғы картада Усть-Каменогорск нұсқасы көрінеді.",
+      role: "Шығыс өнеркәсіп торабы",
+    },
+    "Семей": {
+      subtitle: "Семипалатинск Ертіс бойындағы ірі тарихи қала болды.",
+      short_description:
+        "1991 жылы Семипалатинск бай мәдени тарихы бар шығыс Қазақстанның белгілі қаласы болып қалды.",
+      history_summary:
+        "Ертіс бойындағы қала шығыстың көлік және мәдени орталығы рөлін сақтады. Оны жиі Абай есімімен және өңірдің бай тарихымен байланыстырды.",
+      interesting_fact: "Кейін қалаға қысқа Семей атауы қайтарылады.",
+      role: "Шығыс мәдени орталығы",
+    },
+    "Атырау": {
+      subtitle: "Гурьев Жайық пен Каспий бағыты маңындағы батыс қала болды.",
+      short_description:
+        "1991 жылы Гурьев мұнаймен, Жайықпен және Каспиймен байланысты маңызды батыс қала болды.",
+      history_summary:
+        "Жайықтың төменгі ағысындағы қала мұнайлы өңірде және батыс көлік байланыстарында көрнекті рөл атқарды. Кейін оған Атырау атауы қайтарылады.",
+      interesting_fact: "Қазіргі Атырау атауы 1991 жылдан кейін орнықты.",
+      role: "Батыс мұнай қаласы",
+    },
+    "Костанай": {
+      subtitle: "Кустанай астық өңіріндегі солтүстік облыс орталығы болды.",
+      short_description:
+        "1991 жылы Кустанай Қазақстанның солтүстік ауыл шаруашылығы белдеуіндегі маңызды қала болды.",
+      history_summary:
+        "Тобыл бойындағы қала астық өңіріне қызмет етіп, солтүстік бағыттағы жолдарды байланыстырды және тәуелсіздіктің алғашқы жылдарында көрнекті облыс орталығы болып қалды.",
+      interesting_fact: "Кейін атаудың жазылуы Костанай ретінде бекіді.",
+      role: "Солтүстік астық орталығы",
+    },
+    "Кызылорда": {
+      subtitle: "Кзыл-Орда Сырдария бойындағы облыс орталығы болды.",
+      short_description:
+        "1991 жылы Кзыл-Орда Сырдария бойындағы маңызды қала болып, қазақ мемлекеттілігінің ерте тарихын еске салды.",
+      history_summary:
+        "Сырдария бойындағы қала облыс орталығы қызметін атқарды және 1920-жылдары Қазақ АКСР-інің астанасы болғанымен белгілі болды.",
+      interesting_fact:
+        "Қазіргі Қызылорда жазылуы 1991 жылғы картадағы «Кзыл-Орда» түрінен кейін орнықты.",
+      role: "Сырдария облыс орталығы",
+    },
+    "Орал": {
+      subtitle: "Уральск Жайық өзеніндегі батыс қала болды.",
+      short_description:
+        "1991 жылы Уральск сауда және шекаралық байланыстары бар маңызды батыс қала болып қалды.",
+      history_summary:
+        "Жайық бойындағы қала ұзақ уақыт елдің батыс аудандарын шекаралық аумақтармен, саудамен және көлікпен байланыстырды. Кейін қазақ тіліндегі қолданыста Орал атауы нығаяды.",
+      interesting_fact: "Тарихи тұрғыдан бұл қала Яицкий городоктан бастау алады.",
+      role: "Батыс шекара қаласы",
+    },
+    "Петропавл": {
+      subtitle: "Петропавловск Есіл мен теміржол бойындағы солтүстік қала болды.",
+      short_description:
+        "1991 жылы Петропавловск солтүстік Қазақстанның маңызды көлік және облыс орталығы болды.",
+      history_summary:
+        "Қала солтүстік өңірге, астық белдеуіне және теміржол бағыттарына қызмет етті. Ол елдің солтүстік бөлігіндегі ірі орталық болып қалды.",
+      interesting_fact: "Атаудың қазіргі қысқа қазақша түрі - Петропавл.",
+      role: "Солтүстік көлік орталығы",
+    },
+    "Актау": {
+      subtitle: "Актау Каспийдегі Қазақстанның басты теңіз қаласы болды.",
+      short_description:
+        "1991 жылы Актау Қазақстанның басты теңіз порты және батыс жағалаудағы маңызды қала болды.",
+      history_summary:
+        "Каспийдегі қала портпен, теңіз бағытымен және батыс елдің мұнай-газ логистикасымен байланыстырылды. Тәуелсіздіктің басында оның Каспий байланыстарындағы рөлі өте маңызды болып қалды.",
+      interesting_fact: "Бұрын қала Шевченко деп белгілі болды, бірақ 1991 жылғы картада Актау атауы көрінеді.",
+      role: "Каспий порт қаласы",
+    },
+  },
+};
+
 const periodCityContentTranslations = {
   khanate_1465: khanateCityContentTranslations,
   imperial_1731: imperial1731CityContentTranslations,
   imperial_1868: imperial1868CityContentTranslations,
   soviet_1925: soviet1925CityContentTranslations,
+  independence_1991: independence1991CityContentTranslations,
 };
 
 function translate(key, params = {}) {
