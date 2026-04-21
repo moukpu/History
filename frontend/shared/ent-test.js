@@ -18,8 +18,6 @@ const STORAGE_KEY = "sapar-ent-test-state";
 const ENT_QUESTION_COUNT = 20;
 const ENT_DURATION_MS = 10 * 60 * 1000;
 const START_BUTTON_READY_TEXT = "Окей, начать";
-const START_BUTTON_LOADING_TEXT = "Вопросы загружаются...";
-const START_STATUS_LOADING_TEXT = "Вопросы уже загружаются на фоне.";
 
 const state = {
   playerId: null,
@@ -28,6 +26,9 @@ const state = {
   resultTimedOut: false,
   timerId: null,
   submitting: false,
+  pendingStartedAt: null,
+  pendingExpiresAt: null,
+  loadFailed: false,
 };
 
 const elements = {};
@@ -74,15 +75,18 @@ function clearState() {
 }
 
 function isTimerStarted() {
-  return Boolean(state.quiz?.startedAt && state.quiz?.expiresAt);
+  return Boolean(
+    (state.quiz?.startedAt && state.quiz?.expiresAt) || state.pendingExpiresAt
+  );
 }
 
 function getRemainingMs() {
-  if (!state.quiz?.expiresAt || state.result) {
+  if (state.result) {
     return 0;
   }
 
-  return Math.max(0, Number(state.quiz.expiresAt) - Date.now());
+  const expiresAt = Number(state.quiz?.expiresAt || state.pendingExpiresAt || 0);
+  return expiresAt ? Math.max(0, expiresAt - Date.now()) : 0;
 }
 
 function formatTime(ms) {
@@ -106,17 +110,6 @@ function setStartModalVisible(visible) {
   }
 }
 
-function setStartModalLoading(loading) {
-  if (!elements.startConfirmButton) {
-    return;
-  }
-
-  elements.startConfirmButton.disabled = loading;
-  setText(elements.startConfirmButton, loading ? START_BUTTON_LOADING_TEXT : START_BUTTON_READY_TEXT);
-  setVisible(elements.startStatus, loading);
-  setText(elements.startStatus, loading ? START_STATUS_LOADING_TEXT : "");
-}
-
 function stopTimer() {
   if (state.timerId) {
     window.clearInterval(state.timerId);
@@ -125,11 +118,6 @@ function stopTimer() {
 }
 
 function syncTimerDisplay() {
-  if (!state.quiz) {
-    elements.scoreCounters.forEach((counter) => setText(counter, "10:00"));
-    return;
-  }
-
   if (state.result) {
     elements.scoreCounters.forEach((counter) => setText(counter, "0:00"));
     return;
@@ -155,7 +143,19 @@ function startCountdown() {
 }
 
 function beginTimedTest() {
+  if (state.loadFailed) {
+    setStartModalVisible(false);
+    return;
+  }
+
   if (!state.quiz) {
+    const now = Date.now();
+    state.pendingStartedAt = now;
+    state.pendingExpiresAt = now + ENT_DURATION_MS;
+    setStartModalVisible(false);
+    setVisible(elements.submitButton, false);
+    setVisible(elements.prevButton, false);
+    startCountdown();
     return;
   }
 
@@ -410,9 +410,9 @@ async function startEntTest() {
     questions: response.questions,
     answers: {},
     currentIndex: 0,
-    startedAt: null,
-    expiresAt: null,
-    awaitingStart: true,
+    startedAt: state.pendingStartedAt,
+    expiresAt: state.pendingExpiresAt,
+    awaitingStart: !state.pendingStartedAt,
   };
   saveState();
 }
@@ -436,7 +436,6 @@ function cacheElements() {
   }
   elements.startModal = queryRequired("[data-ent-start-modal]");
   elements.startConfirmButton = queryRequired("[data-ent-start-confirm]");
-  elements.startStatus = queryRequired("[data-ent-start-status]");
   elements.questionSection = queryRequired("[data-question-section]");
   elements.questionTitle = queryRequired("[data-question-title]");
   elements.questionBody = queryRequired("[data-question-body]");
@@ -464,8 +463,10 @@ async function init() {
 
   cacheElements();
   bindEvents();
-  setStartModalLoading(true);
   setStartModalVisible(true);
+  setText(elements.startConfirmButton, START_BUTTON_READY_TEXT);
+  setVisible(elements.submitButton, false);
+  setVisible(elements.prevButton, false);
   syncTimerDisplay();
 
   await reconcileStoredAuthUser();
@@ -476,11 +477,11 @@ async function init() {
   try {
     await startEntTest();
     console.log("ENT Test: Questions loaded successfully", state.quiz);
-    setStartModalLoading(false);
-    setStartModalVisible(true);
-    syncTimerDisplay();
     render();
-    if (state.quiz?.awaitingStart || !isTimerStarted()) {
+    if (state.pendingStartedAt || isTimerStarted()) {
+      setStartModalVisible(false);
+      startCountdown();
+    } else if (state.quiz?.awaitingStart || !isTimerStarted()) {
       setStartModalVisible(true);
       syncTimerDisplay();
     } else {
@@ -489,9 +490,10 @@ async function init() {
     }
   } catch (error) {
     console.error("ENT Test: Failed to load questions", error);
-    elements.startConfirmButton.disabled = true;
-    setText(elements.startConfirmButton, START_BUTTON_LOADING_TEXT);
-    setText(elements.startStatus, "Не удалось загрузить вопросы. Обновите страницу и попробуйте снова.");
+    state.loadFailed = true;
+    state.pendingStartedAt = null;
+    state.pendingExpiresAt = null;
+    stopTimer();
     throw error;
   }
 }
