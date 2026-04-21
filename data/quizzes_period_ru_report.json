@@ -100,8 +100,8 @@
     "Яссы|khanate_1465": 30
   },
   "notes": [
-    "Question wording was diversified across 30 slots and 4 variants per slot.",
-    "Parenthetical city/year suffixes were removed from questions and facts.",
+    "Question wording uses 30 distinct quest-style prompts per city-period pair.",
+    "Parenthetical city/year suffixes are removed from questions and facts.",
     "English question text uses English city names where available."
   ]
 }
