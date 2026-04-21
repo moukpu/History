@@ -370,6 +370,108 @@ const khanateCityContentTranslations = {
   },
 };
 
+const imperial1731CityContentTranslations = {
+  en: {
+    "Туркестан": {
+      subtitle: "Туркестан was a southern city and a residence of Kazakh khans.",
+      short_description:
+        "In 1731, Туркестан remained one of the main cities of the south, connected with khan authority and pilgrimage.",
+      history_summary:
+        "The city, also known as Yasy, was long connected with the political life of the Kazakh Khanate. It was home to the Mausoleum of Khoja Ahmed Yasawi, and Туркестан was seen as an important spiritual and symbolic center of the steppe.",
+      interesting_fact: "Many Kazakh khans were buried in the Mausoleum of Khoja Ahmed Yasawi in Туркестан.",
+      role: "Khan residence city",
+    },
+    "Сыгнак": {
+      subtitle: "Сыгнак was a lower Syr Darya city with ancient capital memory.",
+      short_description:
+        "In 1731, Сыгнак remained a known historical city in the lower Syr Darya area.",
+      history_summary:
+        "Сыгнак was known as one of the old cities of the south and had earlier been the capital of the Ak Orda. In the 16th-18th centuries, the city was associated with Kazakh possessions, while farming, trade, and Syr Darya routes supported its importance.",
+      interesting_fact: "Historians call Сыгнак one of the well-known medieval capitals of Desht-i Kipchak.",
+      role: "Historic Syr Darya city",
+    },
+    "Отрар": {
+      subtitle: "Отрар was the main oasis city near the Arys and Syr Darya rivers.",
+      short_description:
+        "In 1731, Отрар remained a famous ancient city of the south and an important landmark of oasis life.",
+      history_summary:
+        "Отрар, also known as Farab, was one of the best-known cities of the south. It stood in a large oasis and was an important crossroads where farming, crafts, and trade developed.",
+      interesting_fact: "Отрар became famous as one of the largest historical cities of Southern Kazakhstan and Central Asia.",
+      role: "Oasis crossroads",
+    },
+    "Сайрам": {
+      subtitle: "Сайрам was an ancient southern city known as Ispidjab.",
+      short_description:
+        "In 1731, Сайрам remained a known southern city near the routes to Tashkent and Shymkent.",
+      history_summary:
+        "Сайрам, the old Ispidjab, was one of the notable cities of Southern Kazakhstan. The city was known as a fortified trade and craft center and as an important point on the road between the steppe and Central Asia.",
+      interesting_fact: "Сайрам is often connected with the ancient name Ispidjab.",
+      role: "Trade and craft city",
+    },
+    "Тараз": {
+      subtitle: "Тараз was an ancient city of the Talas valley.",
+      short_description:
+        "In 1731, Тараз remained a known historical city of the south and a node of old trade routes.",
+      history_summary:
+        "Тараз was one of the oldest cities of the region and long remained an important landmark in the south. The city stood in the Talas valley and was connected with the history of the Great Silk Road, trade, and urban culture.",
+      interesting_fact: "Тараз is often called one of the oldest cities of Kazakhstan.",
+      role: "Ancient Talas city",
+    },
+  },
+  kk: {
+    "Туркестан": {
+      subtitle: "Туркестан оңтүстіктегі қала және қазақ хандарының ордасы болды.",
+      short_description:
+        "1731 жылы Туркестан хан билігімен және зиярат дәстүрімен байланысты оңтүстіктің басты қалаларының бірі болып қалды.",
+      history_summary:
+        "Ясы атымен де белгілі қала ұзақ уақыт Қазақ хандығының саяси өмірімен байланысты болды. Мұнда Қожа Ахмет Ясауи кесенесі орналасқан, ал Туркестан даланың маңызды рухани және символдық орталығы ретінде қабылданды.",
+      interesting_fact: "Көптеген қазақ хандары Туркестандағы Қожа Ахмет Ясауи кесенесінде жерленген.",
+      role: "Хандар ордасы",
+    },
+    "Сыгнак": {
+      subtitle: "Сыгнак төменгі Сырдариядағы көне астаналық жады бар қала болды.",
+      short_description:
+        "1731 жылы Сыгнак төменгі Сырдария аймағындағы белгілі тарихи қала болып қала берді.",
+      history_summary:
+        "Сыгнак оңтүстіктің ескі қалаларының бірі ретінде белгілі және бұрын Ақ Орданың астанасы болған. XVI-XVIII ғасырларда қала қазақ иеліктерімен байланыстырылып, оның маңызын егіншілік, сауда және Сырдария бойындағы жолдар сақтап тұрды.",
+      interesting_fact: "Тарихшылар Сыгнақты Дешті Қыпшақтың белгілі ортағасырлық астаналарының бірі деп атайды.",
+      role: "Сырдариядағы тарихи қала",
+    },
+    "Отрар": {
+      subtitle: "Отрар Арыс пен Сырдария маңындағы оазистің басты қаласы болды.",
+      short_description:
+        "1731 жылы Отрар оңтүстіктің әйгілі ежелгі қаласы және оазистік өмірдің маңызды бағдары болып қалды.",
+      history_summary:
+        "Фараб атымен де белгілі Отрар оңтүстіктің ең танымал қалаларының бірі болды. Ол ірі оазисте орналасып, егіншілік, қолөнер және сауда дамыған жолдар торабындағы маңызды пункт болды.",
+      interesting_fact: "Отрар Оңтүстік Қазақстан мен Орта Азияның ең ірі тарихи қалаларының бірі ретінде әйгілі болды.",
+      role: "Оазис жол торабы",
+    },
+    "Сайрам": {
+      subtitle: "Сайрам Испиджаб атымен белгілі ежелгі оңтүстік қала болды.",
+      short_description:
+        "1731 жылы Сайрам Ташкент пен Шымкентке баратын жолдар маңындағы белгілі оңтүстік қала болып қалды.",
+      history_summary:
+        "Ескі Испиджаб болған Сайрам Оңтүстік Қазақстанның көрнекті қалаларының бірі еді. Қала бекіністі сауда-қолөнер орталығы және дала мен Орта Азия арасындағы жолдағы маңызды орын ретінде танылды.",
+      interesting_fact: "Сайрамды жиі ежелгі Испиджаб атауымен байланыстырады.",
+      role: "Сауда және қолөнер қаласы",
+    },
+    "Тараз": {
+      subtitle: "Тараз Талас аңғарындағы ежелгі қала болды.",
+      short_description:
+        "1731 жылы Тараз оңтүстіктің белгілі тарихи қаласы және ескі сауда жолдарының торабы болып қалды.",
+      history_summary:
+        "Тараз өңірдегі ең көне қалалардың бірі болып, оңтүстіктегі маңызды тарихи бағдар ретінде ұзақ сақталды. Қала Талас аңғарында орналасып, Ұлы Жібек жолы, сауда және қала мәдениеті тарихымен байланысты болды.",
+      interesting_fact: "Таразды Қазақстанның ең көне қалаларының бірі деп жиі атайды.",
+      role: "Ежелгі Талас қаласы",
+    },
+  },
+};
+
+const periodCityContentTranslations = {
+  khanate_1465: khanateCityContentTranslations,
+  imperial_1731: imperial1731CityContentTranslations,
+};
+
 function translate(key, params = {}) {
   const value = translations[currentLanguage]?.[key] ?? translations.ru[key] ?? key;
   return typeof value === "function" ? value(params) : value;
@@ -392,11 +494,12 @@ function getLocalizedPeriodBadgeText(period) {
 }
 
 function getLocalizedCityContent(content) {
-  if (!content || state.selectedPeriodCode !== "khanate_1465") {
+  if (!content) {
     return content;
   }
 
-  const translation = khanateCityContentTranslations[currentLanguage]?.[content.city];
+  const translation =
+    periodCityContentTranslations[state.selectedPeriodCode]?.[currentLanguage]?.[content.city];
   if (!translation) {
     return content;
   }
@@ -410,10 +513,9 @@ function getLocalizedCityContent(content) {
 }
 
 function getLocalizedCityRole(city, fallbackRole) {
-  if (state.selectedPeriodCode === "khanate_1465") {
-    const role = khanateCityContentTranslations[currentLanguage]?.[city]?.role;
-    if (role) return role;
-  }
+  const role =
+    periodCityContentTranslations[state.selectedPeriodCode]?.[currentLanguage]?.[city]?.role;
+  if (role) return role;
 
   if (currentLanguage === "ru" && fallbackRole) {
     return fallbackRole;
