@@ -115,7 +115,9 @@ FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 class CachedStaticFiles(StaticFiles):
     async def get_response(self, path: str, scope):
         response = await super().get_response(path, scope)
-        if path.endswith((".js", ".css", ".svg", ".png", ".jpg", ".jpeg", ".webp", ".ico", ".woff", ".woff2")):
+        if path.endswith((".js", ".css")):
+            response.headers.setdefault("Cache-Control", "no-cache")
+        elif path.endswith((".svg", ".png", ".jpg", ".jpeg", ".webp", ".ico", ".woff", ".woff2")):
             response.headers.setdefault("Cache-Control", "public, max-age=604800")
         return response
 
