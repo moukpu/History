@@ -58,7 +58,7 @@ async function getPeriodSvgMarkup(periodCode) {
     return SVG_CACHE.get(periodCode);
   }
 
-  const response = await fetch(assetPath, { cache: "no-store" });
+  const response = await fetch(assetPath, { cache: "force-cache" });
   if (!response.ok) {
     throw new Error(`Не удалось загрузить SVG-карту для периода ${periodCode}.`);
   }

@@ -1053,6 +1053,7 @@ def _build_period_city_frontend_rows(
     period_code: str,
     *,
     is_locked_for_testing: bool = False,
+    player_achievements: list[dict[str, object]] | None = None,
 ) -> list[dict[str, object]]:
     period_cities = list_period_cities(db_path, period_code, only_available=True)
     content_summaries = {
@@ -1069,9 +1070,12 @@ def _build_period_city_frontend_rows(
     fact_success_by_city = {
         item["city"]: int(item["success_count"]) for item in fact_success_rows
     }
-    player_achievement_codes = {
-        item["code"] for item in list_player_achievements(db_path, player_id)
-    }
+    achievements = (
+        player_achievements
+        if player_achievements is not None
+        else list_player_achievements(db_path, player_id)
+    )
+    player_achievement_codes = {item["code"] for item in achievements}
 
     rows: list[dict[str, object]] = []
     for city_row in period_cities:
@@ -1107,12 +1111,10 @@ def _build_period_city_frontend_rows(
 
 
 def _count_period_achievements_unlocked(
-    db_path: str | Path,
-    player_id: str,
     period_code: str,
     cities: list[dict[str, object]],
+    achievements: list[dict[str, object]],
 ) -> int:
-    achievements = list_player_achievements(db_path, player_id)
     period_city_names = {str(item["city"]) for item in cities}
     passed_period_cities = {
         str(item["city"])
@@ -1153,6 +1155,7 @@ def get_app_bootstrap_response(
         db_path=db_path,
         player_id=normalized_player_id,
         period_code=default_period_code,
+        player_achievements=achievements,
     )
 
     return AppBootstrapResponse(
@@ -1210,11 +1213,13 @@ def get_map_state_response(
 
     progression_snapshot = _build_period_progress_snapshot(db_path, normalized_player_id)
     period_state = _get_period_state(progression_snapshot, period_code)
+    achievements = list_player_achievements(db_path, normalized_player_id)
     cities = _build_period_city_frontend_rows(
         db_path,
         normalized_player_id,
         period_code,
         is_locked_for_testing=not bool(period_state["is_unlocked"]),
+        player_achievements=achievements,
     )
     total_cities = len(cities)
     cities_passed = sum(1 for item in cities if bool(item["passed_quiz_in_this_period"]))
@@ -1222,10 +1227,9 @@ def get_map_state_response(
         1 for item in cities if bool(item["has_fact_success_in_this_period"])
     )
     period_achievements_unlocked = _count_period_achievements_unlocked(
-        db_path,
-        normalized_player_id,
         period_code,
         cities,
+        achievements,
     )
     completion_percent = round((cities_passed / total_cities) * 100) if total_cities else 0
 
