@@ -1955,7 +1955,7 @@ function renderTimeline() {
               ? "left-1/2 -translate-x-[82%]"
               : "left-1/2 -translate-x-1/2";
     const button = createElementFromHtml(`
-      <button type="button" class="relative group ${
+      <button type="button" class="relative group translate-y-[5px] ${
         locked ? "cursor-not-allowed" : "cursor-pointer"
       } z-10 flex flex-col items-center bg-transparent" aria-disabled="${locked ? "true" : "false"}">
         <div class="${
