@@ -29,8 +29,11 @@ from .validation import load_quiz_bank_json, validate_quiz_bank
 
 
 def connect_db(db_path: str | Path) -> sqlite3.Connection:
-    connection = sqlite3.connect(db_path)
+    connection = sqlite3.connect(db_path, timeout=10)
     connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA busy_timeout = 10000")
+    connection.execute("PRAGMA foreign_keys = ON")
+    connection.execute("PRAGMA temp_store = MEMORY")
     return connection
 
 

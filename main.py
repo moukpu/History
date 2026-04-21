@@ -111,6 +111,14 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 
+
+class CachedStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if path.endswith((".js", ".css", ".svg", ".png", ".jpg", ".jpeg", ".webp", ".ico", ".woff", ".woff2")):
+            response.headers.setdefault("Cache-Control", "public, max-age=604800")
+        return response
+
 _openai_client: AsyncOpenAI | None = None
 
 
@@ -693,4 +701,4 @@ async def frontend_index() -> RedirectResponse:
 
 
 if FRONTEND_DIR.exists():
-    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+    app.mount("/", CachedStaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
