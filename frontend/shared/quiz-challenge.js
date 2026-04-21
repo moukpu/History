@@ -221,7 +221,7 @@ function renderResult() {
   setText(elements.resultBody, bodyText);
 
   const secondaryKey = state.result.passed ? "result_success_secondary_quiz" : "result_fail_secondary_quiz";
-  setText(elements.resultSecondary, window.saparI18n?.t(secondaryKey) || (state.result.passed ? "Новые достижения уже сохранены в backend." : "Прогресс попытки сохранён. Можно вернуться на карту и пройти тест заново."));
+  setText(elements.resultSecondary, window.saparI18n?.t(secondaryKey) || (state.result.passed ? "Новые достижения уже сохранены." : "Прогресс попытки сохранён. Можно вернуться на карту и пройти тест заново."));
 
   if (state.result.unlocked_achievements.length === 0) {
     setHtml(
