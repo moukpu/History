@@ -467,9 +467,237 @@ const imperial1731CityContentTranslations = {
   },
 };
 
+const imperial1868CityContentTranslations = {
+  en: {
+    "Верный": {
+      subtitle: "Верный was the administrative center of Semirechye near the Trans-Ili Alatau.",
+      short_description:
+        "In 1868, Верный was the main city of Semirechye and an important administrative point in the southeast.",
+      history_summary:
+        "The city grew from the Zailiysky fortification and by the late 1860s became the center of the Semirechensk Oblast within the Turkestan Governor-Generalship. Its foothill location, local trade links, and roads toward Kulja made it an important administrative and commercial city.",
+      interesting_fact: "Modern Almaty was known as Верный during the imperial period.",
+      role: "Semirechye administrative center",
+    },
+    "Семипалатинск": {
+      subtitle: "Семипалатинск was an Irtysh oblast center and a major eastern trading city.",
+      short_description:
+        "In 1868, Семипалатинск was an oblast city of eastern Kazakhstan and one of the main trade centers on the Irtysh.",
+      history_summary:
+        "The city began as a Russian fortress and was later moved to its current site to avoid floods. By the late 19th century it developed as an oblast center linked with the Irtysh and caravan routes between Siberia, Central Asia, and China.",
+      interesting_fact:
+        "The name Семипалатинск is connected with the ruins known as the Seven Chambers near the first fortress.",
+      role: "Irtysh trade center",
+    },
+    "Петропавловск": {
+      subtitle: "Петропавловск was a northern trading city on the Ishim and a steppe route hub.",
+      short_description:
+        "In 1868, Петропавловск was a notable trade center of northern Kazakhstan and a link between Russia, the steppe, and Central Asia.",
+      history_summary:
+        "The city emerged as a Russian fortress on the Ishim and soon became an important trading point. In the second half of the 19th century, its role was supported by ties with Russia, steppe districts, and caravan trade toward Central Asia.",
+      interesting_fact: "Петропавловск was founded as a Russian fortress in 1752.",
+      role: "Northern trade hub",
+    },
+    "Уральск": {
+      subtitle: "Уральск was the center of the Ural Oblast on the Ural River.",
+      short_description:
+        "In 1868, Уральск was the main city of the western border region and a notable trade center on the Ural.",
+      history_summary:
+        "The city was known as Yaitsky Gorodok before its renaming in 1775. In the second half of the 19th century, Уральск served as the center of the Ural Oblast and traded actively with European Russia, especially through fish from the Ural and livestock products from the steppe.",
+      interesting_fact: "Before 1775, the city was called Yaitsky Gorodok.",
+      role: "Western oblast center",
+    },
+    "Усть-Каменогорск": {
+      subtitle: "Усть-Каменогорск was an eastern city by the Irtysh and Ulba, linked with Rudny Altai.",
+      short_description:
+        "In 1868, Усть-Каменогорск was an important eastern city connected with mining routes and border trade.",
+      history_summary:
+        "The city was founded as a Russian fortress at the meeting point of the Irtysh and Ulba. In the late imperial period, its importance came from proximity to Rudny Altai, roads to mountain districts, and trade links with eastern Kazakhstan, Mongolia, and China.",
+      interesting_fact: "Усть-Каменогорск grew from a Russian fortress founded in 1720.",
+      role: "Eastern fortress city",
+    },
+    "Гурьев": {
+      subtitle: "Гурьев was a western city near the lower Ural and the route toward the Caspian.",
+      short_description:
+        "In 1868, Гурьев was an important western city connected with fishing, trade, and the fortified Ural line.",
+      history_summary:
+        "The city began as a fishing settlement founded by Mikhail Guryev and later became a fortress on the Ural line. In the second half of the 19th century, its role depended on its lower Ural location, closeness to the Caspian, and the fishing and trade life of the western region.",
+      interesting_fact: "Modern Atyrau was long called Гурьев in the imperial and Soviet periods.",
+      role: "Lower Ural trade city",
+    },
+    "Аулие-Ата": {
+      subtitle: "Аулие-Ата was a southern city on the Talas and an uyezd center of the Syr Darya Oblast.",
+      short_description:
+        "In 1868, Аулие-Ата was an important southern city and an uyezd center in the Turkestan administration.",
+      history_summary:
+        "The city stood in the Talas valley on an important southern route. After the region entered the Turkestan Governor-Generalship, Аулие-Ата became the center of its own uyezd while preserving the importance of an old city tied to trade, roads, and southern economic life.",
+      interesting_fact: "On October 21, 1868, the Aulie-Ata uyezd was formed with its center in Аулие-Ата.",
+      role: "Southern uyezd center",
+    },
+    "Перовск": {
+      subtitle: "Перовск was an uyezd center on the Syr Darya, grown from the former Ak-Mechet fortress.",
+      short_description:
+        "In 1868, Перовск was an important Syr Darya city and the administrative center of the Perovsk uyezd.",
+      history_summary:
+        "The city gained importance after Ak-Mechet was captured by the troops of V. A. Perovsky in 1853 and later renamed. In the Turkestan administration, Перовск became an uyezd center and an important point on the Syr Darya line.",
+      interesting_fact: "Перовск grew from the Ak-Mechet fortress, captured by Russian troops in 1853.",
+      role: "Syr Darya uyezd center",
+    },
+    "Акмолинск": {
+      subtitle: "Акмолинск was the main city of Akmolinsk uyezd on the Ishim and a caravan point.",
+      short_description:
+        "In 1868, Акмолинск was an important steppe city on the Ishim and the main city of Akmolinsk uyezd.",
+      history_summary:
+        "After the Akmolinsk Oblast was established, Акмолинск remained the main city of its uyezd, while the oblast center was in Omsk. The city stood on the Ishim, was linked by road with other steppe towns, and served as a gathering point for caravans from Tashkent and Bukhara.",
+      interesting_fact:
+        "In 1868, Акмолинск was the main city of its uyezd, while the oblast center remained Omsk.",
+      role: "Steppe caravan point",
+    },
+    "Туркестан": {
+      subtitle: "Туркестан was an ancient southern city, uyezd center, and religious landmark.",
+      short_description:
+        "In 1868, Туркестан kept its role as an ancient southern city tied to administration, trade, and spiritual memory.",
+      history_summary:
+        "Туркестан, also known as Yasy, was an old center of caravan trade and spiritual life in the south. After coming under Russian rule in 1864, it entered the Turkestan administration and remained an important uyezd city of the Syr Darya Oblast.",
+      interesting_fact: "Туркестан was also known by the historical name Yasy.",
+      role: "Ancient southern center",
+    },
+    "Казалинск": {
+      subtitle: "Казалинск was a lower Syr Darya city and an uyezd center near the Aral direction.",
+      short_description:
+        "In 1868, Казалинск was an important city of the lower Syr Darya and the center of Kazalinsk uyezd.",
+      history_summary:
+        "The city on the lower Syr Darya grew from Fort No. 1 and became part of the Syr Darya Oblast of the Turkestan Governor-Generalship. Its importance came from its river location, routes toward the Aral area, and uyezd functions in a sparsely populated but strategic region.",
+      interesting_fact: "The early name of the city was connected with Fort No. 1 on the Syr Darya line.",
+      role: "Lower Syr Darya center",
+    },
+    "Чимкент": {
+      subtitle: "Чимкент was a southern city on a caravan route and an uyezd center of the Syr Darya Oblast.",
+      short_description:
+        "In 1868, Чимкент was an important southern city connected with trade, crafts, and uyezd administration.",
+      history_summary:
+        "The city stood on an old caravan route and in the 19th century belonged to the southern urban network connected with Kokand and then Russia. After Russian troops took it in 1864, Чимкент entered the Turkestan administration and became an uyezd center of the Syr Darya Oblast.",
+      interesting_fact: "Чимкент was taken by Russian troops in 1864.",
+      role: "Southern caravan city",
+    },
+  },
+  kk: {
+    "Верный": {
+      subtitle: "Верный Заилий Алатауы етегіндегі Жетісу облысының әкімшілік орталығы болды.",
+      short_description:
+        "1868 жылы Верный Жетісудың басты қаласы және оңтүстік-шығыстағы маңызды басқару тірегі болды.",
+      history_summary:
+        "Қала Заилийск бекінісінен өсіп, 1860-жылдардың соңына қарай Түркістан генерал-губернаторлығындағы Жетісу облысының орталығына айналды. Тау етегіндегі орны, көшпелі және отырықшы аймақтармен байланысы, Құлжаға баратын жолдар оны маңызды әкімшілік және сауда қаласы етті.",
+      interesting_fact: "Қазіргі Алматы империялық кезеңде Верный деп аталды.",
+      role: "Жетісу әкімшілік орталығы",
+    },
+    "Семипалатинск": {
+      subtitle: "Семипалатинск Ертіс бойындағы облыс орталығы және шығыстың ірі сауда қаласы болды.",
+      short_description:
+        "1868 жылы Семипалатинск шығыс Қазақстандағы облыстық қала және Ертістегі басты сауда орталықтарының бірі болды.",
+      history_summary:
+        "Қала орыс бекінісі ретінде құрылып, кейін су тасқынынан қорғану үшін қазіргі орнына көшірілді. XIX ғасырдың соңына қарай ол Ертіспен және Сібір, Орта Азия, Қытай арасындағы керуен жолдарымен байланысты облыс орталығы ретінде дамыды.",
+      interesting_fact:
+        "Семипалатинск атауы алғашқы бекініс маңындағы «Жеті палата» қирандыларымен байланысты.",
+      role: "Ертіс сауда орталығы",
+    },
+    "Петропавловск": {
+      subtitle: "Петропавловск Есіл бойындағы солтүстік сауда қаласы және дала жолдарының торабы болды.",
+      short_description:
+        "1868 жылы Петропавловск солтүстік Қазақстанның көрнекті сауда орталығы және дала мен Орта Азияға шығатын маңызды нүкте болды.",
+      history_summary:
+        "Қала Есіл бойындағы орыс бекінісі ретінде пайда болып, тез арада маңызды сауда пунктіне айналды. XIX ғасырдың екінші жартысында оның маңызын Ресеймен байланыс, дала аудандары және Орта Азияға бағытталған керуен саудасы күшейтті.",
+      interesting_fact: "Петропавловск 1752 жылы орыс бекінісі ретінде құрылған.",
+      role: "Солтүстік сауда торабы",
+    },
+    "Уральск": {
+      subtitle: "Уральск Жайық өзеніндегі Орал облысының әкімшілік орталығы болды.",
+      short_description:
+        "1868 жылы Уральск батыс шекаралық өңірдің басты қаласы және Жайық бойындағы маңызды сауда орталығы болды.",
+      history_summary:
+        "Қала 1775 жылғы атау өзгерісіне дейін Яицкий городок деп аталды. XIX ғасырдың екінші жартысында Уральск Орал облысының орталығы болып, Ресейдің еуропалық бөлігімен, әсіресе Жайық балығы және дала мал шаруашылығы өнімдері арқылы белсенді сауда жүргізді.",
+      interesting_fact: "1775 жылға дейін қала Яицкий городок деп аталды.",
+      role: "Батыс облыс орталығы",
+    },
+    "Усть-Каменогорск": {
+      subtitle: "Усть-Каменогорск Ертіс пен Үлбі маңындағы, Рудный Алтаймен байланысты шығыс қала болды.",
+      short_description:
+        "1868 жылы Усть-Каменогорск кенді Алтай жолдары және шекаралық саудамен байланысты маңызды шығыс қала болды.",
+      history_summary:
+        "Қала Ертіс пен Үлбі қосылған жерде орыс бекінісі ретінде құрылды. Кейінгі империялық кезеңде оның маңызын Рудный Алтайға жақындық, тау аудандарына баратын жолдар және Шығыс Қазақстан, Моңғолия, Қытаймен сауда байланыстары айқындады.",
+      interesting_fact: "Усть-Каменогорск 1720 жылы құрылған орыс бекінісінен өсті.",
+      role: "Шығыс бекініс қаласы",
+    },
+    "Гурьев": {
+      subtitle: "Гурьев Жайықтың төменгі ағысы мен Каспий бағытына жақын батыс қала болды.",
+      short_description:
+        "1868 жылы Гурьев балықшылық, сауда және Жайық бойындағы бекініс желісімен байланысты маңызды батыс қала болды.",
+      history_summary:
+        "Қала Михаил Гурьев негізін қалаған балықшы қонысы ретінде пайда болып, кейін Жайық желісіндегі бекініске айналды. XIX ғасырдың екінші жартысында оның маңызын Жайықтың төменгі ағысы, Каспийге жақындық және батыс өлкенің балықшылық пен сауда өмірі айқындады.",
+      interesting_fact: "Қазіргі Атырау империялық және кеңестік кезеңде ұзақ уақыт Гурьев деп аталды.",
+      role: "Төменгі Жайық сауда қаласы",
+    },
+    "Аулие-Ата": {
+      subtitle: "Аулие-Ата Талас өзеніндегі оңтүстік қала және Сырдария облысының уездік орталығы болды.",
+      short_description:
+        "1868 жылы Аулие-Ата Түркістан өлкесінің басқару жүйесіндегі маңызды оңтүстік қала және уездік орталық болды.",
+      history_summary:
+        "Қала Талас аңғарында, маңызды оңтүстік бағытта орналасқан. Аймақ Түркістан генерал-губернаторлығы құрамына кіргеннен кейін Аулие-Ата өз уезінің орталығы болып, сауда, жолдар және оңтүстіктің шаруашылық өмірімен байланысты көне қала ретіндегі маңызын сақтады.",
+      interesting_fact: "1868 жылғы 21 қазанда орталығы Аулие-Ата болған Аулие-Ата уезі құрылды.",
+      role: "Оңтүстік уездік орталық",
+    },
+    "Перовск": {
+      subtitle: "Перовск Сырдария бойындағы уездік орталық, бұрынғы Ақ-Мешіт бекінісінен өскен қала болды.",
+      short_description:
+        "1868 жылы Перовск Сырдариядағы маңызды қала және Перовск уезінің әкімшілік орталығы болды.",
+      history_summary:
+        "Қала 1853 жылы В. А. Перовский әскерлері Ақ-Мешітті алғаннан кейін маңызға ие болып, кейін қайта аталды. Түркістан өлкесінің басқару жүйесінде Перовск уездік орталық және Сырдария желісіндегі маңызды пункт болды.",
+      interesting_fact: "Перовск 1853 жылы орыс әскерлері алған Ақ-Мешіт бекінісінен өсті.",
+      role: "Сырдария уездік орталығы",
+    },
+    "Акмолинск": {
+      subtitle: "Акмолинск Есіл бойындағы Ақмола уезінің басты қаласы және даладағы керуен пункті болды.",
+      short_description:
+        "1868 жылы Акмолинск Есіл бойындағы маңызды дала қаласы және Ақмола уезінің басты қаласы болды.",
+      history_summary:
+        "Ақмола облысы құрылғаннан кейін Акмолинск аттас уездің басты қаласы болып қалды, ал облыс орталығы Омбыда орналасты. Қала Есіл бойында тұрды, басқа дала қалаларымен жол арқылы байланысып, Ташкент пен Бұхарадан келетін керуендердің жиналу орны болды.",
+      interesting_fact:
+        "1868 жылы Акмолинск уездің басты қаласы болды, ал облыс орталығы Омбы болып қалды.",
+      role: "Дала керуен пункті",
+    },
+    "Туркестан": {
+      subtitle: "Туркестан көне оңтүстік қала, уездік орталық және діни бағдар болды.",
+      short_description:
+        "1868 жылы Туркестан уездік басқару, сауда және рухани жадпен байланысты көне оңтүстік қала ретіндегі маңызын сақтады.",
+      history_summary:
+        "Ясы атымен де белгілі Туркестан оңтүстіктегі керуен саудасы мен рухани өмірдің көне орталығы болды. 1864 жылы Ресей билігіне өткеннен кейін ол Түркістан өлкесінің жүйесіне кіріп, Сырдария облысының маңызды уездік қаласы болып қалды.",
+      interesting_fact: "Туркестан Ясы деген тарихи атаумен де белгілі болды.",
+      role: "Көне оңтүстік орталық",
+    },
+    "Казалинск": {
+      subtitle: "Казалинск төменгі Сырдариядағы қала және Арал бағытына жақын уездік орталық болды.",
+      short_description:
+        "1868 жылы Казалинск төменгі Сырдариядағы маңызды қала және Казалинск уезінің орталығы болды.",
+      history_summary:
+        "Төменгі Сырдариядағы қала №1 форттан өсіп, Түркістан генерал-губернаторлығындағы Сырдария облысының жүйесіне кірді. Оның маңызын өзен бойындағы орны, Арал бағытына апаратын жолдар және сирек қоныстанған, бірақ стратегиялық өңірдегі уездік қызметтер айқындады.",
+      interesting_fact: "Қаланың ерте атауы Сырдария желісіндегі №1 фортпен байланысты болды.",
+      role: "Төменгі Сырдария орталығы",
+    },
+    "Чимкент": {
+      subtitle: "Чимкент керуен жолындағы оңтүстік қала және Сырдария облысының уездік орталығы болды.",
+      short_description:
+        "1868 жылы Чимкент сауда, қолөнер және уездік басқарумен байланысты маңызды оңтүстік қала болды.",
+      history_summary:
+        "Қала ескі керуен жолында орналасып, XIX ғасырда Қоқанмен, кейін Ресеймен байланысты оңтүстік қалалар жүйесіне кірді. 1864 жылы орыс әскерлері алғаннан кейін Чимкент Түркістан өлкесіне кіріп, Сырдария облысының уездік орталығына айналды.",
+      interesting_fact: "Чимкентті орыс әскерлері 1864 жылы алды.",
+      role: "Оңтүстік керуен қаласы",
+    },
+  },
+};
+
 const periodCityContentTranslations = {
   khanate_1465: khanateCityContentTranslations,
   imperial_1731: imperial1731CityContentTranslations,
+  imperial_1868: imperial1868CityContentTranslations,
 };
 
 function translate(key, params = {}) {
