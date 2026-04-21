@@ -106,6 +106,11 @@ function setStartModalVisible(visible) {
 
   elements.startModal.classList.toggle("hidden", !visible);
   elements.startModal.classList.toggle("flex", visible);
+  elements.questionSection?.classList.toggle("pointer-events-none", visible);
+
+  if (visible) {
+    elements.startConfirmButton?.focus();
+  }
 }
 
 function stopTimer() {
@@ -146,13 +151,23 @@ function startCountdown() {
 }
 
 function beginTimedTest() {
-  if (!state.quiz || isTimerStarted()) {
+  if (!state.quiz) {
+    return;
+  }
+
+  if (isTimerStarted()) {
+    state.quiz.awaitingStart = false;
+    saveState();
+    setStartModalVisible(false);
+    startCountdown();
+    render();
     return;
   }
 
   const now = Date.now();
   state.quiz.startedAt = now;
   state.quiz.expiresAt = now + ENT_DURATION_MS;
+  state.quiz.awaitingStart = false;
   saveState();
   setStartModalVisible(false);
   startCountdown();
@@ -230,6 +245,11 @@ function renderQuestion() {
     `);
 
     optionButton.addEventListener("click", () => {
+      if (!isTimerStarted()) {
+        setStartModalVisible(true);
+        return;
+      }
+
       state.quiz.answers[question.id] = optionIndex;
       saveState();
       renderQuestion();
@@ -381,6 +401,10 @@ async function startEntTest() {
     if (saved && saved.isEntTest && saved.questions && saved.questions.length > 0) {
       console.log("ENT Test: Resuming saved session.");
       state.quiz = saved;
+      if (!state.quiz.startedAt || !state.quiz.expiresAt) {
+        state.quiz.awaitingStart = true;
+        saveState();
+      }
       return;
     }
   }
@@ -404,6 +428,7 @@ async function startEntTest() {
     currentIndex: 0,
     startedAt: null,
     expiresAt: null,
+    awaitingStart: true,
   };
   saveState();
 }
@@ -460,12 +485,12 @@ async function init() {
     await startEntTest();
     console.log("ENT Test: Questions loaded successfully", state.quiz);
     render();
-    if (isTimerStarted()) {
-      setStartModalVisible(false);
-      startCountdown();
-    } else {
+    if (state.quiz?.awaitingStart || !isTimerStarted()) {
       setStartModalVisible(true);
       syncTimerDisplay();
+    } else {
+      setStartModalVisible(false);
+      startCountdown();
     }
   } catch (error) {
     console.error("ENT Test: Failed to load questions", error);
