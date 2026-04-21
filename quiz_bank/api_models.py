@@ -38,6 +38,7 @@ class StartTestRequest(BaseModel):
     player_id: PlayerId
     city: str
     period_code: str
+    language: str = "ru"
     question_count: int = Field(
         default=DEFAULT_TEST_QUESTION_COUNT,
         ge=1,
@@ -53,6 +54,14 @@ class StartTestRequest(BaseModel):
     @classmethod
     def validate_period_code(cls, value: str) -> str:
         return _validate_period_code(value)
+
+    @field_validator("language")
+    @classmethod
+    def validate_language(cls, value: str) -> str:
+        language = value.strip().lower()
+        if language not in {"ru", "en", "kk"}:
+            return "ru"
+        return language
 
 
 class TestQuestion(BaseModel):

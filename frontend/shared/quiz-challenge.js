@@ -314,10 +314,14 @@ function handlePrev() {
 }
 
 async function restoreOrStartQuiz() {
+  const currentLanguage = getCurrentLanguage();
   const storedQuiz = getActiveQuizState();
-  if (storedQuiz) {
+  if (storedQuiz?.language === currentLanguage) {
     state.quiz = storedQuiz;
     return;
+  }
+  if (storedQuiz) {
+    clearActiveQuizState();
   }
 
   const pendingContext = getPendingQuizContext();
@@ -329,6 +333,7 @@ async function restoreOrStartQuiz() {
     player_id: state.playerId,
     city: pendingContext.city,
     period_code: pendingContext.periodCode,
+    language: currentLanguage,
     question_count: 5,
   });
 
@@ -339,6 +344,7 @@ async function restoreOrStartQuiz() {
     questions: response.questions,
     answers: {},
     currentIndex: 0,
+    language: currentLanguage,
   };
   saveQuizState();
 }

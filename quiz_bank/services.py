@@ -1,4 +1,5 @@
 import math
+import json
 import random
 import sqlite3
 from datetime import datetime, timezone
@@ -45,6 +46,7 @@ from .api_models import (
 from .constants import (
     CITY_ACHIEVEMENT_CODES,
     CITY_MILESTONE_ACHIEVEMENTS,
+    DEFAULT_PERIOD_DATA_PATH,
     DEFAULT_PERIOD_CODE,
     FACT_MILESTONE_ACHIEVEMENTS,
     PASS_THRESHOLD,
@@ -92,6 +94,78 @@ from .database import (
 # Temporary review mode: all timeline periods are open without passing earlier tests.
 # Set this back to False when progression locks should be restored.
 TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW = True
+
+SUPPORTED_QUIZ_LANGUAGES = {"ru", "en", "kk"}
+
+
+def _normalize_quiz_language(language: str | None) -> str:
+    normalized = (language or "ru").strip().lower()
+    return normalized if normalized in SUPPORTED_QUIZ_LANGUAGES else "ru"
+
+
+def _quiz_language_path(language: str) -> Path:
+    normalized = _normalize_quiz_language(language)
+    if normalized == "ru":
+        return DEFAULT_PERIOD_DATA_PATH
+    return DEFAULT_PERIOD_DATA_PATH.with_name(f"quizzes_period_{normalized}.json")
+
+
+@lru_cache(maxsize=3)
+def _load_localized_quiz_index(language: str) -> dict[tuple[str, str, str], dict[str, object]]:
+    normalized = _normalize_quiz_language(language)
+    if normalized == "ru":
+        return {}
+
+    ru_items = json.loads(DEFAULT_PERIOD_DATA_PATH.read_text(encoding="utf-8"))
+    localized_items = json.loads(_quiz_language_path(normalized).read_text(encoding="utf-8"))
+    index: dict[tuple[str, str, str], dict[str, object]] = {}
+
+    for ru_item, localized_item in zip(ru_items, localized_items):
+        if (
+            ru_item.get("city") != localized_item.get("city")
+            or ru_item.get("period_code") != localized_item.get("period_code")
+            or ru_item.get("correct_index") != localized_item.get("correct_index")
+        ):
+            continue
+        index[
+            (
+                str(ru_item.get("city", "")),
+                str(ru_item.get("period_code", "")),
+                str(ru_item.get("question", "")),
+            )
+        ] = localized_item
+
+    return index
+
+
+def _localize_quiz_questions(
+    questions: list[dict[str, object]],
+    language: str | None,
+) -> list[dict[str, object]]:
+    normalized = _normalize_quiz_language(language)
+    if normalized == "ru":
+        return questions
+
+    localized_index = _load_localized_quiz_index(normalized)
+    localized_questions: list[dict[str, object]] = []
+    for question in questions:
+        key = (
+            str(question.get("city", "")),
+            str(question.get("period_code", "")),
+            str(question.get("question", "")),
+        )
+        localized = localized_index.get(key)
+        if not localized:
+            localized_questions.append(question)
+            continue
+
+        row = dict(question)
+        row["question"] = localized.get("question", question.get("question"))
+        row["options"] = localized.get("options", question.get("options"))
+        row["fact"] = localized.get("fact", question.get("fact"))
+        localized_questions.append(row)
+
+    return localized_questions
 
 
 def _db_cache_key(db_path: str | Path) -> str:
@@ -570,6 +644,8 @@ def start_test(db_path: str | Path, payload: StartTestRequest) -> StartTestRespo
                     ),
                 )
 
+            response_questions = _localize_quiz_questions(questions, payload.language)
+
             create_test_session(
                 connection=connection,
                 session_id=session_id,
@@ -592,7 +668,7 @@ def start_test(db_path: str | Path, payload: StartTestRequest) -> StartTestRespo
                 question=question["question"],
                 options=question["options"],
             )
-            for question in questions
+            for question in response_questions
         ],
     )
 
