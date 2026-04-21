@@ -88,6 +88,11 @@ from .database import (
 )
 
 
+# Temporary review mode: all timeline periods are open without passing earlier tests.
+# Set this back to False when progression locks should be restored.
+TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW = True
+
+
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
@@ -153,7 +158,11 @@ def _build_period_progress_snapshot(
             )
         )
         completed = total_cities > 0 and passed_cities >= total_cities
-        is_unlocked = index == 0 or bool(states[index - 1]["is_completed"])
+        is_unlocked = (
+            TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW
+            or index == 0
+            or bool(states[index - 1]["is_completed"])
+        )
 
         states.append(
             {
@@ -319,7 +328,11 @@ def _build_period_progress_snapshot_from_connection(
             )
         )
         completed = total_cities > 0 and passed_cities >= total_cities
-        is_unlocked = index == 0 or bool(states[index - 1]["is_completed"])
+        is_unlocked = (
+            TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW
+            or index == 0
+            or bool(states[index - 1]["is_completed"])
+        )
         states.append(
             {
                 "code": period_code,
@@ -375,6 +388,10 @@ def _require_period_unlocked(
     snapshot: dict[str, object],
     period_code: str,
 ) -> None:
+    if TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW:
+        _get_period_state(snapshot, period_code)
+        return
+
     period_state = _get_period_state(snapshot, period_code)
     if bool(period_state["is_unlocked"]):
         return
