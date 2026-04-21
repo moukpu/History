@@ -694,10 +694,252 @@ const imperial1868CityContentTranslations = {
   },
 };
 
+const soviet1925CityContentTranslations = {
+  en: {
+    "Кызылорда": {
+      subtitle: "Кзыл-Орда was the capital of the Kazak ASSR on the Syr Darya.",
+      short_description:
+        "In 1925, Кзыл-Орда was the capital of the Kazak ASSR and the main political center of the republic.",
+      history_summary:
+        "In 1925, the city on the Syr Darya received capital status and became central to the first decisions of early Soviet Kazakhstan. Republican affairs were directed from here before the capital moved to Alma-Ata.",
+      interesting_fact: "On the 1925 map, the capital is marked as Кзыл-Орда.",
+      role: "Early Soviet capital",
+    },
+    "Алматы": {
+      subtitle: "Алма-Ата was a large southeastern city near the Trans-Ili Alatau.",
+      short_description:
+        "In 1925, Алма-Ата was an important center of Zhetysu and one of the most notable cities in the southeast.",
+      history_summary:
+        "After being renamed from Верный, the city quickly strengthened its role in Zhetysu. In 1925, Алма-Ата was not yet the capital, but it already played a major role in the administrative and economic life of the southeast.",
+      interesting_fact: "The name Алма-Ата was already used on the 1925 map.",
+      role: "Southeastern regional center",
+    },
+    "Семей": {
+      subtitle: "Семипалатинск was an important eastern city on the Irtysh.",
+      short_description:
+        "In 1925, Семипалатинск remained a major trading and cultural city of eastern Kazakhstan.",
+      history_summary:
+        "The city on the Irtysh had long been an important point of trade and regional connections. In 1925, Семипалатинск kept its role as a notable cultural and economic center in the eastern part of the republic.",
+      interesting_fact: "On the 1925 map, the city is shown with the old form Семипалатинск.",
+      role: "Eastern cultural city",
+    },
+    "Петропавл": {
+      subtitle: "Петропавловск was a northern city on the Ishim and the railway.",
+      short_description:
+        "In 1925, Петропавловск was an important transport and trade hub of northern Kazakhstan.",
+      history_summary:
+        "The city served the northern grain belt and railway connections of the republic. In 1925, Петропавловск remained one of the key cities of the northern direction.",
+      interesting_fact: "On the 1925 map, the city is shown as Петропавловск.",
+      role: "Northern transport hub",
+    },
+    "Орал": {
+      subtitle: "Уральск was a western city on the Ural River.",
+      short_description:
+        "In 1925, Уральск remained an important western trading and administrative city.",
+      history_summary:
+        "The city on the Ural connected western districts of the republic with border routes. In 1925, Уральск kept its role as a notable center of the western region.",
+      interesting_fact: "The 1925 map uses the historical form Уральск.",
+      role: "Western regional city",
+    },
+    "Актобе": {
+      subtitle: "Актюбинск was a western city on the Ilek River.",
+      short_description:
+        "In 1925, Актюбинск was a notable western center of industry and transport.",
+      history_summary:
+        "The city connected western districts of the republic with roads and economic routes. In 1925, Актюбинск strengthened its role as an industrial and railway hub.",
+      interesting_fact: "On the 1925 map, the city is signed as Актюбинск.",
+      role: "Western transport center",
+    },
+    "Павлодар": {
+      subtitle: "Павлодар was a large Irtysh city in the northeast of the republic.",
+      short_description:
+        "In 1925, Павлодар was an important industrial and transport center of the Irtysh region.",
+      history_summary:
+        "The city on the Irtysh connected the northeast of the republic with river and land routes. In 1925, Павлодар was already a notable economic center of the Irtysh area.",
+      interesting_fact: "On the 1925 map, Павлодар already appears under a name familiar today.",
+      role: "Irtysh economic center",
+    },
+    "Оскемен": {
+      subtitle: "Усть-Каменогорск was an eastern city near the Irtysh and Ulba.",
+      short_description:
+        "In 1925, Усть-Каменогорск was an important eastern city near rivers and mountain districts.",
+      history_summary:
+        "The city held a notable place in the east thanks to its position at the meeting of the Irtysh and Ulba. In 1925, Усть-Каменогорск was linked with the mining and mountain direction of eastern Kazakhstan.",
+      interesting_fact: "The 1925 map uses the Russian form Усть-Каменогорск.",
+      role: "Eastern mountain gateway",
+    },
+    "Тараз": {
+      subtitle: "Аулие-Ата was an ancient southern city on the Talas River.",
+      short_description:
+        "In 1925, Аулие-Ата remained an important southern city with ancient history and trade links.",
+      history_summary:
+        "The city on the Talas preserved the memory of its ancient past and served as a notable center of the south. In 1925, it was still marked on the map as Аулие-Ата, not as the future Тараз.",
+      interesting_fact: "On the 1925 map, the city is signed as Аулие-Ата.",
+      role: "Ancient southern city",
+    },
+    "Атырау": {
+      subtitle: "Гурьев was a western city near the Ural River and the Caspian route.",
+      short_description:
+        "In 1925, Гурьев was an important western city connected with the Ural, fishing, and the Caspian direction.",
+      history_summary:
+        "The city near the lower Ural played a notable role in the west of the republic. In 1925, Гурьев was associated with the river, fishing, trade, and roads toward the Caspian Sea.",
+      interesting_fact: "The 1925 map uses the historical name Гурьев.",
+      role: "Caspian direction city",
+    },
+    "Астана": {
+      subtitle: "Акмолинск was a northern steppe city on the Ishim.",
+      short_description:
+        "In 1925, Акмолинск was an important northern city of the steppe region and agricultural belt.",
+      history_summary:
+        "The city on the Ishim served the northern steppe region and the economic ties of a wide district. In 1925, Акмолинск was not yet a capital, but it remained a notable northern center.",
+      interesting_fact: "On the 1925 map, present-day Астана is signed as Акмолинск.",
+      role: "Northern steppe center",
+    },
+    "Костанай": {
+      subtitle: "Кустанай was a northern city on the Tobol and an important steppe economy center.",
+      short_description:
+        "In 1925, Кустанай was an important northern city of the grain region and trade roads of steppe Kazakhstan.",
+      history_summary:
+        "The city on the Tobol served the northern agricultural belt and connected steppe districts with trade and roads. In 1925, Кустанай kept its role as a notable center in the northern part of the republic.",
+      interesting_fact: "The 1925 map uses the spelling Кустанай, not the modern Костанай.",
+      role: "Northern grain center",
+    },
+    "Шымкент": {
+      subtitle: "Чимкент was a large southern city near the Turkestan-route roads.",
+      short_description:
+        "In 1925, Чимкент was one of the notable cities of southern Kazakhstan and an important center of trade and crafts.",
+      history_summary:
+        "The southern city kept its role on routes between the Syr Darya, the Tashkent direction, and ancient centers of the region. In 1925, Чимкент was associated with markets, crafts, and active urban life in the south.",
+      interesting_fact: "On the 1925 map, the city is signed as Чимкент, not Шымкент.",
+      role: "Southern trade city",
+    },
+  },
+  kk: {
+    "Кызылорда": {
+      subtitle: "Кзыл-Орда Сырдария бойындағы Қазақ АКСР астанасы болды.",
+      short_description:
+        "1925 жылы Кзыл-Орда Қазақ АКСР-інің астанасы және республиканың басты саяси орталығы болды.",
+      history_summary:
+        "1925 жылы Сырдария бойындағы қала астаналық мәртебе алып, ерте кеңестік Қазақстанның алғашқы шешімдерінің орталығына айналды. Республика істері астана Алма-Атаға көшкенге дейін осы жерден басқарылды.",
+      interesting_fact: "1925 жылғы картада астана «Кзыл-Орда» атауымен көрсетілген.",
+      role: "Ерте кеңестік астана",
+    },
+    "Алматы": {
+      subtitle: "Алма-Ата Заилий Алатауы етегіндегі ірі оңтүстік-шығыс қала болды.",
+      short_description:
+        "1925 жылы Алма-Ата Жетісудың маңызды орталығы және республиканың оңтүстік-шығысындағы ең көрнекті қалалардың бірі болды.",
+      history_summary:
+        "Верный атауынан кейін қала Жетісудағы маңызын тез күшейтті. 1925 жылы Алма-Ата әлі астана болмағанымен, оңтүстік-шығыстың әкімшілік және шаруашылық өмірінде үлкен рөл атқарды.",
+      interesting_fact: "«Алма-Ата» атауы 1925 жылғы картада қолданылған.",
+      role: "Оңтүстік-шығыс өңір орталығы",
+    },
+    "Семей": {
+      subtitle: "Семипалатинск Ертіс бойындағы маңызды шығыс қала болды.",
+      short_description:
+        "1925 жылы Семипалатинск шығыс Қазақстанның ірі сауда және мәдени қаласы болып қалды.",
+      history_summary:
+        "Ертіс бойындағы қала ұзақ уақыт бойы сауда мен шығыс өңір байланыстарының маңызды нүктесі болды. 1925 жылы Семипалатинск республиканың шығыс бөлігіндегі көрнекті мәдени және шаруашылық орталық рөлін сақтады.",
+      interesting_fact: "1925 жылғы картада қала ескі «Семипалатинск» түрінде көрсетілген.",
+      role: "Шығыс мәдени қаласы",
+    },
+    "Петропавл": {
+      subtitle: "Петропавловск Есіл мен теміржол бойындағы солтүстік қала болды.",
+      short_description:
+        "1925 жылы Петропавловск солтүстік Қазақстанның маңызды көлік және сауда торабы болды.",
+      history_summary:
+        "Қала республиканың солтүстік астық белдеуіне және теміржол байланыстарына қызмет етті. 1925 жылы Петропавловск солтүстік бағыттағы негізгі қалалардың бірі болып қалды.",
+      interesting_fact: "1925 жылғы картада қала «Петропавловск» атауымен көрсетілген.",
+      role: "Солтүстік көлік торабы",
+    },
+    "Орал": {
+      subtitle: "Уральск Жайық өзеніндегі батыс қала болды.",
+      short_description:
+        "1925 жылы Уральск маңызды батыс сауда және әкімшілік қаласы болып қалды.",
+      history_summary:
+        "Жайық бойындағы қала республиканың батыс аудандарын шекаралық бағыттармен байланыстырды. 1925 жылы Уральск батыс өңірдің көрнекті орталығы рөлін сақтады.",
+      interesting_fact: "1925 жылғы картада тарихи «Уральск» түрі қолданылған.",
+      role: "Батыс өңір қаласы",
+    },
+    "Актобе": {
+      subtitle: "Актюбинск Елек өзеніндегі батыс қала болды.",
+      short_description:
+        "1925 жылы Актюбинск өнеркәсіп пен көліктің көрнекті батыс орталығы болды.",
+      history_summary:
+        "Қала республиканың батыс аудандарын жолдармен және шаруашылық бағыттарымен байланыстырды. 1925 жылы Актюбинск өнеркәсіптік және теміржол торабы ретіндегі маңызын күшейтті.",
+      interesting_fact: "1925 жылғы картада қала «Актюбинск» деп жазылған.",
+      role: "Батыс көлік орталығы",
+    },
+    "Павлодар": {
+      subtitle: "Павлодар республиканың солтүстік-шығысындағы Ертіс бойындағы ірі қала болды.",
+      short_description:
+        "1925 жылы Павлодар Ертіс өңірінің маңызды өнеркәсіп және көлік орталығы болды.",
+      history_summary:
+        "Ертіс бойындағы қала республиканың солтүстік-шығысын өзен және құрлық жолдарымен байланыстырды. 1925 жылы Павлодар Ертіс өңірінің көрнекті шаруашылық орталығы еді.",
+      interesting_fact: "1925 жылғы картада Павлодар қазіргі оқырманға таныс атаумен көрсетілген.",
+      role: "Ертіс шаруашылық орталығы",
+    },
+    "Оскемен": {
+      subtitle: "Усть-Каменогорск Ертіс пен Үлбі маңындағы шығыс қала болды.",
+      short_description:
+        "1925 жылы Усть-Каменогорск өзендер мен таулы өлке жанындағы маңызды шығыс қала болды.",
+      history_summary:
+        "Қала Ертіс пен Үлбі қосылған жердегі орны арқылы республиканың шығысында көрнекті орын алды. 1925 жылы Усть-Каменогорск Шығыс Қазақстанның кенді және таулы бағытымен байланыстырылды.",
+      interesting_fact: "1925 жылғы картада орысша «Усть-Каменогорск» түрі қолданылған.",
+      role: "Шығыс тау қақпасы",
+    },
+    "Тараз": {
+      subtitle: "Аулие-Ата Талас өзеніндегі көне оңтүстік қала болды.",
+      short_description:
+        "1925 жылы Аулие-Ата ежелгі тарихы және сауда байланыстары бар маңызды оңтүстік қала болып қалды.",
+      history_summary:
+        "Талас бойындағы қала ежелгі өткеннің жадын сақтап, республиканың оңтүстігіндегі көрнекті орталық болды. 1925 жылы картада ол болашақ Тараз емес, әлі де Аулие-Ата деп көрсетілді.",
+      interesting_fact: "1925 жылғы картада қала «Аулие-Ата» деп жазылған.",
+      role: "Көне оңтүстік қала",
+    },
+    "Атырау": {
+      subtitle: "Гурьев Жайық өзені мен Каспий бағытына жақын батыс қала болды.",
+      short_description:
+        "1925 жылы Гурьев Жайықпен, балықшылықпен және Каспий бағытымен байланысты маңызды батыс қала болды.",
+      history_summary:
+        "Жайықтың төменгі ағысы маңындағы қала республиканың батысында көрнекті рөл атқарды. 1925 жылы Гурьев өзенмен, балықпен, саудамен және Каспий теңізіне апаратын жолдармен байланыстырылды.",
+      interesting_fact: "1925 жылғы картада тарихи «Гурьев» атауы қолданылған.",
+      role: "Каспий бағыты қаласы",
+    },
+    "Астана": {
+      subtitle: "Акмолинск Есіл бойындағы солтүстік дала қаласы болды.",
+      short_description:
+        "1925 жылы Акмолинск дала өңірі мен ауыл шаруашылығы белдеуінің маңызды солтүстік қаласы болды.",
+      history_summary:
+        "Есіл бойындағы қала солтүстік дала өңіріне және үлкен округтің шаруашылық байланыстарына қызмет етті. 1925 жылы Акмолинск әлі астана болмағанымен, көрнекті солтүстік орталық болып қалды.",
+      interesting_fact: "1925 жылғы картада қазіргі Астана «Акмолинск» деп көрсетілген.",
+      role: "Солтүстік дала орталығы",
+    },
+    "Костанай": {
+      subtitle: "Кустанай Тобыл бойындағы солтүстік қала және дала шаруашылығының маңызды орталығы болды.",
+      short_description:
+        "1925 жылы Кустанай астық өңірі мен дала Қазақстанының сауда жолдарындағы маңызды солтүстік қала болды.",
+      history_summary:
+        "Тобыл бойындағы қала солтүстік ауыл шаруашылығы белдеуіне қызмет етіп, дала аудандарын сауда және жолдармен байланыстырды. 1925 жылы Кустанай республиканың солтүстік бөлігіндегі көрнекті орталық рөлін сақтады.",
+      interesting_fact: "1925 жылғы картада қазіргі «Костанай» емес, «Кустанай» жазылуы қолданылған.",
+      role: "Солтүстік астық орталығы",
+    },
+    "Шымкент": {
+      subtitle: "Чимкент Түркістан бағыты жолдары маңындағы ірі оңтүстік қала болды.",
+      short_description:
+        "1925 жылы Чимкент оңтүстік Қазақстанның көрнекті қалаларының бірі және сауда мен қолөнердің маңызды орталығы болды.",
+      history_summary:
+        "Оңтүстік қала Сырдария, Ташкент бағыты және өңірдің көне орталықтары арасындағы жолдарда маңызын сақтады. 1925 жылы Чимкент базарлармен, қолөнермен және оңтүстіктің жанданған қала өмірімен байланыстырылды.",
+      interesting_fact: "1925 жылғы картада қала «Шымкент» емес, ескі «Чимкент» түрінде көрсетілген.",
+      role: "Оңтүстік сауда қаласы",
+    },
+  },
+};
+
 const periodCityContentTranslations = {
   khanate_1465: khanateCityContentTranslations,
   imperial_1731: imperial1731CityContentTranslations,
   imperial_1868: imperial1868CityContentTranslations,
+  soviet_1925: soviet1925CityContentTranslations,
 };
 
 function translate(key, params = {}) {
