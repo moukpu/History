@@ -60,9 +60,9 @@
       </a>
       
       <div class="hidden md:flex gap-8 items-center absolute left-1/2 -translate-x-1/2">
-        <a class="text-[#2e2f2d] opacity-70 font-bold text-base hover:scale-105 hover:opacity-100 transition-all" href="../home_page/code.html">Главная</a>
-        <a class="text-[#2e2f2d] opacity-70 font-bold text-base hover:scale-105 hover:opacity-100 transition-all" href="../map_hub/code.html">Карта</a>
-        <a class="text-[#2e2f2d] opacity-70 font-bold text-base hover:scale-105 hover:opacity-100 transition-all" href="../leaderboard/code.html">Рейтинг</a>
+        <a data-i18n="nav_home" class="text-[#2e2f2d] opacity-70 font-bold text-base hover:scale-105 hover:opacity-100 transition-all" href="../home_page/code.html">Главная</a>
+        <a data-i18n="nav_map" class="text-[#2e2f2d] opacity-70 font-bold text-base hover:scale-105 hover:opacity-100 transition-all" href="../map_hub/code.html">Карта</a>
+        <a data-i18n="nav_leaderboard" class="text-[#2e2f2d] opacity-70 font-bold text-base hover:scale-105 hover:opacity-100 transition-all" href="../leaderboard/code.html">Рейтинг</a>
       </div>
 
       <div class="ml-auto flex items-center gap-4">
@@ -75,9 +75,9 @@
     <!-- Hero Section -->
     <header class="py-24 px-8 md:px-16 text-center bg-white/50">
       <div class="max-w-4xl mx-auto space-y-8">
-        <div class="inline-block px-6 py-2 bg-secondary-container text-on-secondary-container rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest shadow-sm">Интерактивная история Казахстана</div>
-        <h1 class="text-4xl md:text-7xl font-black text-on-surface leading-tight tracking-tighter">Sapar Quest — карта, тесты и квест <br><span class="bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent">по эпохам страны</span></h1>
-        <p class="text-lg md:text-2xl text-on-surface-variant leading-relaxed max-w-2xl mx-auto font-medium">Это учебная игра, где история открывается по шагам: проходишь города, отвечаешь на вопросы, собираешь прогресс и открываешь следующий период.</p>
+        <div data-i18n="hero_badge" class="inline-block px-6 py-2 bg-secondary-container text-on-secondary-container rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest shadow-sm">Интерактивная история Казахстана</div>
+        <h1 data-i18n-html="hero_title" class="text-4xl md:text-7xl font-black text-on-surface leading-tight tracking-tighter">Sapar Quest — карта, тесты и квест <br><span class="bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent">по эпохам страны</span></h1>
+        <p data-i18n="hero_subtitle" class="text-lg md:text-2xl text-on-surface-variant leading-relaxed max-w-2xl mx-auto font-medium">Это учебная игра, где история открывается по шагам: проходишь города, отвечаешь на вопросы, собираешь прогресс и открываешь следующий период.</p>
       </div>
     </header>
 
@@ -89,8 +89,8 @@
           <div class="w-16 h-16 bg-primary-container rounded-2xl flex items-center justify-center mb-8 text-on-primary-container group-hover:rotate-6 transition-transform shadow-md">
             <span class="material-symbols-outlined text-4xl">history_edu</span>
           </div>
-          <h3 class="font-black text-2xl mb-4 text-on-surface tracking-tight">7 периодов</h3>
-          <p class="text-sm text-on-surface-variant leading-relaxed font-medium">Путь начинается с Казахского ханства и идет дальше по ключевым этапам истории. Новые периоды открываются после прохождения заданий.</p>
+          <h3 data-i18n="feature_periods_title" class="font-black text-2xl mb-4 text-on-surface tracking-tight">7 периодов</h3>
+          <p data-i18n="feature_periods_text" class="text-sm text-on-surface-variant leading-relaxed font-medium">Путь начинается с Казахского ханства и идет дальше по ключевым этапам истории. Новые периоды открываются после прохождения заданий.</p>
         </div>
 
         <!-- Feature 2 -->
@@ -98,8 +98,8 @@
           <div class="w-16 h-16 bg-secondary-container rounded-2xl flex items-center justify-center mb-8 text-on-secondary-container group-hover:rotate-6 transition-transform shadow-md">
             <span class="material-symbols-outlined text-4xl">location_city</span>
           </div>
-          <h3 class="font-black text-2xl mb-4 text-on-surface tracking-tight">Города на карте</h3>
-          <p class="text-sm text-on-surface-variant leading-relaxed font-medium">Каждый город связан с периодом и своими вопросами. Выбирай точки на карте, проходи тесты и двигайся дальше по маршруту.</p>
+          <h3 data-i18n="feature_cities_title" class="font-black text-2xl mb-4 text-on-surface tracking-tight">Города на карте</h3>
+          <p data-i18n="feature_cities_text" class="text-sm text-on-surface-variant leading-relaxed font-medium">Каждый город связан с периодом и своими вопросами. Выбирай точки на карте, проходи тесты и двигайся дальше по маршруту.</p>
         </div>
 
         <!-- Feature 3 -->
@@ -107,8 +107,8 @@
           <div class="w-16 h-16 bg-tertiary-container rounded-2xl flex items-center justify-center mb-8 text-on-tertiary-container group-hover:rotate-6 transition-transform shadow-md">
             <span class="material-symbols-outlined text-4xl">military_tech</span>
           </div>
-          <h3 class="font-black text-2xl mb-4 text-on-surface tracking-tight">Квестовый прогресс</h3>
-          <p class="text-sm text-on-surface-variant leading-relaxed font-medium">Система запоминает результаты, очки, достижения и открытые эпохи, чтобы путешествие продолжалось с последнего разблокированного этапа.</p>
+          <h3 data-i18n="feature_progress_title" class="font-black text-2xl mb-4 text-on-surface tracking-tight">Квестовый прогресс</h3>
+          <p data-i18n="feature_progress_text" class="text-sm text-on-surface-variant leading-relaxed font-medium">Система запоминает результаты, очки, достижения и открытые эпохи, чтобы путешествие продолжалось с последнего разблокированного этапа.</p>
         </div>
 
         <!-- Feature 4 -->
@@ -116,8 +116,8 @@
           <div class="w-16 h-16 bg-primary-container rounded-2xl flex items-center justify-center mb-8 text-primary group-hover:rotate-6 transition-transform shadow-md">
             <span class="material-symbols-outlined text-4xl">school</span>
           </div>
-          <h3 class="font-black text-2xl mb-4 text-on-surface tracking-tight">Тренировка знаний</h3>
-          <p class="text-sm text-on-surface-variant leading-relaxed font-medium">Вопросы помогают закреплять даты, события, личности и города без ощущения обычной зубрежки.</p>
+          <h3 data-i18n="feature_practice_title" class="font-black text-2xl mb-4 text-on-surface tracking-tight">Тренировка знаний</h3>
+          <p data-i18n="feature_practice_text" class="text-sm text-on-surface-variant leading-relaxed font-medium">Вопросы помогают закреплять даты, события, личности и города без ощущения обычной зубрежки.</p>
         </div>
       </div>
     </section>
@@ -126,15 +126,15 @@
     <section class="px-8 md:px-16 lg:px-24 py-24 bg-white/40">
       <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-20">
         <div class="flex-1 space-y-10 text-left">
-          <h2 class="text-4xl md:text-5xl font-black text-on-surface leading-tight tracking-tight">Как работает <br>Sapar Quest?</h2>
+          <h2 data-i18n-html="how_title" class="text-4xl md:text-5xl font-black text-on-surface leading-tight tracking-tight">Как работает <br>Sapar Quest?</h2>
           <div class="space-y-8">
             <div class="flex gap-6 items-start">
               <div class="mt-1 bg-primary text-on-primary rounded-full p-2 shrink-0 shadow-lg">
                 <span class="material-symbols-outlined text-base font-black">done</span>
               </div>
               <div>
-                <h4 class="text-xl font-black text-on-surface tracking-tight">Начинай с первого периода</h4>
-                <p class="text-on-surface-variant text-base mt-2 leading-relaxed font-medium">Игра ведет по истории последовательно: сначала доступен стартовый период, затем открываются следующие этапы.</p>
+                <h4 data-i18n="step_start_title" class="text-xl font-black text-on-surface tracking-tight">Начинай с первого периода</h4>
+                <p data-i18n="step_start_text" class="text-on-surface-variant text-base mt-2 leading-relaxed font-medium">Игра ведет по истории последовательно: сначала доступен стартовый период, затем открываются следующие этапы.</p>
               </div>
             </div>
             <div class="flex gap-6 items-start">
@@ -142,14 +142,14 @@
                 <span class="material-symbols-outlined text-base font-black">celebration</span>
               </div>
               <div>
-                <h4 class="text-xl font-black text-on-surface tracking-tight">Открывай эпохи через тесты</h4>
-                <p class="text-on-surface-variant text-base mt-2 leading-relaxed font-medium">Когда задания городов текущего периода пройдены, следующая эпоха становится доступной на карте.</p>
+                <h4 data-i18n="step_unlock_title" class="text-xl font-black text-on-surface tracking-tight">Открывай эпохи через тесты</h4>
+                <p data-i18n="step_unlock_text" class="text-on-surface-variant text-base mt-2 leading-relaxed font-medium">Когда задания городов текущего периода пройдены, следующая эпоха становится доступной на карте.</p>
               </div>
             </div>
           </div>
           <div class="pt-6">
             <a href="../map_hub/code.html" class="inline-flex items-center gap-4 px-12 py-5 bg-primary text-on-primary rounded-2xl font-black text-xl shadow-2xl hover:bg-primary-dim hover:scale-105 transition-all active:scale-95 group">
-              <span>Начать путешествие</span>
+              <span data-i18n="btn_start">Начать путешествие</span>
               <span class="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_forward</span>
             </a>
           </div>
@@ -177,9 +177,6 @@
       </div>
     </footer>
 
-    <script type="module">
-      import { mountLanguageMenu } from "../shared/language.js";
-      mountLanguageMenu();
-    </script>
+    <script type="module" src="../shared/about.js"></script>
 
 </body></html>
