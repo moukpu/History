@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import RedirectResponse
@@ -228,7 +228,10 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Kazakhstan Interactive Map API", lifespan=lifespan)
+app = FastAPI(
+    title="Kazakhstan Interactive Map API",
+    lifespan=lifespan,
+)
 
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
@@ -239,6 +242,28 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+STATIC_API_CACHE_SECONDS = 1800
+STATIC_API_CACHE_PATHS = {
+    "/api/achievements/catalog",
+    "/api/timeline/periods",
+}
+STATIC_API_CACHE_PREFIXES = (
+    "/api/timeline/cities/",
+    "/api/city-content/",
+)
+
+
+@app.middleware("http")
+async def add_cache_headers(request: Request, call_next):
+    response = await call_next(request)
+    if request.method == "GET" and response.status_code == 200:
+        path = request.url.path
+        if path in STATIC_API_CACHE_PATHS or path.startswith(STATIC_API_CACHE_PREFIXES):
+            response.headers["Cache-Control"] = (
+                f"public, max-age={STATIC_API_CACHE_SECONDS}, stale-while-revalidate=3600"
+            )
+    return response
 
 
 @app.get("/api/quiz/static/{city}", response_model=QuizResponse)

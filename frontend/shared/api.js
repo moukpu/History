@@ -1,5 +1,7 @@
 import { getApiBaseUrl } from "./config.js";
 
+const SESSION_CACHE_PREFIX = "sapar-api-cache:";
+
 export class ApiError extends Error {
   constructor(status, message) {
     super(message);
@@ -8,21 +10,74 @@ export class ApiError extends Error {
   }
 }
 
-async function requestJson(path, options = {}) {
-  const headers = new Headers(options.headers || {});
+function getSessionStorage() {
+  try {
+    return typeof window !== "undefined" ? window.sessionStorage : null;
+  } catch {
+    return null;
+  }
+}
 
-  if (options.body !== undefined && !headers.has("Content-Type")) {
+function readCachedJson(cacheKey, ttlMs) {
+  const storage = getSessionStorage();
+  if (!storage || !cacheKey || ttlMs <= 0) {
+    return null;
+  }
+
+  try {
+    const raw = storage.getItem(`${SESSION_CACHE_PREFIX}${cacheKey}`);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (!cached?.savedAt || Date.now() - cached.savedAt > ttlMs) {
+      storage.removeItem(`${SESSION_CACHE_PREFIX}${cacheKey}`);
+      return null;
+    }
+    return cached.payload ?? null;
+  } catch {
+    storage.removeItem(`${SESSION_CACHE_PREFIX}${cacheKey}`);
+    return null;
+  }
+}
+
+function writeCachedJson(cacheKey, payload) {
+  const storage = getSessionStorage();
+  if (!storage || !cacheKey) {
+    return;
+  }
+
+  try {
+    storage.setItem(
+      `${SESSION_CACHE_PREFIX}${cacheKey}`,
+      JSON.stringify({ savedAt: Date.now(), payload })
+    );
+  } catch {
+    // Storage can be full or disabled; caching is only an optimization.
+  }
+}
+
+async function requestJson(path, options = {}) {
+  const { cacheTtlMs = 0, ...fetchOptions } = options;
+  const headers = new Headers(fetchOptions.headers || {});
+  const method = String(fetchOptions.method || "GET").toUpperCase();
+  const canSessionCache = method === "GET" && cacheTtlMs > 0;
+  const cacheKey = canSessionCache ? `${getApiBaseUrl()}${path}` : "";
+  const cached = readCachedJson(cacheKey, cacheTtlMs);
+  if (cached !== null) {
+    return cached;
+  }
+
+  if (fetchOptions.body !== undefined && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json; charset=utf-8");
   }
 
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    ...options,
+    ...fetchOptions,
     headers,
     body:
-      options.body === undefined
+      fetchOptions.body === undefined
         ? undefined
-        : JSON.stringify(options.body),
-    cache: "no-store",
+        : JSON.stringify(fetchOptions.body),
+    cache: fetchOptions.cache || (canSessionCache ? "default" : "no-store"),
   });
 
   if (!response.ok) {
@@ -42,7 +97,11 @@ async function requestJson(path, options = {}) {
     throw new ApiError(response.status, message);
   }
 
-  return response.json();
+  const payload = await response.json();
+  if (canSessionCache) {
+    writeCachedJson(cacheKey, payload);
+  }
+  return payload;
 }
 
 export const api = {
@@ -66,7 +125,8 @@ export const api = {
 
   getCityContent(periodCode, city) {
     return requestJson(
-      `/api/city-content/${encodeURIComponent(periodCode)}/${encodeURIComponent(city)}`
+      `/api/city-content/${encodeURIComponent(periodCode)}/${encodeURIComponent(city)}`,
+      { cacheTtlMs: 30 * 60 * 1000 }
     );
   },
 
@@ -89,7 +149,9 @@ export const api = {
   },
 
   getAchievementCatalog() {
-    return requestJson("/api/achievements/catalog");
+    return requestJson("/api/achievements/catalog", {
+      cacheTtlMs: 10 * 60 * 1000,
+    });
   },
 
   getProgress(playerId) {
