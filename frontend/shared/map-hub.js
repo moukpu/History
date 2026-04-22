@@ -2155,9 +2155,11 @@ function renderMarkers() {
               isActive || passed || isFactCandidate ? "fill-icon" : ""
             }">${getMarkerIcon(cityState, factSession)}</span>
           </button>
-          <div class="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 bg-surface-container-lowest px-2.5 py-1 rounded-full shadow-sm ${
-            isActive ? "ring-2 ring-secondary" : ""
-          }">
+          <div class="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 bg-surface-container-lowest px-2.5 py-1 rounded-full shadow-sm" ${
+            isActive
+              ? 'style="box-shadow: 0 0 0 1px rgba(108, 90, 0, 0.58), 0 1px 2px rgba(0, 0, 0, 0.05);"'
+              : ""
+          }>
             <span class="text-[10px] font-bold ${
               isActive
                 ? "text-secondary"
