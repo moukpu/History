@@ -1202,8 +1202,8 @@ function renderEntResults(progress) {
       const canReview = item.has_details !== false && item.id;
       return `
         <div class="bg-surface-container-low rounded-xl p-4 flex items-start gap-4 border border-tertiary/10">
-          <div class="bg-tertiary-container text-on-tertiary-container p-2.5 rounded-full flex-shrink-0">
-            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
+          <div class="bg-tertiary-container text-on-tertiary-container w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center">
+            <span class="material-symbols-outlined text-[32px] leading-none block" style="font-variation-settings: 'FILL' 1;">school</span>
           </div>
           <div class="min-w-0 flex-1">
             <div class="flex items-start justify-between gap-3">
