@@ -2362,8 +2362,16 @@ async function selectCity(city) {
   state.selectedCity = city;
   setLastCity(city);
   clearStatusMessage();
-  await loadCityContent(city);
   render();
+
+  try {
+    await loadCityContent(city);
+    if (state.selectedCity === city) {
+      render();
+    }
+  } catch (error) {
+    setStatusMessage(getErrorMessage(error), "warning");
+  }
 }
 
 async function loadMapState(periodCode) {
@@ -2412,11 +2420,23 @@ async function applyMapState(mapState) {
   clearActiveFactSession();
 
   if (state.selectedCity) {
-    await loadCityContent(state.selectedCity);
     setLastCity(state.selectedCity);
   }
 
   render();
+
+  if (state.selectedCity) {
+    const selectedCity = state.selectedCity;
+    loadCityContent(selectedCity)
+      .then(() => {
+        if (state.selectedCity === selectedCity) {
+          render();
+        }
+      })
+      .catch((error) => {
+        setStatusMessage(getErrorMessage(error), "warning");
+      });
+  }
 }
 
 async function loadBootstrap() {

@@ -75,7 +75,7 @@
     }
 
     .home-nav .site-nav-links {
-      display: flex !important;
+      display: none !important;
       order: 3;
       flex-basis: 100%;
       position: static !important;
