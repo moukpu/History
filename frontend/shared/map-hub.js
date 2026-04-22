@@ -2146,7 +2146,7 @@ function renderMarkers() {
           }
           <button type="button" class="${
             isActive
-              ? "bg-secondary-container text-on-secondary-container p-3 rounded-full shadow-lg border-[3px] border-white hover:scale-105 transition-transform"
+              ? "bg-secondary-container text-on-secondary-container p-3 rounded-full shadow-lg hover:scale-105 transition-transform"
               : passed
                 ? "bg-tertiary-container text-on-tertiary-container p-2 rounded-full shadow-lg hover:scale-105 transition-transform"
                 : "bg-primary text-on-primary p-2 rounded-full shadow-lg hover:scale-105 transition-transform active:scale-90"
@@ -2155,11 +2155,7 @@ function renderMarkers() {
               isActive || passed || isFactCandidate ? "fill-icon" : ""
             }">${getMarkerIcon(cityState, factSession)}</span>
           </button>
-          <div class="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 bg-surface-container-lowest px-2.5 py-1 rounded-full shadow-sm" ${
-            isActive
-              ? 'style="box-shadow: 0 0 0 1px rgba(108, 90, 0, 0.58), 0 1px 2px rgba(0, 0, 0, 0.05);"'
-              : ""
-          }>
+          <div class="absolute top-full mt-1.5 left-1/2 -translate-x-1/2 bg-surface-container-lowest px-2.5 py-1 rounded-full shadow-sm">
             <span class="text-[10px] font-bold ${
               isActive
                 ? "text-secondary"

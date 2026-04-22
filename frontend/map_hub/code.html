@@ -134,11 +134,11 @@
       }
       [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-core {
         fill: #ffd709;
-        stroke: #5b4b00;
+        stroke: transparent;
       }
       [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-ring {
-        opacity: 1;
-        stroke: #ffd709;
+        opacity: 0;
+        stroke: transparent;
       }
       @media (max-width: 1023px) {
         .map-page-shell {
@@ -174,14 +174,14 @@
           transform: none;
         }
         [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-core {
-          stroke-width: 0.8px !important;
+          stroke-width: 0 !important;
         }
         [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-ring {
-          stroke-width: 0.9px !important;
-          opacity: 0.45 !important;
+          stroke-width: 0 !important;
+          opacity: 0 !important;
         }
         [data-map-markers] button {
-          border-width: 1px !important;
+          border-width: 0 !important;
         }
         [data-map-markers] .ring-2 {
           --tw-ring-offset-width: 0px !important;

@@ -160,11 +160,6 @@ function applyCompactActiveCityStyles(cityGroup, isActive, isCompact) {
     shape.style.setProperty("vector-effect", "non-scaling-stroke");
   });
 
-  const core = cityGroup.querySelector(".map-city-core");
-  if (core && isActive) {
-    core.style.setProperty("stroke-width", "0.65px");
-  }
-
   if (!isActive) {
     return;
   }
