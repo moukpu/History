@@ -48,3 +48,43 @@ export function setVisible(element, visible) {
 export function formatPercent(value) {
   return `${Number.isFinite(value) ? value : 0}%`;
 }
+
+export function protectQuizContent(selectors) {
+  const protectedSelectors = Array.isArray(selectors) ? selectors : [selectors];
+  const isProtectedTarget = (target) =>
+    target instanceof Element &&
+    protectedSelectors.some((selector) => target.closest(selector));
+
+  const blockEvent = (event) => {
+    if (isProtectedTarget(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+
+  ["copy", "cut", "contextmenu", "selectstart", "dragstart"].forEach((type) => {
+    document.addEventListener(type, blockEvent, true);
+  });
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (!isProtectedTarget(event.target) || !(event.ctrlKey || event.metaKey)) {
+        return;
+      }
+
+      if (["a", "c", "x", "p", "s"].includes(event.key.toLowerCase())) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
+    true
+  );
+
+  protectedSelectors.forEach((selector) => {
+    document.querySelectorAll(selector).forEach((element) => {
+      element.classList.add("quiz-copy-protected");
+      element.setAttribute("draggable", "false");
+    });
+  });
+}

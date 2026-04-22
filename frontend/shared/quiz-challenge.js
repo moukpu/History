@@ -19,6 +19,7 @@ import {
 import {
   createElementFromHtml,
   escapeHtml,
+  protectQuizContent,
   setHtml,
   setText,
   setVisible,
@@ -684,6 +685,7 @@ async function init() {
   }
 
   cacheElements();
+  protectQuizContent("[data-question-section]");
   bindEvents();
   applyTranslations();
   await reconcileStoredAuthUser();
