@@ -43,7 +43,7 @@
       }
     </style>
   </head>
-  <body class="bg-surface font-body text-on-surface min-h-screen flex flex-col">
+  <body class="has-bottom-nav bg-surface font-body text-on-surface min-h-screen flex flex-col">
     <main class="max-w-[1440px] mx-auto min-h-screen flex flex-col p-6 md:p-10 gap-8 w-full">
       <header class="flex flex-col md:flex-row items-center justify-between gap-6 w-full">
         <div class="flex items-center gap-4 group">
@@ -180,7 +180,13 @@
       </footer>
     </main>
 
-    
+    <div class="site-bottom-nav md:hidden" aria-label="Mobile navigation">
+      <a href="../home_page/code.html" aria-label="Главная"><span class="material-symbols-outlined">explore</span></a>
+      <a href="../map_hub/code.html" aria-label="Карта"><span class="material-symbols-outlined">map</span></a>
+      <a href="../leaderboard/code.html" aria-label="Рейтинг"><span class="material-symbols-outlined">leaderboard</span></a>
+      <a href="../profile/code.html" aria-label="Профиль"><span class="material-symbols-outlined">person</span></a>
+    </div>
+
     <script type="module" src="../shared/ent-test.js"></script>
   
 

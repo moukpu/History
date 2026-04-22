@@ -21,7 +21,7 @@
       }
     </style>
   </head>
-  <body class="bg-surface font-body text-on-surface flex flex-col min-h-screen antialiased selection:bg-primary-container selection:text-on-primary-container">
+  <body class="has-bottom-nav bg-surface font-body text-on-surface flex flex-col min-h-screen antialiased selection:bg-primary-container selection:text-on-primary-container">
     <header class="w-full top-0 px-6 py-4 bg-white/80 backdrop-blur-xl z-50 shadow-[0px_8px_24px_rgba(46,47,45,0.06)]">
       <div class="flex justify-between items-center w-full max-w-7xl mx-auto">
         <a class="text-2xl font-extrabold bg-gradient-to-br from-[#006668] to-[#52f2f5] bg-clip-text text-transparent font-headline tracking-tight" href="../home_page/code.html">
@@ -143,7 +143,13 @@
       </div>
     </footer>
 
-    
+    <div class="site-bottom-nav md:hidden" aria-label="Mobile navigation">
+      <a href="../home_page/code.html" aria-label="Главная"><span class="material-symbols-outlined">explore</span></a>
+      <a href="../map_hub/code.html" aria-label="Карта"><span class="material-symbols-outlined">map</span></a>
+      <a href="../leaderboard/code.html" aria-label="Рейтинг"><span class="material-symbols-outlined">leaderboard</span></a>
+      <a href="../profile/code.html" aria-label="Профиль"><span class="material-symbols-outlined">person</span></a>
+    </div>
+
     <script type="module" src="../shared/auth.js"></script>
   
 

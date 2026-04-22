@@ -61,6 +61,27 @@
       [data-map-markers] {
         transition: inset 0.45s ease, opacity 0.45s ease;
       }
+      [data-player-summary] {
+        width: 13.5rem !important;
+      }
+      [data-player-summary] > div {
+        padding: 0.65rem !important;
+        border-radius: 0.85rem !important;
+      }
+      [data-player-summary] .grid > div {
+        padding: 0.65rem !important;
+        border-radius: 0.65rem !important;
+      }
+      [data-player-summary] [data-i18n] {
+        font-size: 0.55rem !important;
+        letter-spacing: 0.12em !important;
+      }
+      [data-player-tests],
+      [data-player-achievements] {
+        margin-top: 0.2rem !important;
+        font-size: 1rem !important;
+        line-height: 1.25 !important;
+      }
       [data-map-backdrop].is-svg-mode {
         display: flex;
         align-items: center;
@@ -152,6 +173,12 @@
           left: 1rem !important;
           max-width: none !important;
         }
+        [data-player-summary] {
+          top: 0.85rem !important;
+          right: 0.85rem !important;
+          width: 11.25rem !important;
+          max-width: calc(100% - 1.7rem) !important;
+        }
       }
       @media (max-width: 640px) {
         .map-page-stage {
@@ -163,9 +190,17 @@
           top: 6.25rem !important;
           bottom: 8.5rem !important;
         }
-        [data-player-tests],
-        [data-player-achievements] {
-          font-size: 1rem !important;
+        [data-player-summary] {
+          width: 10.75rem !important;
+        }
+        [data-player-summary] > div {
+          padding: 0.55rem !important;
+        }
+        [data-player-summary] .grid {
+          gap: 0.4rem !important;
+        }
+        [data-player-summary] .grid > div {
+          padding: 0.5rem !important;
         }
       }
       @media (min-width: 1024px) {
@@ -204,10 +239,10 @@
       }
     </style>
   </head>
-  <body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden overflow-y-auto min-h-[100svh] flex flex-col">
-    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] no-border-tonal-stepping flex items-center px-8 h-20">
+  <body class="has-bottom-nav bg-surface font-body text-on-surface antialiased overflow-x-hidden overflow-y-auto min-h-[100svh] flex flex-col">
+    <nav class="site-nav fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] no-border-tonal-stepping flex items-center px-8 h-20">
       <a class="text-2xl font-extrabold bg-gradient-to-br from-[#006668] to-[#52f2f5] bg-clip-text text-transparent" href="../home_page/code.html">Sapar Quest</a>
-      <div class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+      <div class="site-nav-links hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
         <a data-i18n="nav_home" class="font-headline tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../home_page/code.html">Главная</a>
         <a data-i18n="nav_map" class="font-headline tracking-tight font-bold text-base text-[#006668] border-b-4 border-[#ffd709] pb-1 hover:scale-105 hover:opacity-100 transition-all" href="./code.html">Карта</a>
         <a data-i18n="nav_leaderboard" class="font-headline tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../leaderboard/code.html">Рейтинг</a>
@@ -237,7 +272,7 @@
           </div>
         </div>
 
-        <div class="absolute top-5 right-5 z-20 w-[18.5rem] max-w-[calc(100%-2.5rem)] pointer-events-none">
+        <div class="absolute top-5 right-5 z-20 w-[18.5rem] max-w-[calc(100%-2.5rem)] pointer-events-none" data-player-summary>
           <div class="bg-surface-container-lowest/88 backdrop-blur-md p-3.5 rounded-xl shadow-lg border border-outline-variant/10">
             <div class="grid grid-cols-2 gap-2.5">
               <div class="bg-surface-container-low p-3.5 rounded-lg">
@@ -386,6 +421,13 @@
         <p class="font-bold text-xs text-[#2e2f2d]/40">© 2026 Sapar Quest — Твоя живая история</p>
       </div>
     </footer>
+
+    <div class="site-bottom-nav md:hidden" aria-label="Mobile navigation">
+      <a href="../home_page/code.html" aria-label="Главная"><span class="material-symbols-outlined">explore</span></a>
+      <a class="is-active" href="./code.html" aria-label="Карта"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span></a>
+      <a href="../leaderboard/code.html" aria-label="Рейтинг"><span class="material-symbols-outlined">leaderboard</span></a>
+      <a href="../profile/code.html" aria-label="Профиль"><span class="material-symbols-outlined">person</span></a>
+    </div>
 
     <script type="module" src="../shared/map-hub.js"></script>
   </body>

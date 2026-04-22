@@ -83,13 +83,13 @@
       }
     </style>
   </head>
-  <body class="antialiased min-h-screen pb-28 md:pb-0 pt-20 md:pt-24 relative overflow-x-hidden flex flex-col">
-    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] flex items-center px-8 h-20">
+  <body class="has-bottom-nav antialiased min-h-screen pb-28 md:pb-0 pt-20 md:pt-24 relative overflow-x-hidden flex flex-col">
+    <nav class="site-nav fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] flex items-center px-8 h-20">
       <a class="text-2xl font-black bg-gradient-to-br from-[#006668] to-[#52f2f5] bg-clip-text text-transparent tracking-tighter" href="../home_page/code.html">
         Sapar Quest
       </a>
       
-      <div class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+      <div class="site-nav-links hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
         <a data-i18n="nav_explore" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../home_page/code.html">Главная</a>
         <a data-i18n="nav_map" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../map_hub/code.html">Карта</a>
         <a data-i18n="nav_leaderboard" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../leaderboard/code.html">Рейтинг</a>
@@ -261,7 +261,13 @@
       </div>
     </div>
 
-    
+    <div class="site-bottom-nav md:hidden" aria-label="Mobile navigation">
+      <a href="../home_page/code.html" aria-label="Главная"><span class="material-symbols-outlined">explore</span></a>
+      <a href="../map_hub/code.html" aria-label="Карта"><span class="material-symbols-outlined">map</span></a>
+      <a href="../leaderboard/code.html" aria-label="Рейтинг"><span class="material-symbols-outlined">leaderboard</span></a>
+      <a class="is-active" href="./code.html" aria-label="Профиль"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span></a>
+    </div>
+
     <script type="module" src="../shared/profile.js"></script>
   
 

@@ -12,6 +12,7 @@ const KEYS = {
 };
 
 const AUTH_RESOLVE_CACHE_MS = 5 * 60 * 1000;
+const AUTH_RESOLVE_TIMEOUT_MS = 8000;
 
 function createPlayerId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -113,6 +114,12 @@ export async function reconcileStoredAuthUser() {
     return current;
   }
 
+  const controller = new AbortController();
+  const timeoutId = globalThis.setTimeout(
+    () => controller.abort(),
+    AUTH_RESOLVE_TIMEOUT_MS
+  );
+
   try {
     const response = await fetch(`${getApiBaseUrl()}/api/auth/resolve`, {
       method: "POST",
@@ -122,6 +129,7 @@ export async function reconcileStoredAuthUser() {
         email: current.email,
       }),
       cache: "no-store",
+      signal: controller.signal,
     });
 
     if (!response.ok) {
@@ -137,6 +145,8 @@ export async function reconcileStoredAuthUser() {
     return resolved;
   } catch {
     return current;
+  } finally {
+    globalThis.clearTimeout(timeoutId);
   }
 }
 

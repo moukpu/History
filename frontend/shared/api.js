@@ -1,6 +1,7 @@
 import { getApiBaseUrl } from "./config.js";
 
 const SESSION_CACHE_PREFIX = "sapar-api-cache:";
+const REQUEST_TIMEOUT_MS = 20000;
 
 export class ApiError extends Error {
   constructor(status, message) {
@@ -70,15 +71,32 @@ async function requestJson(path, options = {}) {
     headers.set("Content-Type", "application/json; charset=utf-8");
   }
 
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    ...fetchOptions,
-    headers,
-    body:
-      fetchOptions.body === undefined
-        ? undefined
-        : JSON.stringify(fetchOptions.body),
-    cache: fetchOptions.cache || (canSessionCache ? "default" : "no-store"),
-  });
+  const controller = new AbortController();
+  const timeoutId = globalThis.setTimeout(
+    () => controller.abort(),
+    REQUEST_TIMEOUT_MS
+  );
+  let response;
+
+  try {
+    response = await fetch(`${getApiBaseUrl()}${path}`, {
+      ...fetchOptions,
+      headers,
+      signal: controller.signal,
+      body:
+        fetchOptions.body === undefined
+          ? undefined
+          : JSON.stringify(fetchOptions.body),
+      cache: fetchOptions.cache || (canSessionCache ? "default" : "no-store"),
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new ApiError(408, "Слишком долгий ответ. Нажмите «Повторить».");
+    }
+    throw error;
+  } finally {
+    globalThis.clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     let message = `Request failed with status ${response.status}.`;
