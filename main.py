@@ -244,6 +244,7 @@ async def start_city_test(payload: StartTestRequest) -> StartTestResponse:
                 "id": str(question["id"]),
                 "question": question["question_text"],
                 "options": question["options"],
+                "translations": question.get("translations"),
                 "correct_index": question["correct_index"],
             }
             for question in selected
@@ -260,6 +261,7 @@ async def start_city_test(payload: StartTestRequest) -> StartTestResponse:
                     id=question["id"],
                     question=question["question"],
                     options=question["options"],
+                    translations=question.get("translations"),
                 )
                 for question in session_questions
             ],
@@ -503,6 +505,7 @@ async def start_ent_test(payload: dict) -> dict:
             "id": q["id"],
             "question": q["question_text"],
             "options": q["options"],
+            "translations": q.get("translations"),
             "correct_index": q["correct_index"],
             "topic": q.get("topic", ""),
             "difficulty": q.get("difficulty", ""),
@@ -519,6 +522,7 @@ async def start_ent_test(payload: dict) -> dict:
                 "id": q["id"],
                 "question": q["question"],
                 "options": q["options"],
+                "translations": q.get("translations"),
                 "topic": q["topic"],
                 "difficulty": q["difficulty"],
             }

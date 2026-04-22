@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
 import {
   getOrCreatePlayerId,
   hasStoredAuthUser,
@@ -44,6 +44,15 @@ function queryRequired(selector) {
 function getCurrentQuestion() {
   if (!state.quiz) return null;
   return state.quiz.questions[state.quiz.currentIndex] || null;
+}
+
+function getVisibleQuestion(question) {
+  const language = getCurrentLanguage();
+  const localized = question?.translations?.[language] || question?.translations?.ru;
+  return {
+    question: localized?.question || question?.question || "",
+    options: localized?.options || question?.options || [],
+  };
 }
 
 function getSelectedAnswerIndex() {
@@ -205,13 +214,14 @@ function renderQuestion() {
 
   const question = getCurrentQuestion();
   if (!question) return;
+  const visibleQuestion = getVisibleQuestion(question);
 
   setVisible(elements.questionSection, true);
   setVisible(elements.resultSection, false);
   setVisible(elements.submitButton, isTimerStarted());
   setVisible(elements.prevButton, isTimerStarted() && state.quiz.currentIndex > 0);
 
-  setText(elements.questionTitle, question.question);
+  setText(elements.questionTitle, visibleQuestion.question);
   
   const qHint = (window.saparI18n?.t("question_hint") || "Вопрос {current} из {total}. Выберите один правильный ответ.")
     .replace("{current}", state.quiz.currentIndex + 1)
@@ -222,7 +232,7 @@ function renderQuestion() {
   const letters = ["A", "B", "C", "D"];
   const fragment = document.createDocumentFragment();
 
-  question.options.forEach((option, optionIndex) => {
+  visibleQuestion.options.forEach((option, optionIndex) => {
     const selected = selectedIndex === optionIndex;
     const optionButton = createElementFromHtml(`
       <button type="button" class="group flex items-center gap-5 p-4 rounded-full bg-surface-container-lowest border-2 ${
@@ -454,7 +464,13 @@ function cacheElements() {
 
 async function init() {
   console.log("ENT Test: Initializing...");
-  mountLanguageMenu();
+  mountLanguageMenu({
+    onChange: () => {
+      if (state.quiz && !state.result) {
+        render();
+      }
+    },
+  });
   if (!hasStoredAuthUser()) {
     console.warn("ENT Test: No auth user, redirecting...");
     window.location.href = "../registration/code.html";
