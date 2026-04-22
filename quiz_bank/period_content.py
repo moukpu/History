@@ -909,6 +909,7 @@ def build_period_quiz_coverage_matrix() -> list[CoverageEntry]:
             hard_question_count=PERIOD_HARD_QUESTION_TARGET,
         )
         for item in build_city_period_catalog()
+        if int(item.get("is_available", 1)) == 1
     ]
 
 
