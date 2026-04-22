@@ -71,7 +71,18 @@ def connect_db(db_path: str | Path) -> sqlite3.Connection:
     connection.execute("PRAGMA busy_timeout = 10000")
     connection.execute("PRAGMA foreign_keys = ON")
     connection.execute("PRAGMA temp_store = MEMORY")
+    connection.execute("PRAGMA cache_size = -20000")
+    connection.execute("PRAGMA mmap_size = 268435456")
+    connection.execute("PRAGMA synchronous = NORMAL")
     return connection
+
+
+def _enable_sqlite_wal(connection: sqlite3.Connection) -> None:
+    try:
+        connection.execute("PRAGMA journal_mode = WAL")
+    except sqlite3.DatabaseError:
+        # Some SQLite targets can reject WAL; the app still runs with default journaling.
+        pass
 
 
 def _utc_now_iso() -> str:
@@ -816,6 +827,7 @@ def ensure_database(db_path: str | Path) -> None:
 
     connection = connect_db(db_path)
     try:
+        _enable_sqlite_wal(connection)
         _create_target_tables(connection)
         _migrate_quizzes(connection)
         _migrate_achievements(connection)

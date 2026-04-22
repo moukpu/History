@@ -2374,49 +2374,54 @@ async function loadMapState(periodCode) {
   try {
     const mapState = await api.getMapState(state.playerId, periodCode);
     state.mapStateCache[periodCode] = mapState;
-    await syncMapSurface(periodCode);
-
-    const lastCity = getLastCity();
-    const visibleSvgCities = getVisibleSvgCitySet();
-    const prefersVisibleSvg = visibleSvgCities.size > 0;
-    const matchesVisibleSvg = (city) =>
-      !prefersVisibleSvg || visibleSvgCities.has(city.city);
-    const isActionable = (city) =>
-      city.has_content || city.quiz_available || city.fact_challenge_available;
-    const availableCity =
-      mapState.cities.find(
-        (city) => city.city === state.selectedCity && matchesVisibleSvg(city)
-      ) ||
-      mapState.cities.find(
-        (city) => city.city === lastCity && matchesVisibleSvg(city)
-      ) ||
-      mapState.cities.find(
-        (city) => matchesVisibleSvg(city) && isActionable(city)
-      ) ||
-      mapState.cities.find((city) => isActionable(city)) ||
-      mapState.cities.find((city) => matchesVisibleSvg(city)) ||
-      mapState.cities[0] ||
-      null;
-
-    state.selectedCity = availableCity ? availableCity.city : null;
-
-    state.factSession = null;
-    state.factResult = null;
-    clearActiveFactSession();
-
-    if (state.selectedCity) {
-      await loadCityContent(state.selectedCity);
-      setLastCity(state.selectedCity);
-    }
-
-    render();
+    await applyMapState(mapState);
   } finally {
     setVisible(elements.loadingState, false);
   }
 }
 
+async function applyMapState(mapState) {
+  await syncMapSurface(mapState.period_code);
+
+  const lastCity = getLastCity();
+  const visibleSvgCities = getVisibleSvgCitySet();
+  const prefersVisibleSvg = visibleSvgCities.size > 0;
+  const matchesVisibleSvg = (city) =>
+    !prefersVisibleSvg || visibleSvgCities.has(city.city);
+  const isActionable = (city) =>
+    city.has_content || city.quiz_available || city.fact_challenge_available;
+  const availableCity =
+    mapState.cities.find(
+      (city) => city.city === state.selectedCity && matchesVisibleSvg(city)
+    ) ||
+    mapState.cities.find(
+      (city) => city.city === lastCity && matchesVisibleSvg(city)
+    ) ||
+    mapState.cities.find(
+      (city) => matchesVisibleSvg(city) && isActionable(city)
+    ) ||
+    mapState.cities.find((city) => isActionable(city)) ||
+    mapState.cities.find((city) => matchesVisibleSvg(city)) ||
+    mapState.cities[0] ||
+    null;
+
+  state.selectedCity = availableCity ? availableCity.city : null;
+
+  state.factSession = null;
+  state.factResult = null;
+  clearActiveFactSession();
+
+  if (state.selectedCity) {
+    await loadCityContent(state.selectedCity);
+    setLastCity(state.selectedCity);
+  }
+
+  render();
+}
+
 async function loadBootstrap() {
-  state.bootstrap = await api.getBootstrap(state.playerId);
+  const initial = await api.getMapInitial(state.playerId);
+  state.bootstrap = initial.bootstrap;
 
   const periods = state.bootstrap.periods || [];
   const unlockedPeriods = periods
@@ -2433,7 +2438,13 @@ async function loadBootstrap() {
   setLastPeriodCode(state.selectedPeriodCode);
 
   renderBootstrapSummary();
-  await loadMapState(state.selectedPeriodCode);
+  const initialMapState = initial.map_state;
+  if (initialMapState?.period_code === state.selectedPeriodCode) {
+    state.mapStateCache[state.selectedPeriodCode] = initialMapState;
+    await applyMapState(initialMapState);
+  } else {
+    await loadMapState(state.selectedPeriodCode);
+  }
 }
 
 async function startFactChallenge() {

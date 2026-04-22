@@ -54,6 +54,10 @@ export const api = {
     return requestJson(`/api/app/bootstrap/${encodeURIComponent(playerId)}`);
   },
 
+  getMapInitial(playerId) {
+    return requestJson(`/api/map-initial/${encodeURIComponent(playerId)}`);
+  },
+
   getMapState(playerId, periodCode) {
     return requestJson(
       `/api/map-state/${encodeURIComponent(playerId)}/${encodeURIComponent(periodCode)}`

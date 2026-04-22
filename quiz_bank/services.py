@@ -22,6 +22,7 @@ from .api_models import (
     CityContentSummaryItem,
     FactChallengeProgressResponse,
     FactChallengePeriodProgressItem,
+    MapInitialResponse,
     MapStateCityItem,
     MapStatePeriodSummary,
     MapStateResponse,
@@ -1415,23 +1416,19 @@ def get_profile_dashboard_response(
     )
 
 
-def get_map_state_response(
+def _build_map_state_response(
+    *,
     db_path: str | Path,
     player_id: str,
     period_code: str,
+    player_progress: dict[str, object],
+    achievements: list[dict[str, object]],
+    progression_snapshot: dict[str, object],
 ) -> MapStateResponse:
-    normalized_player_id = _normalize_player_id(player_id)
-    player_progress = get_player_progress(db_path, normalized_player_id)
-    progression_snapshot = _build_period_progress_snapshot(
-        db_path,
-        normalized_player_id,
-        player_progress=player_progress,
-    )
     period_state = _get_period_state(progression_snapshot, period_code)
-    achievements = list_player_achievements(db_path, normalized_player_id)
     cities = _build_period_city_frontend_rows(
         db_path,
-        normalized_player_id,
+        player_id,
         period_code,
         is_locked_for_testing=not bool(period_state["is_unlocked"]),
         player_achievements=achievements,
@@ -1493,4 +1490,79 @@ def get_map_state_response(
             )
             for item in cities
         ],
+    )
+
+
+def get_map_state_response(
+    db_path: str | Path,
+    player_id: str,
+    period_code: str,
+) -> MapStateResponse:
+    normalized_player_id = _normalize_player_id(player_id)
+    player_progress = get_player_progress(db_path, normalized_player_id)
+    achievements = list_player_achievements(db_path, normalized_player_id)
+    progression_snapshot = _build_period_progress_snapshot(
+        db_path,
+        normalized_player_id,
+        player_progress=player_progress,
+    )
+    return _build_map_state_response(
+        db_path=db_path,
+        player_id=normalized_player_id,
+        period_code=period_code,
+        player_progress=player_progress,
+        achievements=achievements,
+        progression_snapshot=progression_snapshot,
+    )
+
+
+def get_map_initial_response(
+    db_path: str | Path,
+    player_id: str,
+) -> MapInitialResponse:
+    normalized_player_id = _normalize_player_id(player_id)
+    player_progress = get_player_progress(db_path, normalized_player_id)
+    fact_progress = get_fact_challenge_progress(db_path, normalized_player_id)
+    achievements = list_player_achievements(db_path, normalized_player_id)
+    progression_snapshot = _build_period_progress_snapshot(
+        db_path,
+        normalized_player_id,
+        player_progress=player_progress,
+    )
+    bootstrap = _build_app_bootstrap_response(
+        db_path=db_path,
+        player_id=normalized_player_id,
+        player_progress=player_progress,
+        fact_progress=fact_progress,
+        achievements=achievements,
+        progression_snapshot=progression_snapshot,
+    )
+    periods = bootstrap.periods or []
+    unlocked_periods = sorted(
+        (period for period in periods if period.is_unlocked),
+        key=lambda period: period.sort_order,
+    )
+    default_period_code = (
+        next(
+            (
+                period.code
+                for period in periods
+                if period.code == bootstrap.default_period_code and period.is_unlocked
+            ),
+            None,
+        )
+        or (unlocked_periods[-1].code if unlocked_periods else None)
+        or (periods[0].code if periods else QUEST_START_PERIOD_CODE)
+    )
+
+    return MapInitialResponse(
+        bootstrap=bootstrap,
+        map_state=_build_map_state_response(
+            db_path=db_path,
+            player_id=normalized_player_id,
+            period_code=default_period_code,
+            player_progress=player_progress,
+            achievements=achievements,
+            progression_snapshot=progression_snapshot,
+        ),
     )

@@ -445,6 +445,11 @@ class MapStateResponse(BaseModel):
     cities: list[MapStateCityItem]
 
 
+class MapInitialResponse(BaseModel):
+    bootstrap: AppBootstrapResponse
+    map_state: MapStateResponse
+
+
 # --- Auth models ---
 
 class RegisterRequest(BaseModel):

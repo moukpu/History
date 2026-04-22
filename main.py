@@ -32,6 +32,7 @@ from quiz_bank.api_models import (
     GoogleAuthRequest,
     LeaderboardResponse,
     LoginRequest,
+    MapInitialResponse,
     MapStateResponse,
     PlayerAchievementsResponse,
     PlayerProgressResponse,
@@ -83,6 +84,7 @@ from quiz_bank.services import (
     get_city_content_response,
     get_city_content_summaries_response,
     get_fact_challenge_progress_response,
+    get_map_initial_response,
     get_map_state_response,
     get_player_achievements_response,
     get_player_progress_response,
@@ -628,6 +630,11 @@ async def app_bootstrap(player_id: str) -> AppBootstrapResponse:
 @app.get("/api/map-state/{player_id}/{period_code}", response_model=MapStateResponse)
 async def map_state(player_id: str, period_code: str) -> MapStateResponse:
     return get_map_state_response(DB_PATH, player_id, period_code)
+
+
+@app.get("/api/map-initial/{player_id}", response_model=MapInitialResponse)
+async def map_initial(player_id: str) -> MapInitialResponse:
+    return get_map_initial_response(DB_PATH, player_id)
 
 
 SYSTEM_PROMPT = (
