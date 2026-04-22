@@ -150,6 +150,19 @@
         </div>
       </div>
 
+      <div class="fixed inset-0 z-[100] hidden items-center justify-center bg-on-surface/45 px-6 backdrop-blur-sm" data-ent-timeout-modal="">
+        <div class="w-full max-w-xl rounded-[2rem] bg-surface-container-lowest p-8 md:p-10 shadow-2xl border border-white/70 text-center">
+          <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container shadow-inner">
+            <span class="font-black text-xl tabular-nums">0:00</span>
+          </div>
+          <h2 class="text-3xl font-black text-on-surface tracking-tight mb-4" data-i18n="timeout_modal_title">Время вышло</h2>
+          <p class="text-on-surface-variant text-base md:text-lg leading-relaxed font-medium mb-8" data-i18n="timeout_modal_body">
+            10 минут закончились. Тест сдан автоматически, неотвеченные вопросы засчитаны как 0 баллов. Результат уже готов.
+          </p>
+          <button type="button" class="w-full md:w-72 py-5 rounded-2xl bg-secondary text-on-secondary font-black text-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all" data-ent-timeout-confirm="" data-i18n="timeout_button">Показать результат</button>
+        </div>
+      </div>
+
       <div class="hidden rounded-xl border border-error/20 bg-error-container/10 px-5 py-4 text-sm text-error" data-error-state="">
         <span data-error-message="" data-i18n="load_error">Ошибка загрузки.</span>
       </div>

@@ -26,6 +26,10 @@ const translations = {
     start_modal_body:
       "Вас ждут 20 вопросов по истории Казахстана. На весь тест дается 10 минут. Когда время закончится, тест сдастся автоматически, а неотвеченные вопросы дадут 0 баллов.",
     start_button: "Окей, начать",
+    timeout_modal_title: "Время вышло",
+    timeout_modal_body:
+      "10 минут закончились. Тест сдан автоматически, неотвеченные вопросы засчитаны как 0 баллов. Результат уже готов.",
+    timeout_button: "Показать результат",
     load_error: "Ошибка загрузки.",
     loading_question_title: "Вопрос загружается...",
     loading_question_body: "Подождите немного, тест ЕНТ загружается.",
@@ -66,6 +70,10 @@ const translations = {
     start_modal_body:
       "You will answer 20 questions on the history of Kazakhstan. You have 10 minutes for the whole test. When time runs out, the test will be submitted automatically, and unanswered questions will count as 0 points.",
     start_button: "OK, start",
+    timeout_modal_title: "Time is up",
+    timeout_modal_body:
+      "The 10 minutes are over. The test was submitted automatically, unanswered questions counted as 0 points, and your result is ready.",
+    timeout_button: "Show result",
     load_error: "Loading error.",
     loading_question_title: "Question is loading...",
     loading_question_body: "Please wait while the UNT test loads.",
@@ -105,6 +113,10 @@ const translations = {
     start_modal_body:
       "Сізді Қазақстан тарихы бойынша 20 сұрақ күтеді. Бүкіл тестке 10 минут беріледі. Уақыт аяқталса, тест автоматты түрде тапсырылады, ал жауапсыз сұрақтар 0 балл болып есептеледі.",
     start_button: "Жақсы, бастау",
+    timeout_modal_title: "Уақыт аяқталды",
+    timeout_modal_body:
+      "10 минут аяқталды. Тест автоматты түрде тапсырылды, жауапсыз сұрақтар 0 балл болып есептелді. Нәтиже дайын.",
+    timeout_button: "Нәтижені көрсету",
     load_error: "Жүктеу қатесі.",
     loading_question_title: "Сұрақ жүктелуде...",
     loading_question_body: "ҰБТ тесті жүктелгенше сәл күтіңіз.",
@@ -148,6 +160,7 @@ const state = {
   pendingStartedAt: null,
   pendingExpiresAt: null,
   loadFailed: false,
+  timeoutModalShown: false,
 };
 
 const elements = {};
@@ -253,6 +266,19 @@ function setStartModalVisible(visible) {
 
   if (visible) {
     elements.startConfirmButton?.focus();
+  }
+}
+
+function setTimeoutModalVisible(visible) {
+  if (!elements.timeoutModal) {
+    return;
+  }
+
+  elements.timeoutModal.classList.toggle("hidden", !visible);
+  elements.timeoutModal.classList.toggle("flex", visible);
+
+  if (visible) {
+    elements.timeoutConfirmButton?.focus();
   }
 }
 
@@ -492,6 +518,10 @@ async function submitQuiz({ allowIncomplete = false, timedOut = false } = {}) {
     state.resultTimedOut = timedOut;
     clearState();
     render();
+    if (timedOut && !state.timeoutModalShown) {
+      state.timeoutModalShown = true;
+      setTimeoutModalVisible(true);
+    }
   } finally {
     state.submitting = false;
   }
@@ -574,6 +604,9 @@ function bindEvents() {
   elements.submitButton.addEventListener("click", handleContinue);
   elements.prevButton.addEventListener("click", handlePrev);
   elements.startConfirmButton.addEventListener("click", beginTimedTest);
+  elements.timeoutConfirmButton.addEventListener("click", () => {
+    setTimeoutModalVisible(false);
+  });
 }
 
 function cacheElements() {
@@ -586,6 +619,8 @@ function cacheElements() {
   }
   elements.startModal = queryRequired("[data-ent-start-modal]");
   elements.startConfirmButton = queryRequired("[data-ent-start-confirm]");
+  elements.timeoutModal = queryRequired("[data-ent-timeout-modal]");
+  elements.timeoutConfirmButton = queryRequired("[data-ent-timeout-confirm]");
   elements.questionSection = queryRequired("[data-question-section]");
   elements.questionTitle = queryRequired("[data-question-title]");
   elements.questionBody = queryRequired("[data-question-body]");
