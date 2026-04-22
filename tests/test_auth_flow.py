@@ -8,7 +8,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 import main
-from quiz_bank.database import create_user, ensure_database, upsert_google_user
+from quiz_bank.database import connect_db, create_user, ensure_database, upsert_google_user
 
 
 class AuthFlowTests(unittest.TestCase):
@@ -211,6 +211,55 @@ class AuthFlowTests(unittest.TestCase):
             self.assertEqual("New User", user["username"])
             self.assertEqual("new@example.com", user["email"])
             self.assertIsNone(user["avatar_url"])
+
+    def test_leaderboard_returns_integer_accuracy_for_multiple_city_scores(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            db_path = Path(temp_dir) / "leaderboard.sqlite"
+            ensure_database(db_path)
+            create_user(
+                db_path,
+                user_id="player-leaderboard",
+                username="Leaderboard User",
+                email="leaderboard@example.com",
+                password="1234",
+            )
+
+            connection = connect_db(db_path)
+            try:
+                connection.executemany(
+                    """
+                    INSERT INTO player_city_progress (
+                        player_id,
+                        city,
+                        period_code,
+                        passed_count,
+                        best_score,
+                        total_attempts,
+                        last_completed_at
+                    )
+                    VALUES (?, ?, ?, 1, ?, 1, '2026-04-22T00:00:00+00:00')
+                    """,
+                    (
+                        ("player-leaderboard", "Тараз", "khanate_1465", 51),
+                        ("player-leaderboard", "Сыгнак", "khanate_1465", 52),
+                    ),
+                )
+                connection.commit()
+            finally:
+                connection.close()
+
+            original_db_path = main.DB_PATH
+            main.DB_PATH = str(db_path)
+            try:
+                with TestClient(main.app) as client:
+                    response = client.get("/api/leaderboard")
+            finally:
+                main.DB_PATH = original_db_path
+
+            self.assertEqual(200, response.status_code)
+            entry = response.json()["entries"][0]
+            self.assertEqual("Leaderboard User", entry["username"])
+            self.assertEqual(52, entry["accuracy"])
 
     @staticmethod
     def _client_with_temp_db():

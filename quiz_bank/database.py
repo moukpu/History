@@ -2541,7 +2541,7 @@ def get_leaderboard(db_path: str | Path, limit: int = 50) -> list[dict[str, Any]
                 u.username AS username,
                 COALESCE(SUM(pcp.best_score), 0) AS total_score,
                 COALESCE(SUM(pcp.total_attempts), 0) AS total_tests,
-                COALESCE(AVG(pcp.best_score), 0) AS accuracy,
+                CAST(ROUND(COALESCE(AVG(pcp.best_score), 0)) AS INTEGER) AS accuracy,
                 COALESCE(pa.achievements_count, 0) AS achievements_count
             FROM users u
             LEFT JOIN player_city_progress pcp
