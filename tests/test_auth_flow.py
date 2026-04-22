@@ -18,7 +18,7 @@ class AuthFlowTests(unittest.TestCase):
                 "/api/auth/register",
                 json={
                     "username": "Aldi",
-                    "email": "Aldi@Example.com",
+                    "email": "Aldi@Gmail.com",
                     "password": "1234",
                 },
             )
@@ -28,7 +28,7 @@ class AuthFlowTests(unittest.TestCase):
                 "/api/auth/register",
                 json={
                     "username": "AldiTwo",
-                    "email": "aldi@example.com",
+                    "email": "aldi@gmail.com",
                     "password": "1234",
                 },
             )
@@ -36,13 +36,40 @@ class AuthFlowTests(unittest.TestCase):
             self.assertEqual(409, duplicate.status_code)
             self.assertIn("почтой", duplicate.json()["detail"])
 
+    def test_register_rejects_uncommon_email_domain(self) -> None:
+        with self._client_with_temp_db() as client:
+            response = client.post(
+                "/api/auth/register",
+                json={
+                    "username": "Aldi",
+                    "email": "aldi@random-domain.test",
+                    "password": "1234",
+                },
+            )
+
+            self.assertEqual(422, response.status_code)
+            self.assertIn("common email domain", response.text)
+
+    def test_login_rejects_uncommon_email_domain(self) -> None:
+        with self._client_with_temp_db() as client:
+            response = client.post(
+                "/api/auth/login",
+                json={
+                    "email": "aldi@random-domain.test",
+                    "password": "1234",
+                },
+            )
+
+            self.assertEqual(422, response.status_code)
+            self.assertIn("common email domain", response.text)
+
     def test_auth_resolve_falls_back_to_email_after_user_merge(self) -> None:
         with self._client_with_temp_db() as client:
             created = client.post(
                 "/api/auth/register",
                 json={
                     "username": "Aldi",
-                    "email": "aldi@example.com",
+                    "email": "aldi@gmail.com",
                     "password": "1234",
                 },
             ).json()
@@ -51,7 +78,7 @@ class AuthFlowTests(unittest.TestCase):
                 "/api/auth/resolve",
                 json={
                     "id": "deleted-duplicate-id",
-                    "email": "ALDI@example.com",
+                    "email": "ALDI@gmail.com",
                 },
             )
 
@@ -100,8 +127,8 @@ class AuthFlowTests(unittest.TestCase):
                     VALUES (?, ?, ?, '', '', ?)
                     """,
                     (
-                        ("player-old", "OldAldi", "ALDI@example.com", "2026-01-01T00:00:00+00:00"),
-                        ("player-new", "NewAldi", "aldi@example.com", "2026-01-02T00:00:00+00:00"),
+                        ("player-old", "OldAldi", "ALDI@gmail.com", "2026-01-01T00:00:00+00:00"),
+                        ("player-new", "NewAldi", "aldi@gmail.com", "2026-01-02T00:00:00+00:00"),
                     ),
                 )
                 connection.execute(
@@ -138,7 +165,7 @@ class AuthFlowTests(unittest.TestCase):
             finally:
                 connection.close()
 
-            self.assertEqual([("player-old", "aldi@example.com")], users)
+            self.assertEqual([("player-old", "aldi@gmail.com")], users)
             self.assertEqual([("player-old", 95, 2)], progress)
 
     def test_google_login_reuses_existing_email_account(self) -> None:
@@ -149,7 +176,7 @@ class AuthFlowTests(unittest.TestCase):
             first = upsert_google_user(
                 db_path,
                 user_id="player-google-1",
-                email="aldi@example.com",
+                email="aldi@gmail.com",
                 username="Aldi",
                 google_sub="google-sub-1",
                 avatar_url="https://example.com/avatar.png",
@@ -157,14 +184,14 @@ class AuthFlowTests(unittest.TestCase):
             second = upsert_google_user(
                 db_path,
                 user_id="player-google-2",
-                email="ALDI@example.com",
+                email="ALDI@gmail.com",
                 username="Aldi Again",
                 google_sub="google-sub-1",
                 avatar_url="https://example.com/avatar-new.png",
             )
 
             self.assertEqual(first["id"], second["id"])
-            self.assertEqual("aldi@example.com", second["email"])
+            self.assertEqual("aldi@gmail.com", second["email"])
             self.assertEqual("https://example.com/avatar-new.png", second["avatar_url"])
 
     def test_google_login_reuses_password_account_by_email(self) -> None:
@@ -175,14 +202,14 @@ class AuthFlowTests(unittest.TestCase):
                 db_path,
                 user_id="player-password",
                 username="Aldi",
-                email="aldi@example.com",
+                email="aldi@gmail.com",
                 password="1234",
             )
 
             user = upsert_google_user(
                 db_path,
                 user_id="player-google",
-                email="ALDI@example.com",
+                email="ALDI@gmail.com",
                 username="Aldi Google",
                 google_sub="google-sub-2",
                 avatar_url="https://example.com/google.png",
@@ -190,7 +217,7 @@ class AuthFlowTests(unittest.TestCase):
 
             self.assertEqual("player-password", user["id"])
             self.assertEqual("Aldi", user["username"])
-            self.assertEqual("aldi@example.com", user["email"])
+            self.assertEqual("aldi@gmail.com", user["email"])
             self.assertEqual("https://example.com/google.png", user["avatar_url"])
 
     def test_google_login_creates_account_when_email_is_new(self) -> None:
@@ -201,7 +228,7 @@ class AuthFlowTests(unittest.TestCase):
             user = upsert_google_user(
                 db_path,
                 user_id="player-google-new",
-                email="new@example.com",
+                email="new@gmail.com",
                 username="New User",
                 google_sub="google-sub-new",
                 avatar_url=None,
@@ -209,7 +236,7 @@ class AuthFlowTests(unittest.TestCase):
 
             self.assertEqual("player-google-new", user["id"])
             self.assertEqual("New User", user["username"])
-            self.assertEqual("new@example.com", user["email"])
+            self.assertEqual("new@gmail.com", user["email"])
             self.assertIsNone(user["avatar_url"])
 
     def test_leaderboard_returns_integer_accuracy_for_multiple_city_scores(self) -> None:
@@ -220,7 +247,7 @@ class AuthFlowTests(unittest.TestCase):
                 db_path,
                 user_id="player-leaderboard",
                 username="Leaderboard User",
-                email="leaderboard@example.com",
+                email="leaderboard@gmail.com",
                 password="1234",
             )
 

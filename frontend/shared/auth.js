@@ -4,6 +4,31 @@ import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./lang
 
 const USER_KEY = "sapar-user";
 const AVATAR_STORAGE_KEY = "sapar-avatar-by-user";
+const ALLOWED_EMAIL_DOMAINS = new Set([
+  "gmail.com",
+  "googlemail.com",
+  "outlook.com",
+  "hotmail.com",
+  "live.com",
+  "msn.com",
+  "yahoo.com",
+  "icloud.com",
+  "me.com",
+  "mac.com",
+  "mail.com",
+  "email.com",
+  "usa.com",
+  "post.com",
+  "mail.ru",
+  "inbox.ru",
+  "list.ru",
+  "bk.ru",
+  "yandex.ru",
+  "yandex.com",
+  "ya.ru",
+  "proton.me",
+  "protonmail.com",
+]);
 
 const translations = {
   ru: {
@@ -34,6 +59,8 @@ const translations = {
     duplicate_username: "Имя пользователя уже занято.",
     invalid_credentials: "Неверная почта или пароль.",
     invalid_email: "Введите корректную почту.",
+    invalid_email_domain:
+      "Почта указана неправильно. Используйте популярный домен: gmail.com, mail.com, outlook.com, yahoo.com, icloud.com, mail.ru, yandex.ru или proton.me.",
     invalid_username: "Имя должно быть не короче 2 символов.",
     invalid_password: "Пароль должен быть не короче 4 символов.",
     validation_error: "Проверьте введенные данные.",
@@ -68,6 +95,8 @@ const translations = {
     duplicate_username: "This username is already taken.",
     invalid_credentials: "Incorrect email or password.",
     invalid_email: "Enter a valid email address.",
+    invalid_email_domain:
+      "The email address looks incorrect. Use a common domain: gmail.com, mail.com, outlook.com, yahoo.com, icloud.com, mail.ru, yandex.ru, or proton.me.",
     invalid_username: "The name must be at least 2 characters long.",
     invalid_password: "The password must be at least 4 characters long.",
     validation_error: "Check the entered data.",
@@ -102,6 +131,8 @@ const translations = {
     duplicate_username: "Бұл пайдаланушы аты бос емес.",
     invalid_credentials: "Пошта немесе құпиясөз қате.",
     invalid_email: "Дұрыс пошта енгізіңіз.",
+    invalid_email_domain:
+      "Пошта қате сияқты. Кең таралған доменді қолданыңыз: gmail.com, mail.com, outlook.com, yahoo.com, icloud.com, mail.ru, yandex.ru немесе proton.me.",
     invalid_username: "Аты кемінде 2 таңбадан тұруы керек.",
     invalid_password: "Құпиясөз кемінде 4 таңбадан тұруы керек.",
     validation_error: "Енгізілген деректерді тексеріңіз.",
@@ -128,6 +159,16 @@ function translate(key, params = {}) {
   return typeof value === "function" ? value(params) : value;
 }
 
+function isAllowedEmail(email) {
+  const normalized = String(email || "").trim().toLowerCase();
+  const atIndex = normalized.lastIndexOf("@");
+  if (atIndex <= 0 || atIndex === normalized.length - 1) {
+    return false;
+  }
+
+  return ALLOWED_EMAIL_DOMAINS.has(normalized.slice(atIndex + 1));
+}
+
 function translateApiError(error, fallbackKey = "validation_error") {
   if (!(error instanceof ApiRequestError)) {
     return translate("network_error");
@@ -148,6 +189,9 @@ function translateApiError(error, fallbackKey = "validation_error") {
   }
 
   if (error.status === 422) {
+    if (detail.includes("common email domain") || detail.includes("gmail.com")) {
+      return translate("invalid_email_domain");
+    }
     if (detail.includes("email")) return translate("invalid_email");
     if (detail.includes("username")) return translate("invalid_username");
     if (detail.includes("password")) return translate("invalid_password");
@@ -438,6 +482,11 @@ async function init() {
     const email = registerForm.querySelector('[name="email"]').value.trim();
     const password = registerForm.querySelector('[name="password"]').value;
 
+    if (!isAllowedEmail(email)) {
+      showError(formError, translate("invalid_email_domain"));
+      return;
+    }
+
     try {
       const user = await apiPost("/api/auth/register", { username, email, password });
       storeUser(user);
@@ -453,6 +502,11 @@ async function init() {
 
     const email = loginForm.querySelector('[name="email"]').value.trim();
     const password = loginForm.querySelector('[name="password"]').value;
+
+    if (!isAllowedEmail(email)) {
+      showError(loginError, translate("invalid_email_domain"));
+      return;
+    }
 
     try {
       const user = await apiPost("/api/auth/login", { email, password });

@@ -14,6 +14,47 @@ from .constants import (
 PlayerId = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 SessionId = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
+ALLOWED_EMAIL_DOMAINS = {
+    "gmail.com",
+    "googlemail.com",
+    "outlook.com",
+    "hotmail.com",
+    "live.com",
+    "msn.com",
+    "yahoo.com",
+    "icloud.com",
+    "me.com",
+    "mac.com",
+    "mail.com",
+    "email.com",
+    "usa.com",
+    "post.com",
+    "mail.ru",
+    "inbox.ru",
+    "list.ru",
+    "bk.ru",
+    "yandex.ru",
+    "yandex.com",
+    "ya.ru",
+    "proton.me",
+    "protonmail.com",
+}
+
+
+def validate_common_email_domain(value: str) -> str:
+    normalized = value.strip().lower()
+    if "@" not in normalized or normalized.startswith("@") or normalized.endswith("@"):
+        raise ValueError("Enter a valid email address.")
+
+    domain = normalized.rsplit("@", 1)[1]
+    if domain not in ALLOWED_EMAIL_DOMAINS:
+        raise ValueError(
+            "Use a common email domain such as gmail.com, mail.com, outlook.com, "
+            "yahoo.com, icloud.com, mail.ru, yandex.ru, or proton.me."
+        )
+
+    return normalized
+
 
 def _validate_supported_city(value: str) -> str:
     if value not in SUPPORTED_CITIES:
@@ -406,10 +447,7 @@ class RegisterRequest(BaseModel):
     @field_validator("email")
     @classmethod
     def normalize_email(cls, value: str) -> str:
-        normalized = value.strip().lower()
-        if "@" not in normalized or normalized.startswith("@") or normalized.endswith("@"):
-            raise ValueError("Enter a valid email address.")
-        return normalized
+        return validate_common_email_domain(value)
 
 
 class LoginRequest(BaseModel):
@@ -419,7 +457,7 @@ class LoginRequest(BaseModel):
     @field_validator("email")
     @classmethod
     def normalize_email(cls, value: str) -> str:
-        return value.strip().lower()
+        return validate_common_email_domain(value)
 
 
 class GoogleAuthRequest(BaseModel):
