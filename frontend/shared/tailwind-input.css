@@ -340,5 +340,186 @@
       word-break: normal;
       hyphens: none;
     }
+
+    .profile-page main {
+      padding: 1.6rem 1rem 0 !important;
+    }
+
+    .profile-page main > header {
+      gap: 1rem !important;
+      margin-bottom: 1.8rem !important;
+    }
+
+    .profile-page main > header > .relative .w-40 {
+      width: 6.25rem !important;
+      height: 6.25rem !important;
+      border-width: 5px !important;
+    }
+
+    .profile-page [data-profile-avatar-fallback] .material-symbols-outlined {
+      font-size: 2.7rem !important;
+    }
+
+    .profile-page [data-profile-avatar-button] {
+      width: 2.45rem !important;
+      height: 2.45rem !important;
+      right: 0.1rem !important;
+      bottom: 0.1rem !important;
+    }
+
+    .profile-page [data-profile-avatar-button] .material-symbols-outlined {
+      font-size: 1.2rem !important;
+    }
+
+    .profile-page [data-profile-username] {
+      font-size: clamp(1.8rem, 8vw, 2.35rem) !important;
+      line-height: 1 !important;
+      margin-bottom: 0.35rem !important;
+    }
+
+    .profile-page [data-profile-email] {
+      margin-bottom: 1rem !important;
+      font-size: 0.82rem !important;
+      line-height: 1.25 !important;
+      overflow-wrap: anywhere;
+    }
+
+    .profile-page main > header .grid.grid-cols-2 {
+      gap: 0.55rem !important;
+    }
+
+    .profile-page main > header .grid.grid-cols-2 > div {
+      padding: 0.78rem !important;
+      border-radius: 0.9rem !important;
+    }
+
+    .profile-page main > header .grid.grid-cols-2 > div [data-i18n] {
+      margin-bottom: 0.32rem !important;
+      font-size: 0.5rem !important;
+      letter-spacing: 0.08em !important;
+      line-height: 1.1 !important;
+    }
+
+    .profile-page main > header .grid.grid-cols-2 > div .text-3xl {
+      font-size: 1.25rem !important;
+      line-height: 1.15 !important;
+    }
+
+    .profile-page main > header .grid.grid-cols-2 > div .text-xl,
+    .profile-page main > header .grid.grid-cols-2 > div .text-xs {
+      font-size: 0.68rem !important;
+    }
+
+    .profile-page main > div.flex {
+      gap: 1rem !important;
+    }
+
+    .profile-page main > div.flex > div {
+      width: 100% !important;
+    }
+
+    .profile-page main > div.flex > div > div {
+      padding: 1rem !important;
+      border-radius: 1.15rem !important;
+    }
+
+    .profile-page main > div.flex h2 {
+      gap: 0.5rem !important;
+      margin-bottom: 0.85rem !important;
+      font-size: 1rem !important;
+      line-height: 1.15 !important;
+    }
+
+    .profile-page main > div.flex h2 .material-symbols-outlined {
+      font-size: 1.25rem !important;
+    }
+
+    .profile-page [data-achievements-grid] {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      gap: 0.5rem !important;
+    }
+
+    .profile-page [data-achievements-grid] > * {
+      min-width: 0;
+    }
+
+    .profile-page [data-recent-results],
+    .profile-page [data-ent-results] {
+      max-height: 15.5rem !important;
+      gap: 0.55rem !important;
+      padding-right: 0.15rem !important;
+    }
+
+    .profile-page [data-recent-results] > div,
+    .profile-page [data-ent-results] > div {
+      gap: 0.65rem !important;
+      padding: 0.72rem !important;
+      border-radius: 0.9rem !important;
+      align-items: center !important;
+    }
+
+    .profile-page [data-recent-results] > div > div:first-child {
+      padding: 0.45rem !important;
+    }
+
+    .profile-page [data-ent-results] > div > div:first-child {
+      width: 2.7rem !important;
+      height: 2.7rem !important;
+    }
+
+    .profile-page [data-recent-results] > div > div:first-child .material-symbols-outlined,
+    .profile-page [data-ent-results] > div > div:first-child .material-symbols-outlined {
+      font-size: 1.35rem !important;
+    }
+
+    .profile-page [data-recent-results] h3,
+    .profile-page [data-ent-results] h3 {
+      font-size: 0.78rem !important;
+      line-height: 1.1 !important;
+    }
+
+    .profile-page [data-recent-results] p,
+    .profile-page [data-ent-results] p {
+      margin-top: 0.2rem !important;
+      font-size: 0.62rem !important;
+      line-height: 1.15 !important;
+    }
+
+    .profile-page [data-recent-results] .rounded-full,
+    .profile-page [data-ent-results] .rounded-full {
+      padding: 0.22rem 0.48rem !important;
+      font-size: 0.56rem !important;
+      line-height: 1.1 !important;
+    }
+
+    .profile-page [data-recent-results] > div > div:last-child > div:first-child,
+    .profile-page [data-ent-results] > div > div:last-child > div:first-child {
+      gap: 0.45rem !important;
+    }
+
+    .profile-page [data-recent-results] > div > div:last-child > div:last-child,
+    .profile-page [data-ent-results] > div > div:last-child > div:last-child {
+      gap: 0.35rem !important;
+      margin-top: 0.45rem !important;
+    }
+
+    .profile-page [data-ent-attempt-review] {
+      margin-top: 0.55rem !important;
+      gap: 0.35rem !important;
+      padding: 0.48rem 0.75rem !important;
+      font-size: 0.62rem !important;
+    }
+
+    .profile-page [data-ent-attempt-review] .material-symbols-outlined {
+      font-size: 0.95rem !important;
+    }
+
+    .profile-page [data-logout-button] {
+      margin-top: 0.2rem !important;
+      padding-top: 0.78rem !important;
+      padding-bottom: 0.78rem !important;
+      border-radius: 1rem !important;
+      font-size: 0.78rem !important;
+    }
   }
 }
