@@ -1469,12 +1469,8 @@ async function init() {
 
   try {
     const playerId = getProfilePlayerId();
-    const [bootstrap, progress, achievements, catalog] = await Promise.all([
-      api.getBootstrap(playerId),
-      api.getProgress(playerId),
-      api.getAchievements(playerId),
-      api.getAchievementCatalog(),
-    ]);
+    const { bootstrap, progress, achievements, catalog } =
+      await api.getProfileDashboard(playerId);
 
     lastProfileData = { bootstrap, progress, achievements, catalog };
     setText(elements.username, state.user.username);

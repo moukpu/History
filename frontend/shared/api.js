@@ -92,6 +92,10 @@ export const api = {
     return requestJson(`/api/progress/${encodeURIComponent(playerId)}`);
   },
 
+  getProfileDashboard(playerId) {
+    return requestJson(`/api/profile/dashboard/${encodeURIComponent(playerId)}`);
+  },
+
   getEntAttemptDetail(playerId, attemptId) {
     return requestJson(
       `/api/ent/attempts/${encodeURIComponent(playerId)}/${encodeURIComponent(attemptId)}`

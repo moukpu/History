@@ -400,6 +400,13 @@ class AppBootstrapResponse(BaseModel):
     available_cities_for_default_period: list[AppBootstrapCityItem]
 
 
+class ProfileDashboardResponse(BaseModel):
+    bootstrap: AppBootstrapResponse
+    progress: PlayerProgressResponse
+    achievements: PlayerAchievementsResponse
+    catalog: AchievementCatalogResponse
+
+
 class MapStateCityItem(BaseModel):
     city: str
     display_name: str

@@ -27,6 +27,7 @@ from .api_models import (
     MapStateResponse,
     PlayerAchievementsResponse,
     PlayerProgressResponse,
+    ProfileDashboardResponse,
     QuestPeriodStateItem,
     StartFactChallengeRequest,
     StartFactChallengeResponse,
@@ -213,6 +214,18 @@ def _list_city_period_content_summaries_cached(
     ]
 
 
+@lru_cache(maxsize=8)
+def _cached_achievement_catalog(db_path_key: str) -> tuple[tuple[tuple[str, object], ...], ...]:
+    return tuple(
+        tuple(dict(item).items())
+        for item in list_achievement_catalog(db_path_key)
+    )
+
+
+def _list_achievement_catalog_cached(db_path: str | Path) -> list[dict[str, object]]:
+    return [dict(item) for item in _cached_achievement_catalog(_db_cache_key(db_path))]
+
+
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
@@ -253,12 +266,14 @@ def _require_city_period_available(
 def _build_period_progress_snapshot(
     db_path: str | Path,
     player_id: str,
+    player_progress: dict[str, object] | None = None,
 ) -> dict[str, object]:
     periods = sorted(
         _list_timeline_periods_cached(db_path),
         key=lambda item: int(item["sort_order"]),
     )
-    player_progress = get_player_progress(db_path, player_id)
+    if player_progress is None:
+        player_progress = get_player_progress(db_path, player_id)
     progress_by_pair = {
         (str(item["period_code"]), str(item["city"])): item
         for item in player_progress["city_progress"]
@@ -1072,7 +1087,18 @@ def get_player_progress_response(
 ) -> PlayerProgressResponse:
     normalized_player_id = _normalize_player_id(player_id)
     progress = get_player_progress(db_path, normalized_player_id)
-    snapshot = _build_period_progress_snapshot(db_path, normalized_player_id)
+    snapshot = _build_period_progress_snapshot(
+        db_path,
+        normalized_player_id,
+        player_progress=progress,
+    )
+    return _build_player_progress_response(progress, snapshot)
+
+
+def _build_player_progress_response(
+    progress: dict[str, object],
+    snapshot: dict[str, object],
+) -> PlayerProgressResponse:
     return PlayerProgressResponse(
         **progress,
         unlocked_period_codes=list(snapshot["unlocked_period_codes"]),
@@ -1082,7 +1108,7 @@ def get_player_progress_response(
 
 
 def get_achievement_catalog_response(db_path: str | Path) -> AchievementCatalogResponse:
-    achievements = list_achievement_catalog(db_path)
+    achievements = _list_achievement_catalog_cached(db_path)
     return AchievementCatalogResponse(
         achievements=[
             AchievementCatalogItem(**achievement) for achievement in achievements
@@ -1272,11 +1298,34 @@ def get_app_bootstrap_response(
     player_progress = get_player_progress(db_path, normalized_player_id)
     fact_progress = get_fact_challenge_progress(db_path, normalized_player_id)
     achievements = list_player_achievements(db_path, normalized_player_id)
-    progression_snapshot = _build_period_progress_snapshot(db_path, normalized_player_id)
+    progression_snapshot = _build_period_progress_snapshot(
+        db_path,
+        normalized_player_id,
+        player_progress=player_progress,
+    )
+    return _build_app_bootstrap_response(
+        db_path=db_path,
+        player_id=normalized_player_id,
+        player_progress=player_progress,
+        fact_progress=fact_progress,
+        achievements=achievements,
+        progression_snapshot=progression_snapshot,
+    )
+
+
+def _build_app_bootstrap_response(
+    *,
+    db_path: str | Path,
+    player_id: str,
+    player_progress: dict[str, object],
+    fact_progress: dict[str, object],
+    achievements: list[dict[str, object]],
+    progression_snapshot: dict[str, object],
+) -> AppBootstrapResponse:
     default_period_code = str(progression_snapshot["current_period_code"]) or QUEST_START_PERIOD_CODE
     default_period_cities = _build_period_city_frontend_rows(
         db_path=db_path,
-        player_id=normalized_player_id,
+        player_id=player_id,
         period_code=default_period_code,
         player_achievements=achievements,
     )
@@ -1318,6 +1367,37 @@ def get_app_bootstrap_response(
             )
             for item in default_period_cities
         ],
+    )
+
+
+def get_profile_dashboard_response(
+    db_path: str | Path,
+    player_id: str,
+) -> ProfileDashboardResponse:
+    normalized_player_id = _normalize_player_id(player_id)
+    player_progress = get_player_progress(db_path, normalized_player_id)
+    fact_progress = get_fact_challenge_progress(db_path, normalized_player_id)
+    achievements = list_player_achievements(db_path, normalized_player_id)
+    progression_snapshot = _build_period_progress_snapshot(
+        db_path,
+        normalized_player_id,
+        player_progress=player_progress,
+    )
+
+    return ProfileDashboardResponse(
+        bootstrap=_build_app_bootstrap_response(
+            db_path=db_path,
+            player_id=normalized_player_id,
+            player_progress=player_progress,
+            fact_progress=fact_progress,
+            achievements=achievements,
+            progression_snapshot=progression_snapshot,
+        ),
+        progress=_build_player_progress_response(player_progress, progression_snapshot),
+        achievements=PlayerAchievementsResponse(
+            achievements=[UnlockedAchievement(**achievement) for achievement in achievements]
+        ),
+        catalog=get_achievement_catalog_response(db_path),
     )
 
 

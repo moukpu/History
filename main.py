@@ -35,6 +35,7 @@ from quiz_bank.api_models import (
     MapStateResponse,
     PlayerAchievementsResponse,
     PlayerProgressResponse,
+    ProfileDashboardResponse,
     QuizResponse,
     RegisterRequest,
     StartFactChallengeRequest,
@@ -85,6 +86,7 @@ from quiz_bank.services import (
     get_map_state_response,
     get_player_achievements_response,
     get_player_progress_response,
+    get_profile_dashboard_response,
     get_timeline_cities_response,
     get_timeline_periods_response,
     start_fact_challenge,
@@ -125,7 +127,7 @@ class CachedStaticFiles(StaticFiles):
     async def get_response(self, path: str, scope):
         response = await super().get_response(path, scope)
         if path.endswith((".js", ".css")):
-            response.headers.setdefault("Cache-Control", "no-cache")
+            response.headers["Cache-Control"] = "public, max-age=3600, stale-while-revalidate=86400"
         elif path.endswith((".svg", ".png", ".jpg", ".jpeg", ".webp", ".ico", ".woff", ".woff2")):
             response.headers.setdefault("Cache-Control", "public, max-age=604800")
         return response
@@ -399,6 +401,11 @@ async def player_achievements(player_id: str) -> PlayerAchievementsResponse:
 @app.get("/api/progress/{player_id}", response_model=PlayerProgressResponse)
 async def player_progress(player_id: str) -> PlayerProgressResponse:
     return get_player_progress_response(DB_PATH, player_id)
+
+
+@app.get("/api/profile/dashboard/{player_id}", response_model=ProfileDashboardResponse)
+async def profile_dashboard(player_id: str) -> ProfileDashboardResponse:
+    return get_profile_dashboard_response(DB_PATH, player_id)
 
 
 @app.get(
