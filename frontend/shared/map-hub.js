@@ -50,6 +50,9 @@ const state = {
 
 const elements = {};
 let currentLanguage = getCurrentLanguage();
+const renderMemo = {
+  timelineKey: "",
+};
 
 function mapDebug(step, details = {}) {
   void step;
@@ -1944,6 +1947,27 @@ function renderBootstrapSummary() {
 function renderTimeline() {
   const periods = (state.bootstrap?.periods || []).slice().sort((a, b) => a.sort_order - b.sort_order);
   const activeIndex = periods.findIndex((period) => period.code === state.selectedPeriodCode);
+  const timelineKey = [
+    currentLanguage,
+    state.selectedPeriodCode || "",
+    periods
+      .map((period) =>
+        [
+          period.code,
+          period.year_label,
+          getLocalizedPeriodTitle(period),
+          period.is_unlocked ? 1 : 0,
+          period.is_completed ? 1 : 0,
+          period.is_current ? 1 : 0,
+        ].join(":")
+      )
+      .join("|"),
+  ].join("||");
+
+  if (timelineKey === renderMemo.timelineKey) {
+    return;
+  }
+  renderMemo.timelineKey = timelineKey;
 
   if (periods.length === 0) {
     setHtml(elements.timelinePoints, "");

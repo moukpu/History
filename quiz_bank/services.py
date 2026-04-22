@@ -1304,6 +1304,26 @@ def _count_period_achievements_unlocked(
     return count
 
 
+def _resolve_default_period_code(progression_snapshot: dict[str, object]) -> str:
+    states = list(progression_snapshot["states"])
+    current_period_code = str(progression_snapshot["current_period_code"] or "").strip()
+    if current_period_code and any(
+        state["code"] == current_period_code and bool(state["is_unlocked"])
+        for state in states
+    ):
+        return current_period_code
+
+    unlocked_states = sorted(
+        (state for state in states if bool(state["is_unlocked"])),
+        key=lambda state: int(state["sort_order"]),
+    )
+    if unlocked_states:
+        return str(unlocked_states[-1]["code"])
+    if states:
+        return str(states[0]["code"])
+    return QUEST_START_PERIOD_CODE
+
+
 def get_app_bootstrap_response(
     db_path: str | Path,
     player_id: str,
@@ -1335,22 +1355,27 @@ def _build_app_bootstrap_response(
     fact_progress: dict[str, object],
     achievements: list[dict[str, object]],
     progression_snapshot: dict[str, object],
+    default_period_code: str | None = None,
+    default_period_cities: list[dict[str, object]] | None = None,
 ) -> AppBootstrapResponse:
-    default_period_code = str(progression_snapshot["current_period_code"]) or QUEST_START_PERIOD_CODE
-    default_period_cities = _build_period_city_frontend_rows(
-        db_path=db_path,
-        player_id=player_id,
-        period_code=default_period_code,
-        player_achievements=achievements,
-        player_progress=player_progress,
+    resolved_default_period_code = default_period_code or _resolve_default_period_code(
+        progression_snapshot
     )
+    if default_period_cities is None:
+        default_period_cities = _build_period_city_frontend_rows(
+            db_path=db_path,
+            player_id=player_id,
+            period_code=resolved_default_period_code,
+            player_achievements=achievements,
+            player_progress=player_progress,
+        )
 
     return AppBootstrapResponse(
         periods=[
             QuestPeriodStateItem(**state)
             for state in progression_snapshot["states"]
         ],
-        default_period_code=default_period_code,
+        default_period_code=resolved_default_period_code,
         player_summary=AppBootstrapPlayerSummary(
             total_tests_completed=player_progress["total_tests_completed"],
             total_passed_tests=player_progress["total_passed_tests"],
@@ -1359,9 +1384,9 @@ def _build_app_bootstrap_response(
             fact_challenge_correct=fact_progress["total_correct"],
         ),
         quest_summary=AppBootstrapQuestSummary(
-            current_period_code=default_period_code,
+            current_period_code=resolved_default_period_code,
             current_period_title=str(
-                _get_period_state(progression_snapshot, default_period_code)["title"]
+                _get_period_state(progression_snapshot, resolved_default_period_code)["title"]
             ),
             unlocked_periods_count=len(progression_snapshot["unlocked_period_codes"]),
             completed_periods_count=len(progression_snapshot["completed_period_codes"]),
@@ -1424,15 +1449,20 @@ def _build_map_state_response(
     player_progress: dict[str, object],
     achievements: list[dict[str, object]],
     progression_snapshot: dict[str, object],
+    period_cities: list[dict[str, object]] | None = None,
 ) -> MapStateResponse:
     period_state = _get_period_state(progression_snapshot, period_code)
-    cities = _build_period_city_frontend_rows(
-        db_path,
-        player_id,
-        period_code,
-        is_locked_for_testing=not bool(period_state["is_unlocked"]),
-        player_achievements=achievements,
-        player_progress=player_progress,
+    cities = (
+        period_cities
+        if period_cities is not None
+        else _build_period_city_frontend_rows(
+            db_path,
+            player_id,
+            period_code,
+            is_locked_for_testing=not bool(period_state["is_unlocked"]),
+            player_achievements=achievements,
+            player_progress=player_progress,
+        )
     )
     total_cities = len(cities)
     cities_passed = sum(1 for item in cities if bool(item["passed_quiz_in_this_period"]))
@@ -1529,6 +1559,16 @@ def get_map_initial_response(
         normalized_player_id,
         player_progress=player_progress,
     )
+    default_period_code = _resolve_default_period_code(progression_snapshot)
+    period_state = _get_period_state(progression_snapshot, default_period_code)
+    default_period_cities = _build_period_city_frontend_rows(
+        db_path=db_path,
+        player_id=normalized_player_id,
+        period_code=default_period_code,
+        is_locked_for_testing=not bool(period_state["is_unlocked"]),
+        player_achievements=achievements,
+        player_progress=player_progress,
+    )
     bootstrap = _build_app_bootstrap_response(
         db_path=db_path,
         player_id=normalized_player_id,
@@ -1536,23 +1576,8 @@ def get_map_initial_response(
         fact_progress=fact_progress,
         achievements=achievements,
         progression_snapshot=progression_snapshot,
-    )
-    periods = bootstrap.periods or []
-    unlocked_periods = sorted(
-        (period for period in periods if period.is_unlocked),
-        key=lambda period: period.sort_order,
-    )
-    default_period_code = (
-        next(
-            (
-                period.code
-                for period in periods
-                if period.code == bootstrap.default_period_code and period.is_unlocked
-            ),
-            None,
-        )
-        or (unlocked_periods[-1].code if unlocked_periods else None)
-        or (periods[0].code if periods else QUEST_START_PERIOD_CODE)
+        default_period_code=default_period_code,
+        default_period_cities=default_period_cities,
     )
 
     return MapInitialResponse(
@@ -1564,5 +1589,6 @@ def get_map_initial_response(
             player_progress=player_progress,
             achievements=achievements,
             progression_snapshot=progression_snapshot,
+            period_cities=default_period_cities,
         ),
     )
