@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import random
 import sqlite3
@@ -114,9 +115,10 @@ _load_dotenv_file()
 
 DB_PATH = os.getenv("DB_PATH", "quizzes.db")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip() or "llama-3.3-70b-versatile"
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
+logger = logging.getLogger("saparquest")
 
 
 class CachedStaticFiles(StaticFiles):
@@ -148,7 +150,7 @@ def get_openai_client() -> AsyncOpenAI:
 def get_groq_client() -> AsyncOpenAI:
     global _groq_client
     if _groq_client is None:
-        api_key = os.getenv("GROQ_API_KEY")
+        api_key = os.getenv("GROQ_API_KEY", "").strip()
         if not api_key:
             raise HTTPException(
                 status_code=503,
@@ -531,11 +533,19 @@ async def ent_attempt_analysis(
                 },
             ],
             temperature=0.7,
+            max_tokens=900,
         )
     except OpenAIError as error:
+        logger.exception("Groq ENT attempt analysis request failed.")
         raise HTTPException(
             status_code=502,
             detail=f"Groq API error: {error}",
+        ) from error
+    except Exception as error:
+        logger.exception("Unexpected ENT attempt analysis error.")
+        raise HTTPException(
+            status_code=502,
+            detail="ENT attempt analysis failed.",
         ) from error
 
     raw = completion.choices[0].message.content or ""
@@ -549,6 +559,7 @@ async def ent_attempt_analysis(
         )
         return EntAttemptAnalysisResponse(**response_payload)
     except (json.JSONDecodeError, ValidationError, TypeError) as error:
+        logger.exception("Malformed Groq ENT attempt analysis response.")
         raise HTTPException(
             status_code=502,
             detail=f"Malformed analysis returned by the model: {error}",
