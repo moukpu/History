@@ -13,6 +13,7 @@ const MAX_ZOOM = 5;
 const DRAG_THRESHOLD_PX = 10;
 const SUPPRESS_CLICK_MS = 140;
 const TAP_SELECTION_SUPPRESS_MS = 260;
+const SVG_FETCH_TIMEOUT_MS = 15000;
 
 function normalizeSvgMarkup(markup) {
   return String(markup)
@@ -59,7 +60,26 @@ async function getPeriodSvgMarkup(periodCode) {
     return SVG_CACHE.get(periodCode);
   }
 
-  const response = await fetch(assetPath, { cache: "force-cache" });
+  const controller = new AbortController();
+  const timeoutId = globalThis.setTimeout(
+    () => controller.abort(),
+    SVG_FETCH_TIMEOUT_MS
+  );
+  let response;
+
+  try {
+    response = await fetch(assetPath, {
+      cache: "force-cache",
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error("Карта периода загружалась слишком долго.");
+    }
+    throw error;
+  } finally {
+    globalThis.clearTimeout(timeoutId);
+  }
   if (!response.ok) {
     throw new Error(`Не удалось загрузить SVG-карту для периода ${periodCode}.`);
   }

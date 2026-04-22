@@ -4,6 +4,12 @@
 
 @layer components {
   @media (max-width: 767px) {
+    html,
+    body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
     body {
       font-size: 14px;
     }
@@ -254,6 +260,85 @@
 
     [data-leaderboard-rows] {
       gap: 0.65rem !important;
+    }
+
+    [data-leaderboard-rows] > div {
+      padding: 0.65rem 0.5rem !important;
+      border-radius: 0.85rem !important;
+      column-gap: 0.25rem !important;
+    }
+
+    [data-leaderboard-rows] > div > div:first-child {
+      font-size: 0.68rem !important;
+      line-height: 1 !important;
+    }
+
+    [data-leaderboard-rows] > div > div:nth-child(2) {
+      gap: 0.45rem !important;
+      min-width: 0;
+    }
+
+    [data-leaderboard-rows] > div > div:nth-child(2) > div:first-child {
+      width: 2rem !important;
+      height: 2rem !important;
+    }
+
+    [data-leaderboard-rows] > div > div:nth-child(2) > div:last-child {
+      min-width: 0;
+    }
+
+    [data-leaderboard-rows] > div > div:nth-child(2) > div:last-child > div:first-child {
+      font-size: 0.72rem !important;
+      line-height: 1.1 !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    [data-leaderboard-rows] > div > div:nth-child(2) > div:last-child > div:last-child {
+      font-size: 0.52rem !important;
+      line-height: 1.15 !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    [data-leaderboard-rows] > div > div:nth-child(3),
+    [data-leaderboard-rows] > div > div:nth-child(4) {
+      font-size: 0.66rem !important;
+      line-height: 1.1 !important;
+      white-space: nowrap;
+    }
+
+    [data-leaderboard-rows] .material-symbols-outlined {
+      font-size: 1.35rem !important;
+    }
+
+    .leaderboard-podium + section {
+      padding: 0.75rem !important;
+      border-radius: 1.25rem !important;
+    }
+
+    .leaderboard-podium + section > div:first-child {
+      padding-right: 0.45rem !important;
+      padding-left: 0.45rem !important;
+      margin-bottom: 0.6rem !important;
+      font-size: 0.48rem !important;
+      letter-spacing: 0.08em !important;
+    }
+
+    body[data-legal-page="privacy"] header {
+      overflow-x: hidden;
+    }
+
+    body[data-legal-page="privacy"] h1 {
+      max-width: 100%;
+      font-size: clamp(1.32rem, 5.8vw, 1.72rem) !important;
+      line-height: 1.12 !important;
+      letter-spacing: 0 !important;
+      overflow-wrap: normal;
+      word-break: normal;
+      hyphens: none;
     }
   }
 }

@@ -2420,30 +2420,37 @@ async function applyMapState(mapState) {
 }
 
 async function loadBootstrap() {
-  const initial = await api.getMapInitial(state.playerId);
-  state.bootstrap = initial.bootstrap;
+  setVisible(elements.loadingState, true);
+  setVisible(elements.errorState, false);
 
-  const periods = state.bootstrap.periods || [];
-  const unlockedPeriods = periods
-    .filter((period) => period.is_unlocked)
-    .sort((a, b) => a.sort_order - b.sort_order);
-  const defaultPeriodCode =
-    periods.find(
-      (period) =>
-        period.code === state.bootstrap.default_period_code && period.is_unlocked
-    )?.code ||
-    unlockedPeriods.at(-1)?.code ||
-    periods[0]?.code;
-  state.selectedPeriodCode = defaultPeriodCode;
-  setLastPeriodCode(state.selectedPeriodCode);
+  try {
+    const initial = await api.getMapInitial(state.playerId);
+    state.bootstrap = initial.bootstrap;
 
-  renderBootstrapSummary();
-  const initialMapState = initial.map_state;
-  if (initialMapState?.period_code === state.selectedPeriodCode) {
-    state.mapStateCache[state.selectedPeriodCode] = initialMapState;
-    await applyMapState(initialMapState);
-  } else {
-    await loadMapState(state.selectedPeriodCode);
+    const periods = state.bootstrap.periods || [];
+    const unlockedPeriods = periods
+      .filter((period) => period.is_unlocked)
+      .sort((a, b) => a.sort_order - b.sort_order);
+    const defaultPeriodCode =
+      periods.find(
+        (period) =>
+          period.code === state.bootstrap.default_period_code && period.is_unlocked
+      )?.code ||
+      unlockedPeriods.at(-1)?.code ||
+      periods[0]?.code;
+    state.selectedPeriodCode = defaultPeriodCode;
+    setLastPeriodCode(state.selectedPeriodCode);
+
+    renderBootstrapSummary();
+    const initialMapState = initial.map_state;
+    if (initialMapState?.period_code === state.selectedPeriodCode) {
+      state.mapStateCache[state.selectedPeriodCode] = initialMapState;
+      await applyMapState(initialMapState);
+    } else {
+      await loadMapState(state.selectedPeriodCode);
+    }
+  } finally {
+    setVisible(elements.loadingState, false);
   }
 }
 
