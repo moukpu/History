@@ -166,15 +166,19 @@
           max-width: 100%;
           max-height: 100%;
         }
+        [data-map-backdrop].is-svg-mode .map-city .map-city-core,
+        [data-map-backdrop].is-svg-mode .map-city .map-city-ring {
+          vector-effect: non-scaling-stroke;
+        }
         [data-map-backdrop].is-svg-mode .map-city.is-active {
-          transform: scale(1.02);
+          transform: none;
         }
         [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-core {
-          stroke-width: 1.25px !important;
+          stroke-width: 0.8px !important;
         }
         [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-ring {
-          stroke-width: 1.5px !important;
-          opacity: 0.72 !important;
+          stroke-width: 0.9px !important;
+          opacity: 0.45 !important;
         }
         [data-map-markers] button {
           border-width: 1px !important;
