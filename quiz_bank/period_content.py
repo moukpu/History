@@ -964,6 +964,7 @@ def generate_period_quiz_bank(
     legacy_modern = _load_legacy_modern_records(legacy_json_path)
     all_records: list[dict[str, object]] = []
     easy_records_by_pair: dict[tuple[str, str], list[dict[str, object]]] = {}
+    hard_source_records_by_pair: dict[tuple[str, str], list[dict[str, object]]] = {}
     period_cities: dict[str, list[str]] = defaultdict(list)
 
     for entry in coverage:
@@ -983,17 +984,19 @@ def generate_period_quiz_bank(
             for item in selected:
                 pair_records.append(_normalize_legacy_period_record(entry.city, item))
             easy_records_by_pair[(entry.city, entry.period_code)] = pair_records
+            hard_source_records_by_pair[(entry.city, entry.period_code)] = modern_records[:20]
             all_records.extend(pair_records)
             continue
 
         blueprints = CURATED_PERIOD_BLUEPRINTS.get((entry.city, entry.period_code), [])
-        if len(blueprints) != entry.easy_question_count:
+        if len(blueprints) < max(entry.easy_question_count, 20):
             raise ValueError(
-                f"Пара {entry.city}/{entry.period_code} ожидает {entry.easy_question_count} "
-                f"easy вопросов, но задано {len(blueprints)}."
+                f"Пара {entry.city}/{entry.period_code} ожидает минимум "
+                f"{max(entry.easy_question_count, 20)} blueprint-вопросов, но задано только {len(blueprints)}."
             )
 
-        for blueprint in blueprints:
+        hard_source_records: list[dict[str, object]] = []
+        for blueprint in blueprints[:20]:
             draft = _build_draft(
                 city=entry.city,
                 period_code=entry.period_code,
@@ -1002,9 +1005,13 @@ def generate_period_quiz_bank(
                 distractors=[str(item) for item in blueprint["distractors"]],
                 fact=str(blueprint["fact"]),
             )
-            pair_records.append(draft.to_record())
+            record = draft.to_record()
+            hard_source_records.append(record)
+            if len(pair_records) < entry.easy_question_count:
+                pair_records.append(record)
 
         easy_records_by_pair[(entry.city, entry.period_code)] = pair_records
+        hard_source_records_by_pair[(entry.city, entry.period_code)] = hard_source_records
         all_records.extend(pair_records)
 
     for entry in coverage:
@@ -1012,11 +1019,11 @@ def generate_period_quiz_bank(
         hard_records = build_hard_quiz_records(
             city=entry.city,
             period_code=entry.period_code,
-            easy_records=easy_records_by_pair[pair_key],
+            easy_records=hard_source_records_by_pair[pair_key],
             peer_easy_records_by_city={
-                city: easy_records_by_pair[(city, entry.period_code)]
+                city: hard_source_records_by_pair[(city, entry.period_code)]
                 for city in period_cities[entry.period_code]
-                if (city, entry.period_code) in easy_records_by_pair
+                if (city, entry.period_code) in hard_source_records_by_pair
             },
             hard_question_count=entry.hard_question_count,
         )
