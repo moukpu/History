@@ -2,6 +2,7 @@ import { getApiBaseUrl } from "./config.js";
 
 const KEYS = {
   authUser: "sapar-user",
+  authResolvedAt: "sapar-user-resolved-at",
   playerId: "kazakhstan-timeline-player-id",
   lastPeriodCode: "kazakhstan-timeline-last-period",
   lastCity: "kazakhstan-timeline-last-city",
@@ -9,6 +10,8 @@ const KEYS = {
   activeQuizState: "sapar-active-quiz-state",
   activeFactSession: "sapar-active-fact-session",
 };
+
+const AUTH_RESOLVE_CACHE_MS = 5 * 60 * 1000;
 
 function createPlayerId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -99,6 +102,17 @@ export async function reconcileStoredAuthUser() {
     return null;
   }
 
+  const lastResolvedAt = Number(storage.getItem(KEYS.authResolvedAt) || 0);
+  if (
+    lastResolvedAt > 0 &&
+    Date.now() - lastResolvedAt < AUTH_RESOLVE_CACHE_MS
+  ) {
+    if (current?.id) {
+      storage.setItem(KEYS.playerId, current.id);
+    }
+    return current;
+  }
+
   try {
     const response = await fetch(`${getApiBaseUrl()}/api/auth/resolve`, {
       method: "POST",
@@ -116,6 +130,7 @@ export async function reconcileStoredAuthUser() {
 
     const resolved = await response.json();
     writeJson(KEYS.authUser, resolved);
+    storage.setItem(KEYS.authResolvedAt, String(Date.now()));
     if (resolved?.id) {
       storage.setItem(KEYS.playerId, resolved.id);
     }
