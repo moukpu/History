@@ -226,6 +226,29 @@ def _list_achievement_catalog_cached(db_path: str | Path) -> list[dict[str, obje
     return [dict(item) for item in _cached_achievement_catalog(_db_cache_key(db_path))]
 
 
+@lru_cache(maxsize=256)
+def _cached_city_period_content(
+    db_path_key: str,
+    city: str,
+    period_code: str,
+) -> tuple[tuple[str, object], ...] | None:
+    content = fetch_city_period_content(db_path_key, city, period_code)
+    return tuple(dict(content).items()) if content is not None else None
+
+
+def _fetch_city_period_content_cached(
+    db_path: str | Path,
+    city: str,
+    period_code: str,
+) -> dict[str, object] | None:
+    cached = _cached_city_period_content(_db_cache_key(db_path), city, period_code)
+    return dict(cached) if cached is not None else None
+
+
+def _period_exists_cached(db_path: str | Path, period_code: str) -> bool:
+    return any(str(period["code"]) == period_code for period in _list_timeline_periods_cached(db_path))
+
+
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
@@ -1127,12 +1150,8 @@ def get_timeline_cities_response(
     db_path: str | Path,
     period_code: str,
 ) -> TimelineCitiesResponse:
-    ensure_database(db_path)
-    connection = connect_db(db_path)
-    try:
-        _require_period(connection, period_code)
-    finally:
-        connection.close()
+    if not _period_exists_cached(db_path, period_code):
+        raise HTTPException(status_code=404, detail=f"Timeline period '{period_code}' was not found.")
 
     cities = _list_period_cities_cached(db_path, period_code, only_available=True)
     return TimelineCitiesResponse(
@@ -1145,14 +1164,10 @@ def get_city_content_response(
     period_code: str,
     city: str,
 ) -> CityContentResponse:
-    ensure_database(db_path)
-    connection = connect_db(db_path)
-    try:
-        _require_period(connection, period_code)
-    finally:
-        connection.close()
+    if not _period_exists_cached(db_path, period_code):
+        raise HTTPException(status_code=404, detail=f"Timeline period '{period_code}' was not found.")
 
-    content = fetch_city_period_content(db_path, city, period_code)
+    content = _fetch_city_period_content_cached(db_path, city, period_code)
     if content is None:
         raise HTTPException(
             status_code=404,
@@ -1166,12 +1181,8 @@ def get_city_content_summaries_response(
     db_path: str | Path,
     period_code: str,
 ) -> CityContentSummariesResponse:
-    ensure_database(db_path)
-    connection = connect_db(db_path)
-    try:
-        _require_period(connection, period_code)
-    finally:
-        connection.close()
+    if not _period_exists_cached(db_path, period_code):
+        raise HTTPException(status_code=404, detail=f"Timeline period '{period_code}' was not found.")
 
     items = _list_city_period_content_summaries_cached(db_path, period_code)
     return CityContentSummariesResponse(
@@ -1203,13 +1214,15 @@ def _build_period_city_frontend_rows(
     *,
     is_locked_for_testing: bool = False,
     player_achievements: list[dict[str, object]] | None = None,
+    player_progress: dict[str, object] | None = None,
 ) -> list[dict[str, object]]:
     period_cities = _list_period_cities_cached(db_path, period_code, only_available=True)
     content_summaries = {
         item["city"]: item
         for item in _list_city_period_content_summaries_cached(db_path, period_code)
     }
-    player_progress = get_player_progress(db_path, player_id)
+    if player_progress is None:
+        player_progress = get_player_progress(db_path, player_id)
     progress_by_city = {
         item["city"]: item
         for item in player_progress["city_progress"]
@@ -1328,6 +1341,7 @@ def _build_app_bootstrap_response(
         player_id=player_id,
         period_code=default_period_code,
         player_achievements=achievements,
+        player_progress=player_progress,
     )
 
     return AppBootstrapResponse(
@@ -1407,14 +1421,12 @@ def get_map_state_response(
     period_code: str,
 ) -> MapStateResponse:
     normalized_player_id = _normalize_player_id(player_id)
-    ensure_database(db_path)
-    connection = connect_db(db_path)
-    try:
-        _require_period(connection, period_code)
-    finally:
-        connection.close()
-
-    progression_snapshot = _build_period_progress_snapshot(db_path, normalized_player_id)
+    player_progress = get_player_progress(db_path, normalized_player_id)
+    progression_snapshot = _build_period_progress_snapshot(
+        db_path,
+        normalized_player_id,
+        player_progress=player_progress,
+    )
     period_state = _get_period_state(progression_snapshot, period_code)
     achievements = list_player_achievements(db_path, normalized_player_id)
     cities = _build_period_city_frontend_rows(
@@ -1423,6 +1435,7 @@ def get_map_state_response(
         period_code,
         is_locked_for_testing=not bool(period_state["is_unlocked"]),
         player_achievements=achievements,
+        player_progress=player_progress,
     )
     total_cities = len(cities)
     cities_passed = sum(1 for item in cities if bool(item["passed_quiz_in_this_period"]))
