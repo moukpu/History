@@ -165,6 +165,16 @@ def _create_target_tables(connection: sqlite3.Connection) -> None:
             FOREIGN KEY(test_result_id) REFERENCES test_results(id) ON DELETE CASCADE
         );
 
+        CREATE TABLE IF NOT EXISTS ent_attempt_ai_analysis (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            test_result_id INTEGER NOT NULL,
+            language TEXT NOT NULL DEFAULT 'ru',
+            analysis_json TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            UNIQUE(test_result_id, language),
+            FOREIGN KEY(test_result_id) REFERENCES test_results(id) ON DELETE CASCADE
+        );
+
         CREATE TABLE IF NOT EXISTS test_sessions (
             id TEXT PRIMARY KEY,
             player_id TEXT NOT NULL,
@@ -712,6 +722,9 @@ def _ensure_indexes(connection: sqlite3.Connection) -> None:
 
         CREATE INDEX IF NOT EXISTS ent_attempt_details_result_idx
         ON ent_attempt_details(test_result_id, sort_order);
+
+        CREATE INDEX IF NOT EXISTS ent_attempt_ai_analysis_result_idx
+        ON ent_attempt_ai_analysis(test_result_id, language);
 
         CREATE INDEX IF NOT EXISTS test_sessions_player_id_idx
         ON test_sessions(player_id);
@@ -1784,6 +1797,84 @@ def get_ent_attempt_detail(
         "completed_at": attempt["completed_at"],
         "questions": questions,
     }
+
+
+def get_ent_attempt_ai_analysis(
+    db_path: str | Path,
+    player_id: str,
+    attempt_id: int,
+    language: str,
+) -> dict[str, Any] | None:
+    ensure_database(db_path)
+    connection = connect_db(db_path)
+    try:
+        row = connection.execute(
+            """
+            SELECT
+                ent_attempt_ai_analysis.analysis_json,
+                ent_attempt_ai_analysis.created_at
+            FROM ent_attempt_ai_analysis
+            INNER JOIN test_results
+                ON test_results.id = ent_attempt_ai_analysis.test_result_id
+            WHERE test_results.id = ?
+              AND test_results.player_id = ?
+              AND test_results.city = 'ЕНТ'
+              AND test_results.period_code = 'ENT'
+              AND ent_attempt_ai_analysis.language = ?
+            """,
+            (attempt_id, player_id, language),
+        ).fetchone()
+    finally:
+        connection.close()
+
+    if row is None:
+        return None
+
+    payload = json.loads(row["analysis_json"])
+    payload["created_at"] = row["created_at"]
+    return payload
+
+
+def save_ent_attempt_ai_analysis(
+    db_path: str | Path,
+    attempt_id: int,
+    language: str,
+    analysis: dict[str, Any],
+    created_at: str | None = None,
+) -> dict[str, Any]:
+    ensure_database(db_path)
+    created_at = created_at or _utc_now_iso()
+    payload = dict(analysis)
+    payload.pop("created_at", None)
+
+    connection = connect_db(db_path)
+    try:
+        connection.execute(
+            """
+            INSERT INTO ent_attempt_ai_analysis (
+                test_result_id,
+                language,
+                analysis_json,
+                created_at
+            )
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(test_result_id, language) DO UPDATE SET
+                analysis_json = excluded.analysis_json,
+                created_at = excluded.created_at
+            """,
+            (
+                attempt_id,
+                language,
+                json.dumps(payload, ensure_ascii=False),
+                created_at,
+            ),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    payload["created_at"] = created_at
+    return payload
 
 
 def insert_fact_challenge_result(

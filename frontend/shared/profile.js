@@ -51,6 +51,13 @@ const translations = {
     ent_review_your_answer: "Ваш ответ",
     ent_review_no_answer: "Нет ответа",
     ent_review_question: ({ current, total }) => `Вопрос ${current} из ${total}`,
+    ent_ai_title: "ИИ-анализ попытки",
+    ent_ai_loading: "ИИ анализирует ответы и готовит личные советы...",
+    ent_ai_error: "ИИ-анализ временно недоступен. Проверьте вопросы ниже и попробуйте открыть разбор позже.",
+    ent_ai_strengths: "Что уже получается",
+    ent_ai_weak_topics: "Что повторить",
+    ent_ai_recommendations: "Советы",
+    ent_ai_next_steps: "Что сделать дальше",
     correct: "Верных",
     date: "Дата",
     passed: "Сдано",
@@ -108,6 +115,13 @@ const translations = {
     ent_review_your_answer: "Your answer",
     ent_review_no_answer: "No answer",
     ent_review_question: ({ current, total }) => `Question ${current} of ${total}`,
+    ent_ai_title: "AI attempt analysis",
+    ent_ai_loading: "AI is reviewing the answers and preparing personal advice...",
+    ent_ai_error: "AI analysis is temporarily unavailable. Review the questions below and try again later.",
+    ent_ai_strengths: "What already works",
+    ent_ai_weak_topics: "What to review",
+    ent_ai_recommendations: "Advice",
+    ent_ai_next_steps: "Next steps",
     correct: "Correct",
     date: "Date",
     passed: "Passed",
@@ -165,6 +179,13 @@ const translations = {
     ent_review_your_answer: "Сіздің жауабыңыз",
     ent_review_no_answer: "Жауап жоқ",
     ent_review_question: ({ current, total }) => `${current}/${total} сұрақ`,
+    ent_ai_title: "Әрекеттің AI талдауы",
+    ent_ai_loading: "AI жауаптарды талдап, жеке кеңес дайындап жатыр...",
+    ent_ai_error: "AI талдауы уақытша қолжетімсіз. Төмендегі сұрақтарды қарап, кейінірек қайта ашып көріңіз.",
+    ent_ai_strengths: "Жақсы меңгерілген тұстар",
+    ent_ai_weak_topics: "Қайталау керек тақырыптар",
+    ent_ai_recommendations: "Кеңестер",
+    ent_ai_next_steps: "Келесі қадамдар",
     correct: "Дұрыс",
     date: "Күні",
     passed: "Өтті",
@@ -194,7 +215,11 @@ const translations = {
 const state = {
   user: null,
   avatarEditor: createEmptyAvatarEditor(),
+  entAttemptReviewId: null,
   entAttemptDetail: null,
+  entAttemptAnalysis: null,
+  entAttemptAnalysisLoading: false,
+  entAttemptAnalysisError: false,
 };
 
 const elements = {};
@@ -1046,7 +1071,11 @@ function getVisibleEntQuestion(question) {
 }
 
 function closeEntAttemptReview() {
+  state.entAttemptReviewId = null;
   state.entAttemptDetail = null;
+  state.entAttemptAnalysis = null;
+  state.entAttemptAnalysisLoading = false;
+  state.entAttemptAnalysisError = false;
   setVisible(elements.entReviewModal, false);
   elements.entReviewModal.classList.remove("flex");
 }
@@ -1060,6 +1089,80 @@ function showEntAttemptReviewShell() {
   );
   elements.entReviewModal.classList.remove("hidden");
   elements.entReviewModal.classList.add("flex");
+}
+
+function renderAnalysisList(titleKey, items) {
+  const safeItems = Array.isArray(items) ? items.filter(Boolean) : [];
+  if (safeItems.length === 0) {
+    return "";
+  }
+
+  return `
+    <div class="rounded-2xl bg-surface-container-lowest p-4">
+      <h5 class="text-[11px] font-black uppercase tracking-widest text-primary mb-3">${escapeHtml(translate(titleKey))}</h5>
+      <ul class="space-y-2">
+        ${safeItems
+          .map(
+            (item) => `
+              <li class="flex gap-2 text-sm font-bold leading-relaxed text-on-surface-variant">
+                <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-secondary"></span>
+                <span>${escapeHtml(item)}</span>
+              </li>
+            `
+          )
+          .join("")}
+      </ul>
+    </div>
+  `;
+}
+
+function renderEntAiAnalysis() {
+  if (state.entAttemptAnalysisLoading) {
+    return `
+      <section class="rounded-3xl bg-primary/5 border border-primary/10 p-5 md:p-6">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary animate-pulse">auto_awesome</span>
+          <div>
+            <h4 class="text-xl font-black text-on-surface tracking-tight">${escapeHtml(translate("ent_ai_title"))}</h4>
+            <p class="mt-1 text-sm font-bold text-on-surface-variant">${escapeHtml(translate("ent_ai_loading"))}</p>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  if (state.entAttemptAnalysisError || !state.entAttemptAnalysis) {
+    return `
+      <section class="rounded-3xl bg-surface-container-low border border-outline/10 p-5 md:p-6">
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-on-surface-variant">auto_awesome</span>
+          <div>
+            <h4 class="text-xl font-black text-on-surface tracking-tight">${escapeHtml(translate("ent_ai_title"))}</h4>
+            <p class="mt-2 text-sm font-bold leading-relaxed text-on-surface-variant">${escapeHtml(translate("ent_ai_error"))}</p>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  const analysis = state.entAttemptAnalysis;
+  return `
+    <section class="rounded-3xl bg-primary/5 border border-primary/10 p-5 md:p-6">
+      <div class="flex items-start gap-3 mb-5">
+        <span class="material-symbols-outlined text-primary">auto_awesome</span>
+        <div>
+          <h4 class="text-xl font-black text-on-surface tracking-tight">${escapeHtml(translate("ent_ai_title"))}</h4>
+          <p class="mt-2 text-sm md:text-base font-bold leading-relaxed text-on-surface-variant">${escapeHtml(analysis.summary || "")}</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        ${renderAnalysisList("ent_ai_strengths", analysis.strengths)}
+        ${renderAnalysisList("ent_ai_weak_topics", analysis.weak_topics)}
+        ${renderAnalysisList("ent_ai_recommendations", analysis.recommendations)}
+        ${renderAnalysisList("ent_ai_next_steps", analysis.next_steps)}
+      </div>
+    </section>
+  `;
 }
 
 function renderEntAttemptDetail() {
@@ -1086,7 +1189,7 @@ function renderEntAttemptDetail() {
   const letters = ["A", "B", "C", "D"];
   const questions = Array.isArray(detail.questions) ? detail.questions : [];
 
-  const html = questions
+  const questionsHtml = questions
     .map((question, index) => {
       const visible = getVisibleEntQuestion(question);
       const selectedIndex =
@@ -1141,8 +1244,43 @@ function renderEntAttemptDetail() {
 
   setHtml(
     elements.entReviewContent,
-    html || `<div class="bg-surface-container-low rounded-2xl p-5 text-on-surface-variant text-sm font-bold">${translate("ent_review_error")}</div>`
+    `${renderEntAiAnalysis()}${
+      questionsHtml ||
+      `<div class="bg-surface-container-low rounded-2xl p-5 text-on-surface-variant text-sm font-bold">${translate("ent_review_error")}</div>`
+    }`
   );
+}
+
+async function loadEntAttemptAnalysis(attemptId) {
+  const playerId = getProfilePlayerId();
+  if (!playerId || !attemptId) {
+    return;
+  }
+
+  state.entAttemptAnalysis = null;
+  state.entAttemptAnalysisError = false;
+  state.entAttemptAnalysisLoading = true;
+  renderEntAttemptDetail();
+
+  try {
+    const analysis = await api.getEntAttemptAnalysis(playerId, attemptId, currentLanguage);
+    if (String(state.entAttemptReviewId) !== String(attemptId)) {
+      return;
+    }
+    state.entAttemptAnalysis = analysis;
+    state.entAttemptAnalysisError = false;
+  } catch {
+    if (String(state.entAttemptReviewId) !== String(attemptId)) {
+      return;
+    }
+    state.entAttemptAnalysis = null;
+    state.entAttemptAnalysisError = true;
+  } finally {
+    if (String(state.entAttemptReviewId) === String(attemptId)) {
+      state.entAttemptAnalysisLoading = false;
+      renderEntAttemptDetail();
+    }
+  }
 }
 
 async function openEntAttemptReview(attemptId) {
@@ -1153,10 +1291,19 @@ async function openEntAttemptReview(attemptId) {
 
   showEntAttemptReviewShell();
   try {
+    state.entAttemptReviewId = attemptId;
+    state.entAttemptAnalysis = null;
+    state.entAttemptAnalysisLoading = true;
+    state.entAttemptAnalysisError = false;
     state.entAttemptDetail = await api.getEntAttemptDetail(playerId, attemptId);
     renderEntAttemptDetail();
+    loadEntAttemptAnalysis(attemptId);
   } catch (error) {
+    state.entAttemptReviewId = null;
     state.entAttemptDetail = null;
+    state.entAttemptAnalysis = null;
+    state.entAttemptAnalysisLoading = false;
+    state.entAttemptAnalysisError = false;
     setText(elements.entReviewSummary, "");
     setHtml(
       elements.entReviewContent,
@@ -1299,7 +1446,11 @@ async function init() {
       currentLanguage = language;
       applyStaticTranslations();
       refreshProfileUI();
-      renderEntAttemptDetail();
+      if (state.entAttemptDetail && state.entAttemptReviewId) {
+        loadEntAttemptAnalysis(state.entAttemptReviewId);
+      } else {
+        renderEntAttemptDetail();
+      }
       renderAvatarSelection();
     },
   });

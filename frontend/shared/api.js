@@ -98,6 +98,12 @@ export const api = {
     );
   },
 
+  getEntAttemptAnalysis(playerId, attemptId, language) {
+    return requestJson(
+      `/api/ent/attempts/${encodeURIComponent(playerId)}/${encodeURIComponent(attemptId)}/analysis?language=${encodeURIComponent(language)}`
+    );
+  },
+
   startFactChallenge(payload) {
     return requestJson("/api/fact-challenge/start", {
       method: "POST",

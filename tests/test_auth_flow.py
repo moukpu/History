@@ -8,7 +8,13 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 import main
-from quiz_bank.database import connect_db, create_user, ensure_database, upsert_google_user
+from quiz_bank.database import (
+    connect_db,
+    create_user,
+    ensure_database,
+    save_ent_attempt_ai_analysis,
+    upsert_google_user,
+)
 
 
 class AuthFlowTests(unittest.TestCase):
@@ -287,6 +293,59 @@ class AuthFlowTests(unittest.TestCase):
             entry = response.json()["entries"][0]
             self.assertEqual("Leaderboard User", entry["username"])
             self.assertEqual(52, entry["accuracy"])
+
+    def test_ent_attempt_analysis_endpoint_returns_cached_analysis(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            db_path = Path(temp_dir) / "ent-analysis.sqlite"
+            ensure_database(db_path)
+
+            connection = connect_db(db_path)
+            try:
+                cursor = connection.execute(
+                    """
+                    INSERT INTO test_results (
+                        player_id,
+                        city,
+                        period_code,
+                        total_questions,
+                        correct_answers,
+                        passed,
+                        completed_at
+                    )
+                    VALUES ('player-ai', 'ЕНТ', 'ENT', 20, 12, 0, '2026-04-22T10:00:00+00:00')
+                    """
+                )
+                attempt_id = int(cursor.lastrowid)
+                connection.commit()
+            finally:
+                connection.close()
+
+            save_ent_attempt_ai_analysis(
+                db_path,
+                attempt_id=attempt_id,
+                language="ru",
+                analysis={
+                    "summary": "Нужно повторить даты и термины.",
+                    "strengths": ["Есть базовое понимание"],
+                    "weak_topics": ["Даты"],
+                    "recommendations": ["Разобрать ошибки"],
+                    "next_steps": ["Повторить конспект"],
+                },
+                created_at="2026-04-22T10:01:00+00:00",
+            )
+
+            original_db_path = main.DB_PATH
+            main.DB_PATH = str(db_path)
+            try:
+                with TestClient(main.app) as client:
+                    response = client.get(f"/api/ent/attempts/player-ai/{attempt_id}/analysis")
+            finally:
+                main.DB_PATH = original_db_path
+
+            self.assertEqual(200, response.status_code)
+            payload = response.json()
+            self.assertEqual("Нужно повторить даты и термины.", payload["summary"])
+            self.assertEqual(["Даты"], payload["weak_topics"])
 
     @staticmethod
     def _client_with_temp_db():

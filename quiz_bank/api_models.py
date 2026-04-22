@@ -210,6 +210,15 @@ class EntAttemptDetailResponse(BaseModel):
     questions: list[EntAttemptQuestionDetail]
 
 
+class EntAttemptAnalysisResponse(BaseModel):
+    summary: str
+    strengths: list[str] = Field(default_factory=list, max_length=5)
+    weak_topics: list[str] = Field(default_factory=list, max_length=6)
+    recommendations: list[str] = Field(default_factory=list, max_length=6)
+    next_steps: list[str] = Field(default_factory=list, max_length=5)
+    created_at: str
+
+
 class PlayerProgressResponse(BaseModel):
     total_tests_completed: int
     total_passed_tests: int

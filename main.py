@@ -9,7 +9,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import urlopen
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import RedirectResponse
@@ -24,6 +24,7 @@ from quiz_bank.api_models import (
     AuthResponse,
     CityContentResponse,
     CityContentSummariesResponse,
+    EntAttemptAnalysisResponse,
     EntAttemptDetailResponse,
     FactChallengeProgressResponse,
     GoogleAuthConfigResponse,
@@ -56,6 +57,7 @@ from quiz_bank.database import (
     fetch_random_quiz,
     fetch_user_by_id,
     fetch_user_by_email,
+    get_ent_attempt_ai_analysis,
     get_ent_attempt_detail,
     get_leaderboard,
     insert_ent_attempt_details,
@@ -66,6 +68,7 @@ from quiz_bank.database import (
     seed_fact_challenges_if_empty,
     seed_from_json_if_empty,
     seed_timeline_periods,
+    save_ent_attempt_ai_analysis,
     upsert_player_city_progress,
     upsert_google_user,
     connect_db,
@@ -390,6 +393,148 @@ async def ent_attempt_detail(
     if detail is None:
         raise HTTPException(status_code=404, detail="Попытка ЕНТ не найдена.")
     return EntAttemptDetailResponse(**detail)
+
+
+ENT_ANALYSIS_LANGUAGE_NAMES = {
+    "ru": "Russian",
+    "en": "English",
+    "kk": "Kazakh",
+}
+
+
+def _localized_ent_question(question: dict, language: str) -> dict[str, object]:
+    translations = question.get("translations") or {}
+    localized = translations.get(language) or translations.get("ru") or {}
+    options = localized.get("options") or question.get("options") or []
+    return {
+        "question": localized.get("question") or question.get("question") or "",
+        "options": options,
+    }
+
+
+def _build_ent_analysis_prompt(detail: dict, language: str) -> str:
+    questions_for_prompt = []
+    for index, question in enumerate(detail.get("questions") or [], start=1):
+        localized = _localized_ent_question(question, language)
+        options = localized["options"]
+        selected_index = question.get("selected_index")
+        correct_index = int(question.get("correct_index") or 0)
+        selected_answer = (
+            "No answer"
+            if selected_index is None
+            else options[selected_index]
+            if isinstance(selected_index, int) and selected_index < len(options)
+            else "No answer"
+        )
+        correct_answer = options[correct_index] if correct_index < len(options) else ""
+        questions_for_prompt.append(
+            {
+                "number": index,
+                "question": localized["question"],
+                "selected_answer": selected_answer,
+                "correct_answer": correct_answer,
+                "is_correct": bool(question.get("is_correct")),
+            }
+        )
+
+    return json.dumps(
+        {
+            "language": ENT_ANALYSIS_LANGUAGE_NAMES.get(language, "Russian"),
+            "score": {
+                "correct_answers": detail.get("correct_answers"),
+                "total_questions": detail.get("total_questions"),
+                "score_percent": detail.get("score_percent"),
+                "passed": detail.get("passed"),
+            },
+            "questions": questions_for_prompt,
+        },
+        ensure_ascii=False,
+    )
+
+
+def _normalize_analysis_payload(payload: dict[str, object]) -> dict[str, object]:
+    def as_text(value: object, fallback: str = "") -> str:
+        return str(value or fallback).strip()
+
+    def as_list(value: object, limit: int) -> list[str]:
+        if not isinstance(value, list):
+            return []
+        return [as_text(item) for item in value[:limit] if as_text(item)]
+
+    return {
+        "summary": as_text(payload.get("summary")),
+        "strengths": as_list(payload.get("strengths"), 5),
+        "weak_topics": as_list(payload.get("weak_topics"), 6),
+        "recommendations": as_list(payload.get("recommendations"), 6),
+        "next_steps": as_list(payload.get("next_steps"), 5),
+    }
+
+
+@app.get(
+    "/api/ent/attempts/{player_id}/{attempt_id}/analysis",
+    response_model=EntAttemptAnalysisResponse,
+)
+async def ent_attempt_analysis(
+    player_id: str,
+    attempt_id: int,
+    language: str = Query(default="ru", pattern="^(ru|en|kk)$"),
+) -> EntAttemptAnalysisResponse:
+    cached = get_ent_attempt_ai_analysis(DB_PATH, player_id, attempt_id, language)
+    if cached is not None:
+        return EntAttemptAnalysisResponse(**cached)
+
+    detail = get_ent_attempt_detail(DB_PATH, player_id, attempt_id)
+    if detail is None:
+        raise HTTPException(status_code=404, detail="Попытка ЕНТ не найдена.")
+
+    system_prompt = (
+        "You are a helpful exam coach for Kazakhstan history UNT preparation. "
+        "Analyze only the provided attempt data. Do not invent questions or scores. "
+        "Give concrete, non-template advice tied to the missed questions and visible patterns. "
+        "Return strict JSON with this schema: "
+        '{"summary":"...", "strengths":["..."], "weak_topics":["..."], '
+        '"recommendations":["..."], "next_steps":["..."]}. '
+        "All text must be in the requested language."
+    )
+
+    try:
+        completion = await get_openai_client().chat.completions.create(
+            model=OPENAI_MODEL,
+            response_format={"type": "json_object"},
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": (
+                        "Create a personal analysis for this exact UNT test attempt. "
+                        "Focus on which topics to repeat, what to learn next, and how to study. "
+                        f"Attempt data: {_build_ent_analysis_prompt(detail, language)}"
+                    ),
+                },
+            ],
+            temperature=0.7,
+        )
+    except OpenAIError as error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"OpenAI API error: {error}",
+        ) from error
+
+    raw = completion.choices[0].message.content or ""
+    try:
+        payload = _normalize_analysis_payload(json.loads(raw))
+        response_payload = save_ent_attempt_ai_analysis(
+            DB_PATH,
+            attempt_id=attempt_id,
+            language=language,
+            analysis=payload,
+        )
+        return EntAttemptAnalysisResponse(**response_payload)
+    except (json.JSONDecodeError, ValidationError, TypeError) as error:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Malformed analysis returned by the model: {error}",
+        ) from error
 
 
 @app.get("/api/timeline/periods", response_model=TimelinePeriodsResponse)
