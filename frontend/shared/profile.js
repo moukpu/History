@@ -1,7 +1,7 @@
 import { api } from "./api.js";
 import { translateAchievement } from "./achievements-i18n.js";
 import { getLocalizedCityName } from "./city-visuals.js";
-import { escapeHtml, setHtml, setText } from "./helpers.js";
+import { escapeHtml, setHtml, setText, setVisible } from "./helpers.js";
 import { clearStoredPlayerId, reconcileStoredAuthUser } from "./storage.js";
 import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
 
@@ -43,6 +43,14 @@ const translations = {
     last_activity: "Последняя активность",
     ent_test_label: ({ number }) => `Попытка ЕНТ #${number}`,
     ent_test_subtitle: "Подготовка к экзамену",
+    ent_review_open: "Посмотреть разбор",
+    ent_review_title: "Разбор попытки ЕНТ",
+    ent_review_loading: "Загрузка разбора...",
+    ent_review_error: "Не удалось загрузить разбор попытки.",
+    ent_review_correct_answer: "Правильный ответ",
+    ent_review_your_answer: "Ваш ответ",
+    ent_review_no_answer: "Нет ответа",
+    ent_review_question: ({ current, total }) => `Вопрос ${current} из ${total}`,
     correct: "Верных",
     date: "Дата",
     passed: "Сдано",
@@ -92,6 +100,14 @@ const translations = {
     last_activity: "Last activity",
     ent_test_label: ({ number }) => `UNT attempt #${number}`,
     ent_test_subtitle: "Exam preparation",
+    ent_review_open: "View review",
+    ent_review_title: "UNT attempt review",
+    ent_review_loading: "Loading review...",
+    ent_review_error: "Could not load the attempt review.",
+    ent_review_correct_answer: "Correct answer",
+    ent_review_your_answer: "Your answer",
+    ent_review_no_answer: "No answer",
+    ent_review_question: ({ current, total }) => `Question ${current} of ${total}`,
     correct: "Correct",
     date: "Date",
     passed: "Passed",
@@ -141,6 +157,14 @@ const translations = {
     last_activity: "Соңғы белсенділік",
     ent_test_label: ({ number }) => `ҰБТ әрекеті #${number}`,
     ent_test_subtitle: "Емтиханға дайындық",
+    ent_review_open: "Талдауды көру",
+    ent_review_title: "ҰБТ әрекетін талдау",
+    ent_review_loading: "Талдау жүктелуде...",
+    ent_review_error: "Әрекет талдауын жүктеу мүмкін болмады.",
+    ent_review_correct_answer: "Дұрыс жауап",
+    ent_review_your_answer: "Сіздің жауабыңыз",
+    ent_review_no_answer: "Жауап жоқ",
+    ent_review_question: ({ current, total }) => `${current}/${total} сұрақ`,
     correct: "Дұрыс",
     date: "Күні",
     passed: "Өтті",
@@ -170,6 +194,7 @@ const translations = {
 const state = {
   user: null,
   avatarEditor: createEmptyAvatarEditor(),
+  entAttemptDetail: null,
 };
 
 const elements = {};
@@ -223,6 +248,33 @@ function queryRequired(selector) {
     throw new Error(`Missing required element: ${selector}`);
   }
   return element;
+}
+
+function ensureEntReviewModal() {
+  let modal = document.querySelector("[data-ent-review-modal]");
+  if (modal) {
+    return modal;
+  }
+
+  modal = document.createElement("div");
+  modal.className = "fixed inset-0 z-[110] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4";
+  modal.dataset.entReviewModal = "";
+  modal.innerHTML = `
+    <div class="bg-surface-container-lowest w-full max-w-4xl rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-6 md:px-8 py-5 border-b border-outline/5 flex items-center justify-between gap-4">
+        <div>
+          <h3 class="text-2xl font-black text-on-surface tracking-tight" data-ent-review-title></h3>
+          <p class="text-sm font-bold text-on-surface-variant mt-1" data-ent-review-summary></p>
+        </div>
+        <button type="button" class="text-on-surface-variant hover:text-on-surface transition-colors" data-ent-review-close>
+          <span class="material-symbols-outlined text-3xl">close</span>
+        </button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-5 md:p-8 space-y-4 custom-scroll" data-ent-review-content></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  return modal;
 }
 
 function getStoredUser() {
@@ -314,6 +366,11 @@ function cacheElements() {
   elements.avatarError = queryRequired("[data-avatar-error]");
   elements.avatarCancelButton = queryRequired("[data-avatar-cancel-button]");
   elements.avatarSaveButton = queryRequired("[data-avatar-save-button]");
+  elements.entReviewModal = ensureEntReviewModal();
+  elements.entReviewClose = queryRequired("[data-ent-review-close]");
+  elements.entReviewTitle = queryRequired("[data-ent-review-title]");
+  elements.entReviewSummary = queryRequired("[data-ent-review-summary]");
+  elements.entReviewContent = queryRequired("[data-ent-review-content]");
 }
 
 function showProfileError(message) {
@@ -978,6 +1035,134 @@ function renderRecentResults(progress, bootstrap) {
   setHtml(elements.recentResults, html);
 }
 
+function getVisibleEntQuestion(question) {
+  const localized = question?.translations?.[currentLanguage] || question?.translations?.ru;
+  return {
+    question: localized?.question || question?.question || "",
+    options: localized?.options || question?.options || [],
+  };
+}
+
+function closeEntAttemptReview() {
+  state.entAttemptDetail = null;
+  setVisible(elements.entReviewModal, false);
+  elements.entReviewModal.classList.remove("flex");
+}
+
+function showEntAttemptReviewShell() {
+  setText(elements.entReviewTitle, translate("ent_review_title"));
+  setText(elements.entReviewSummary, "");
+  setHtml(
+    elements.entReviewContent,
+    `<div class="bg-surface-container-low rounded-2xl p-5 text-on-surface-variant text-sm font-bold">${translate("ent_review_loading")}</div>`
+  );
+  elements.entReviewModal.classList.remove("hidden");
+  elements.entReviewModal.classList.add("flex");
+}
+
+function renderEntAttemptDetail() {
+  const detail = state.entAttemptDetail;
+  if (!detail) {
+    return;
+  }
+
+  const totalQuestions = Number(detail.total_questions ?? 0);
+  const correctAnswers = Number(detail.correct_answers ?? 0);
+  const scorePercent = Number(detail.score_percent ?? 0);
+  const formattedDate = formatCompletedAt(detail.completed_at);
+  const status = detail.passed ? translate("passed") : translate("failed");
+
+  setText(elements.entReviewTitle, translate("ent_review_title"));
+  setText(
+    elements.entReviewSummary,
+    `${translate("correct")}: ${correctAnswers} / ${totalQuestions} • ${scorePercent}% • ${status}${formattedDate ? ` • ${formattedDate}` : ""}`
+  );
+
+  const labelCorrectAnswer = translate("ent_review_correct_answer");
+  const labelYourAnswer = translate("ent_review_your_answer");
+  const labelNoAnswer = translate("ent_review_no_answer");
+  const letters = ["A", "B", "C", "D"];
+  const questions = Array.isArray(detail.questions) ? detail.questions : [];
+
+  const html = questions
+    .map((question, index) => {
+      const visible = getVisibleEntQuestion(question);
+      const selectedIndex =
+        question.selected_index === null || question.selected_index === undefined
+          ? null
+          : Number(question.selected_index);
+      const correctIndex = Number(question.correct_index);
+      const selectedText = selectedIndex === null
+        ? labelNoAnswer
+        : visible.options[selectedIndex] || labelNoAnswer;
+      const correctText = visible.options[correctIndex] || "";
+      const isCorrect = Boolean(question.is_correct);
+
+      const optionsHtml = visible.options
+        .map((option, optionIndex) => {
+          const isSelected = selectedIndex === optionIndex;
+          const isRight = correctIndex === optionIndex;
+          const style = isRight
+            ? "border-primary/30 bg-primary/10 text-on-surface"
+            : isSelected
+              ? "border-error/30 bg-error-container/10 text-on-surface"
+              : "border-outline/10 bg-surface-container-lowest text-on-surface-variant";
+          const icon = isRight ? "check_circle" : isSelected ? "cancel" : "radio_button_unchecked";
+          return `
+            <div class="flex items-start gap-3 rounded-2xl border ${style} p-3">
+              <span class="mt-0.5 h-7 w-7 shrink-0 rounded-full bg-white/70 text-xs font-black flex items-center justify-center">${letters[optionIndex] || ""}</span>
+              <span class="flex-1 text-sm font-bold leading-relaxed">${escapeHtml(option)}</span>
+              <span class="material-symbols-outlined text-lg ${isRight ? "text-primary" : isSelected ? "text-error" : "text-outline-variant"}">${icon}</span>
+            </div>
+          `;
+        })
+        .join("");
+
+      return `
+        <article class="rounded-3xl bg-surface-container-low p-5 border ${isCorrect ? "border-primary/15" : "border-error/15"}">
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <p class="text-[11px] font-black uppercase tracking-widest text-on-surface-variant mb-2">${escapeHtml(translate("ent_review_question", { current: index + 1, total: questions.length }))}</p>
+              <h4 class="text-lg font-black text-on-surface leading-snug">${escapeHtml(visible.question)}</h4>
+            </div>
+            <span class="shrink-0 rounded-full px-3 py-1 text-xs font-black ${isCorrect ? "bg-primary text-on-primary" : "bg-error-container/20 text-error"}">${escapeHtml(isCorrect ? translate("passed") : translate("failed"))}</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">${optionsHtml}</div>
+          <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-bold text-on-surface-variant">
+            <div class="rounded-2xl bg-surface-container-lowest p-3">${labelYourAnswer}: ${escapeHtml(selectedText)}</div>
+            <div class="rounded-2xl bg-surface-container-lowest p-3">${labelCorrectAnswer}: ${escapeHtml(correctText)}</div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  setHtml(
+    elements.entReviewContent,
+    html || `<div class="bg-surface-container-low rounded-2xl p-5 text-on-surface-variant text-sm font-bold">${translate("ent_review_error")}</div>`
+  );
+}
+
+async function openEntAttemptReview(attemptId) {
+  const playerId = getProfilePlayerId();
+  if (!playerId || !attemptId) {
+    return;
+  }
+
+  showEntAttemptReviewShell();
+  try {
+    state.entAttemptDetail = await api.getEntAttemptDetail(playerId, attemptId);
+    renderEntAttemptDetail();
+  } catch (error) {
+    state.entAttemptDetail = null;
+    setText(elements.entReviewSummary, "");
+    setHtml(
+      elements.entReviewContent,
+      `<div class="bg-error-container/10 rounded-2xl p-5 text-error text-sm font-bold">${translate("ent_review_error")}</div>`
+    );
+  }
+}
+
 function renderEntResults(progress) {
   const attempts = Array.isArray(progress?.ent_attempts) ? progress.ent_attempts : [];
   const fallbackCityProgress = progress?.city_progress || [];
@@ -993,6 +1178,7 @@ function renderEntResults(progress) {
           score_percent: item.best_score,
           passed: (item.passed_count ?? 0) > 0,
           completed_at: item.last_completed_at,
+          has_details: false,
         }));
 
   if (ent.length === 0) {
@@ -1013,6 +1199,7 @@ function renderEntResults(progress) {
       const correctAnswers = Number(item.correct_answers ?? 0);
       const totalQuestions = Number(item.total_questions ?? 0);
       const status = item.passed ? translate("passed") : translate("failed");
+      const canReview = item.has_details !== false && item.id;
       return `
         <div class="bg-surface-container-low rounded-xl p-4 flex items-start gap-4 border border-tertiary/10">
           <div class="bg-tertiary-container text-on-tertiary-container p-2.5 rounded-full flex-shrink-0">
@@ -1035,6 +1222,14 @@ function renderEntResults(progress) {
                   : ""
               }
             </div>
+            ${
+              canReview
+                ? `<button type="button" class="mt-3 inline-flex items-center gap-2 rounded-full bg-primary text-on-primary px-4 py-2 text-xs font-black hover:scale-[1.02] active:scale-95 transition-all" data-ent-attempt-review="${escapeHtml(item.id)}">
+                    <span class="material-symbols-outlined text-base">fact_check</span>
+                    <span>${escapeHtml(translate("ent_review_open"))}</span>
+                  </button>`
+                : ""
+            }
           </div>
         </div>
       `;
@@ -1049,6 +1244,22 @@ function bindEvents() {
     localStorage.removeItem(USER_KEY);
     clearStoredPlayerId();
     window.location.href = "../registration/code.html";
+  });
+  elements.entResults.addEventListener("click", (event) => {
+    const reviewButton = event.target.closest("[data-ent-attempt-review]");
+    if (!reviewButton) return;
+    openEntAttemptReview(reviewButton.dataset.entAttemptReview);
+  });
+  elements.entReviewClose.addEventListener("click", closeEntAttemptReview);
+  elements.entReviewModal.addEventListener("click", (event) => {
+    if (event.target === elements.entReviewModal) {
+      closeEntAttemptReview();
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !elements.entReviewModal.classList.contains("hidden")) {
+      closeEntAttemptReview();
+    }
   });
   bindAvatarEvents();
 }
@@ -1086,6 +1297,7 @@ async function init() {
       currentLanguage = language;
       applyStaticTranslations();
       refreshProfileUI();
+      renderEntAttemptDetail();
       renderAvatarSelection();
     },
   });

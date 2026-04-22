@@ -24,6 +24,7 @@ from quiz_bank.api_models import (
     AuthResponse,
     CityContentResponse,
     CityContentSummariesResponse,
+    EntAttemptDetailResponse,
     FactChallengeProgressResponse,
     GoogleAuthConfigResponse,
     GoogleAuthRequest,
@@ -55,7 +56,10 @@ from quiz_bank.database import (
     fetch_random_quiz,
     fetch_user_by_id,
     fetch_user_by_email,
+    get_ent_attempt_detail,
     get_leaderboard,
+    insert_ent_attempt_details,
+    insert_test_result,
     seed_city_periods,
     seed_city_period_content_if_empty,
     seed_default_achievements,
@@ -65,7 +69,6 @@ from quiz_bank.database import (
     upsert_player_city_progress,
     upsert_google_user,
     connect_db,
-    insert_test_result
 )
 from quiz_bank.constants import DEFAULT_PERIOD_DATA_PATH
 from quiz_bank.services import (
@@ -280,6 +283,9 @@ async def submit_city_test(payload: SubmitTestRequest) -> SubmitTestResponse:
             
         questions = _ent_sessions[session_id]
         correct_map = {q["id"]: q["correct_index"] for q in questions}
+        selected_answers = {
+            str(answer.question_id): answer.selected_index for answer in payload.answers
+        }
         
         correct_count = 0
         for ans in payload.answers:
@@ -299,7 +305,7 @@ async def submit_city_test(payload: SubmitTestRequest) -> SubmitTestResponse:
             completed_at = _utc_now_iso()
             passed = percent >= 70
             
-            insert_test_result(
+            test_result_id = insert_test_result(
                 connection=conn,
                 player_id=payload.player_id,
                 city="ЕНТ",
@@ -308,6 +314,12 @@ async def submit_city_test(payload: SubmitTestRequest) -> SubmitTestResponse:
                 correct_answers=correct_count,
                 passed=passed,
                 completed_at=completed_at
+            )
+            insert_ent_attempt_details(
+                connection=conn,
+                test_result_id=test_result_id,
+                questions=questions,
+                selected_answers=selected_answers,
             )
             
             print(f"ENT SUBMIT: Calling upsert_player_city_progress...")
@@ -364,6 +376,20 @@ async def player_achievements(player_id: str) -> PlayerAchievementsResponse:
 @app.get("/api/progress/{player_id}", response_model=PlayerProgressResponse)
 async def player_progress(player_id: str) -> PlayerProgressResponse:
     return get_player_progress_response(DB_PATH, player_id)
+
+
+@app.get(
+    "/api/ent/attempts/{player_id}/{attempt_id}",
+    response_model=EntAttemptDetailResponse,
+)
+async def ent_attempt_detail(
+    player_id: str,
+    attempt_id: int,
+) -> EntAttemptDetailResponse:
+    detail = get_ent_attempt_detail(DB_PATH, player_id, attempt_id)
+    if detail is None:
+        raise HTTPException(status_code=404, detail="Попытка ЕНТ не найдена.")
+    return EntAttemptDetailResponse(**detail)
 
 
 @app.get("/api/timeline/periods", response_model=TimelinePeriodsResponse)
@@ -541,6 +567,10 @@ async def submit_ent_test(payload: dict) -> dict:
 
     questions = _ent_sessions[session_id]
     correct_map = {q["id"]: q["correct_index"] for q in questions}
+    selected_answers = {
+        str(answer.get("question_id")): answer.get("selected_index")
+        for answer in answers
+    }
 
     correct_count = 0
     details = []
@@ -572,7 +602,7 @@ async def submit_ent_test(payload: dict) -> dict:
             completed_at = _utc_now_iso()
             passed = percent >= 50
             with conn:
-                insert_test_result(
+                test_result_id = insert_test_result(
                     connection=conn,
                     player_id=player_id,
                     city="ЕНТ",
@@ -581,6 +611,12 @@ async def submit_ent_test(payload: dict) -> dict:
                     correct_answers=correct_count,
                     passed=passed,
                     completed_at=completed_at,
+                )
+                insert_ent_attempt_details(
+                    connection=conn,
+                    test_result_id=test_result_id,
+                    questions=questions,
+                    selected_answers=selected_answers,
                 )
                 upsert_player_city_progress(
                     connection=conn,

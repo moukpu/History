@@ -92,6 +92,12 @@ export const api = {
     return requestJson(`/api/progress/${encodeURIComponent(playerId)}`);
   },
 
+  getEntAttemptDetail(playerId, attemptId) {
+    return requestJson(
+      `/api/ent/attempts/${encodeURIComponent(playerId)}/${encodeURIComponent(attemptId)}`
+    );
+  },
+
   startFactChallenge(payload) {
     return requestJson("/api/fact-challenge/start", {
       method: "POST",

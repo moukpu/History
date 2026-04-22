@@ -151,6 +151,20 @@ def _create_target_tables(connection: sqlite3.Connection) -> None:
             UNIQUE(player_id, city, period_code)
         );
 
+        CREATE TABLE IF NOT EXISTS ent_attempt_details (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            test_result_id INTEGER NOT NULL,
+            question_id TEXT NOT NULL,
+            question TEXT NOT NULL,
+            options TEXT NOT NULL,
+            translations TEXT NULL,
+            selected_index INTEGER NULL,
+            correct_index INTEGER NOT NULL,
+            is_correct INTEGER NOT NULL,
+            sort_order INTEGER NOT NULL,
+            FOREIGN KEY(test_result_id) REFERENCES test_results(id) ON DELETE CASCADE
+        );
+
         CREATE TABLE IF NOT EXISTS test_sessions (
             id TEXT PRIMARY KEY,
             player_id TEXT NOT NULL,
@@ -695,6 +709,9 @@ def _ensure_indexes(connection: sqlite3.Connection) -> None:
 
         CREATE INDEX IF NOT EXISTS player_city_progress_player_city_idx
         ON player_city_progress(player_id, city);
+
+        CREATE INDEX IF NOT EXISTS ent_attempt_details_result_idx
+        ON ent_attempt_details(test_result_id, sort_order);
 
         CREATE INDEX IF NOT EXISTS test_sessions_player_id_idx
         ON test_sessions(player_id);
@@ -1617,8 +1634,8 @@ def insert_test_result(
     correct_answers: int,
     passed: bool,
     completed_at: str,
-) -> None:
-    connection.execute(
+) -> int:
+    cursor = connection.execute(
         """
         INSERT INTO test_results (
             player_id,
@@ -1641,6 +1658,132 @@ def insert_test_result(
             completed_at,
         ),
     )
+    return int(cursor.lastrowid)
+
+
+def insert_ent_attempt_details(
+    connection: sqlite3.Connection,
+    test_result_id: int,
+    questions: list[dict[str, Any]],
+    selected_answers: dict[str, int],
+) -> None:
+    rows = []
+    for index, question in enumerate(questions, start=1):
+        question_id = str(question["id"])
+        selected_index = selected_answers.get(question_id)
+        correct_index = int(question["correct_index"])
+        rows.append(
+            (
+                test_result_id,
+                question_id,
+                str(question.get("question") or question.get("question_text") or ""),
+                json.dumps(question.get("options") or [], ensure_ascii=False),
+                json.dumps(question.get("translations"), ensure_ascii=False)
+                if question.get("translations")
+                else None,
+                selected_index,
+                correct_index,
+                int(selected_index == correct_index),
+                index,
+            )
+        )
+
+    connection.executemany(
+        """
+        INSERT INTO ent_attempt_details (
+            test_result_id,
+            question_id,
+            question,
+            options,
+            translations,
+            selected_index,
+            correct_index,
+            is_correct,
+            sort_order
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        rows,
+    )
+
+
+def get_ent_attempt_detail(
+    db_path: str | Path,
+    player_id: str,
+    attempt_id: int,
+) -> dict[str, Any] | None:
+    ensure_database(db_path)
+    connection = connect_db(db_path)
+    try:
+        attempt = connection.execute(
+            """
+            SELECT
+                id,
+                player_id,
+                total_questions,
+                correct_answers,
+                passed,
+                completed_at
+            FROM test_results
+            WHERE id = ? AND player_id = ? AND city = 'ЕНТ' AND period_code = 'ENT'
+            """,
+            (attempt_id, player_id),
+        ).fetchone()
+        if attempt is None:
+            return None
+
+        rows = connection.execute(
+            """
+            SELECT
+                question_id,
+                question,
+                options,
+                translations,
+                selected_index,
+                correct_index,
+                is_correct
+            FROM ent_attempt_details
+            WHERE test_result_id = ?
+            ORDER BY sort_order ASC, id ASC
+            """,
+            (attempt_id,),
+        ).fetchall()
+    finally:
+        connection.close()
+
+    total_questions = int(attempt["total_questions"] or 0)
+    correct_answers = int(attempt["correct_answers"] or 0)
+    score_percent = (
+        round((correct_answers / total_questions) * 100)
+        if total_questions
+        else 0
+    )
+
+    questions = []
+    for row in rows:
+        questions.append(
+            {
+                "question_id": str(row["question_id"]),
+                "question": row["question"],
+                "options": json.loads(row["options"] or "[]"),
+                "translations": json.loads(row["translations"])
+                if row["translations"]
+                else None,
+                "selected_index": row["selected_index"],
+                "correct_index": int(row["correct_index"]),
+                "is_correct": bool(row["is_correct"]),
+            }
+        )
+
+    return {
+        "id": int(attempt["id"]),
+        "total_questions": total_questions,
+        "correct_answers": correct_answers,
+        "score_percent": score_percent,
+        "passed": bool(attempt["passed"]),
+        "completed_at": attempt["completed_at"],
+        "questions": questions,
+    }
 
 
 def insert_fact_challenge_result(
@@ -1929,7 +2072,12 @@ def get_player_progress(db_path: str | Path, player_id: str) -> dict[str, Any]:
                 total_questions,
                 correct_answers,
                 passed,
-                completed_at
+                completed_at,
+                EXISTS (
+                    SELECT 1
+                    FROM ent_attempt_details
+                    WHERE ent_attempt_details.test_result_id = test_results.id
+                ) AS has_details
             FROM test_results
             WHERE player_id = ? AND city = 'ЕНТ'
             ORDER BY completed_at DESC, id DESC
@@ -1956,6 +2104,7 @@ def get_player_progress(db_path: str | Path, player_id: str) -> dict[str, Any]:
                 "score_percent": score_percent,
                 "passed": bool(row["passed"]),
                 "completed_at": row["completed_at"],
+                "has_details": bool(row["has_details"]),
             }
         )
 

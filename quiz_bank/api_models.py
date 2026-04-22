@@ -146,6 +146,27 @@ class EntAttemptItem(BaseModel):
     score_percent: int
     passed: bool
     completed_at: str
+    has_details: bool = False
+
+
+class EntAttemptQuestionDetail(BaseModel):
+    question_id: str
+    question: str
+    options: list[str] = Field(..., min_length=4, max_length=4)
+    translations: dict[str, LocalizedQuestionText] | None = None
+    selected_index: int | None = Field(default=None, ge=0, le=3)
+    correct_index: int = Field(..., ge=0, le=3)
+    is_correct: bool
+
+
+class EntAttemptDetailResponse(BaseModel):
+    id: int
+    total_questions: int
+    correct_answers: int
+    score_percent: int
+    passed: bool
+    completed_at: str
+    questions: list[EntAttemptQuestionDetail]
 
 
 class PlayerProgressResponse(BaseModel):
