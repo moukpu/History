@@ -638,7 +638,6 @@ function cacheElements() {
 }
 
 async function init() {
-  console.log("ENT Test: Initializing...");
   mountLanguageMenu({
     onChange: () => {
       applyTranslations();
@@ -663,10 +662,8 @@ async function init() {
   state.playerId = getOrCreatePlayerId();
   hideError();
   
-  console.log("ENT Test: Loading questions...");
   try {
     await startEntTest();
-    console.log("ENT Test: Questions loaded successfully", state.quiz);
     render();
     if (state.pendingStartedAt || isTimerStarted()) {
       setStartModalVisible(false);

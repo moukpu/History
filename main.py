@@ -300,7 +300,6 @@ async def start_city_test(payload: StartTestRequest) -> StartTestResponse:
 
 @app.post("/api/test/submit", response_model=SubmitTestResponse)
 async def submit_city_test(payload: SubmitTestRequest) -> SubmitTestResponse:
-    print(f"DEBUG: submit_city_test received session_id: {payload.test_session_id}")
     if payload.test_session_id.startswith("ent-"):
         session_id = payload.test_session_id
         if session_id not in _ent_sessions:
@@ -324,7 +323,7 @@ async def submit_city_test(payload: SubmitTestRequest) -> SubmitTestResponse:
         del _ent_sessions[session_id]
         
         # Save to database
-        print(f"ENT SUBMIT: Starting save process for player_id='{payload.player_id}'")
+        conn = None
         try:
             conn = connect_db(DB_PATH)
             completed_at = _utc_now_iso()
@@ -347,7 +346,6 @@ async def submit_city_test(payload: SubmitTestRequest) -> SubmitTestResponse:
                 selected_answers=selected_answers,
             )
             
-            print(f"ENT SUBMIT: Calling upsert_player_city_progress...")
             upsert_player_city_progress(
                 connection=conn,
                 player_id=payload.player_id,
@@ -358,15 +356,15 @@ async def submit_city_test(payload: SubmitTestRequest) -> SubmitTestResponse:
                 completed_at=completed_at
             )
             
-            print(f"ENT SUBMIT: Committing transaction...")
             conn.commit()
             conn.close()
-            print(f"ENT SUBMIT: DONE. Result saved successfully.")
-        except Exception as db_e:
-            print(f"!!! ENT SUBMIT CRITICAL DATABASE ERROR: {str(db_e)}")
-            import traceback
-            traceback.print_exc()
+            conn = None
+        except Exception:
+            logger.exception("ENT city-test compatibility submit save failed.")
             # Even if DB fails, we return the result to frontend to avoid "Failed to fetch"
+        finally:
+            if conn is not None:
+                conn.close()
         
         return SubmitTestResponse(
             city="ЕНТ",
@@ -696,9 +694,7 @@ def _load_ent_questions() -> list[dict]:
 
 @app.post("/api/ent/start")
 async def start_ent_test(payload: dict) -> dict:
-    print(f"DEBUG: ENT test start requested with payload: {payload}")
     questions = _load_ent_questions()
-    print(f"DEBUG: Loaded {len(questions)} ENT questions")
     if not questions:
         raise HTTPException(status_code=500, detail="Нет вопросов для ЕНТ теста.")
 
@@ -808,8 +804,8 @@ async def submit_ent_test(payload: dict) -> dict:
                     score_percent=percent,
                     completed_at=completed_at,
                 )
-        except Exception as error:
-            print(f"ENT submit save failed: {error}")
+        except Exception:
+            logger.exception("ENT submit save failed.")
         finally:
             if conn is not None:
                 conn.close()

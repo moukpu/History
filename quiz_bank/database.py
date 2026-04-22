@@ -62,6 +62,8 @@ _QUIZ_QUESTION_BUCKETS = (
     "detail",
 )
 
+QUIZ_BANK_FINGERPRINT_KEY = "quiz_bank_source_fingerprint"
+
 
 def connect_db(db_path: str | Path) -> sqlite3.Connection:
     connection = sqlite3.connect(db_path, timeout=10)
@@ -74,6 +76,35 @@ def connect_db(db_path: str | Path) -> sqlite3.Connection:
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def _file_sha256(path: str | Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _get_metadata_value(connection: sqlite3.Connection, key: str) -> str | None:
+    row = connection.execute(
+        "SELECT value FROM app_metadata WHERE key = ?",
+        (key,),
+    ).fetchone()
+    return str(row["value"]) if row is not None else None
+
+
+def _set_metadata_value(connection: sqlite3.Connection, key: str, value: str) -> None:
+    connection.execute(
+        """
+        INSERT INTO app_metadata (key, value, updated_at)
+        VALUES (?, ?, ?)
+        ON CONFLICT(key) DO UPDATE SET
+            value = excluded.value,
+            updated_at = excluded.updated_at
+        """,
+        (key, value, _utc_now_iso()),
+    )
 
 
 def _table_exists(connection: sqlite3.Connection, table_name: str) -> bool:
@@ -264,6 +295,12 @@ def _create_target_tables(connection: sqlite3.Connection) -> None:
             google_sub TEXT NULL,
             avatar_url TEXT NULL,
             created_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS app_metadata (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL,
+            updated_at TEXT NOT NULL
         );
         """
     )
@@ -1180,11 +1217,15 @@ def seed_from_json_if_empty(
     json_path: str | Path = DEFAULT_DATA_PATH,
 ) -> None:
     ensure_database(db_path)
-    items = load_quiz_bank_json(json_path)
+    source_fingerprint = _file_sha256(json_path)
 
     connection = connect_db(db_path)
     try:
         current_count = connection.execute("SELECT COUNT(*) FROM quizzes").fetchone()[0]
+        saved_fingerprint = _get_metadata_value(connection, QUIZ_BANK_FINGERPRINT_KEY)
+        if current_count > 0 and saved_fingerprint == source_fingerprint:
+            return
+
         current_items = [
             {
                 "city": row["city"],
@@ -1205,9 +1246,16 @@ def seed_from_json_if_empty(
     finally:
         connection.close()
 
+    items = load_quiz_bank_json(json_path)
     current_signature = _quiz_bank_signature(current_items)
     expected_signature = _quiz_bank_signature(items)
     if current_count > 0 and current_signature == expected_signature:
+        connection = connect_db(db_path)
+        try:
+            with connection:
+                _set_metadata_value(connection, QUIZ_BANK_FINGERPRINT_KEY, source_fingerprint)
+        finally:
+            connection.close()
         return
 
     is_period_bank = any(
@@ -1231,6 +1279,12 @@ def seed_from_json_if_empty(
         )
 
     replace_quiz_bank(db_path, items)
+    connection = connect_db(db_path)
+    try:
+        with connection:
+            _set_metadata_value(connection, QUIZ_BANK_FINGERPRINT_KEY, source_fingerprint)
+    finally:
+        connection.close()
 
 
 def _quiz_row_to_dict(row: sqlite3.Row) -> dict[str, Any]:
@@ -1407,6 +1461,18 @@ def fetch_random_active_fact_challenge(
     connection: sqlite3.Connection,
     period_code: str,
 ) -> dict[str, Any] | None:
+    active_count = connection.execute(
+        """
+        SELECT COUNT(*)
+        FROM fact_challenges
+        WHERE period_code = ? AND is_active = 1
+        """,
+        (period_code,),
+    ).fetchone()[0]
+    if not active_count:
+        return None
+
+    offset = secrets.randbelow(active_count)
     row = connection.execute(
         """
         SELECT
@@ -1420,10 +1486,10 @@ def fetch_random_active_fact_challenge(
             updated_at
         FROM fact_challenges
         WHERE period_code = ? AND is_active = 1
-        ORDER BY RANDOM()
         LIMIT 1
+        OFFSET ?
         """,
-        (period_code,),
+        (period_code, offset),
     ).fetchone()
     return _fact_challenge_row_to_dict(row) if row is not None else None
 
