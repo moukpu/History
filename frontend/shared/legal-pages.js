@@ -295,15 +295,15 @@ const pageData = {
   },
   help: {
     ru: {
-      page_title: "Sapar Quest - Help Center",
+      page_title: "Sapar Quest - Центр поддержки",
       nav_home: "Главная",
       nav_map: "Карта",
       nav_leaderboard: "Рейтинг",
       badge: "Поддержка",
-      title: "Help Center",
+      title: "Центр поддержки",
       subtitle:
-        "Здесь собраны основные ответы по работе сайта. Контактные данные поддержки можно добавить после утверждения администратором проекта.",
-      updated: "Черновик для заполнения контактами",
+        "Здесь собраны основные ответы по работе сайта и официальные контакты поддержки Sapar Quest.",
+      updated: "Поддержка проекта",
       sections: [
         {
           title: "Как начать",
@@ -334,10 +334,10 @@ const pageData = {
           ],
         },
         {
-          title: "Что нужно добавить в контакты поддержки",
+          title: "Как быстрее получить помощь",
           body: [
-            "Нужен рабочий email или другой публичный канал связи.",
-            "Желательно указать, кто отвечает за проект, примерное время ответа и какие данные пользователь должен приложить к обращению.",
+            "В обращении укажите страницу, где возникла проблема, почту аккаунта, устройство или браузер и приложите скриншот, если он помогает понять ситуацию.",
+            "Для вопросов по аккаунту, прогрессу, тестам, AI-анализу и ошибкам сайта используйте контакты ниже.",
           ],
         },
       ],
@@ -350,8 +350,8 @@ const pageData = {
       badge: "Support",
       title: "Help Center",
       subtitle:
-        "This page collects the main answers about using the site. Support contact details can be added after approval by the project administrator.",
-      updated: "Draft waiting for contact details",
+        "This page collects the main answers about using the site and the official Sapar Quest support contacts.",
+      updated: "Project support",
       sections: [
         {
           title: "How to start",
@@ -382,24 +382,24 @@ const pageData = {
           ],
         },
         {
-          title: "What to add to support contacts",
+          title: "How to get help faster",
           body: [
-            "A working email address or another public contact channel is needed.",
-            "It is useful to list who maintains the project, expected response time, and what information users should include in a request.",
+            "Include the page where the issue happened, the account email, your device or browser, and a screenshot if it helps explain the problem.",
+            "Use the contacts below for account, progress, quizzes, AI analysis, and site error questions.",
           ],
         },
       ],
     },
     kk: {
-      page_title: "Sapar Quest - Help Center",
+      page_title: "Sapar Quest - Қолдау орталығы",
       nav_home: "Басты бет",
       nav_map: "Карта",
       nav_leaderboard: "Рейтинг",
       badge: "Қолдау",
-      title: "Help Center",
+      title: "Қолдау орталығы",
       subtitle:
-        "Бұл бетте сайтты пайдалану бойынша негізгі жауаптар жиналған. Қолдау байланыстарын жоба әкімшісі бекіткеннен кейін қосуға болады.",
-      updated: "Байланыс деректерін күтетін нұсқа",
+        "Бұл бетте сайтты пайдалану бойынша негізгі жауаптар және Sapar Quest қолдауының ресми байланыстары берілген.",
+      updated: "Жоба қолдауы",
       sections: [
         {
           title: "Қалай бастау керек",
@@ -430,15 +430,70 @@ const pageData = {
           ],
         },
         {
-          title: "Қолдау байланыстарына не қосу керек",
+          title: "Көмекті қалай тезірек алуға болады",
           body: [
-            "Жұмыс істейтін email немесе басқа ашық байланыс арнасы қажет.",
-            "Жобаға кім жауап беретіні, жауап беру уақыты және пайдаланушы өтінішке қандай деректерді қосуы керегі көрсетілгені дұрыс.",
+            "Өтініште мәселе шыққан бетті, аккаунт поштасын, құрылғы немесе браузерді және қажет болса скриншотты көрсетіңіз.",
+            "Аккаунт, прогресс, тесттер, AI талдауы және сайт қателері бойынша төмендегі байланыстарды пайдаланыңыз.",
           ],
         },
       ],
     },
   },
+};
+
+const contactText = {
+  ru: {
+    cardTitle: "Связаться с поддержкой",
+    cardIntro: "Выберите удобный способ связи. Для быстрого ответа кратко опишите проблему и укажите почту аккаунта.",
+    mainDeveloper: "Главный разработчик",
+    assistant: "Помощник проекта",
+    supportPhone: "Номер поддержки",
+    telegram: "Telegram",
+    whatsapp: "WhatsApp",
+    emailSubject: "Обращение в поддержку Sapar Quest",
+    emailBody:
+      "Здравствуйте! Нужна помощь по Sapar Quest.%0A%0AПочта аккаунта:%0AСтраница, где возникла проблема:%0AОписание проблемы:%0AСкриншот или детали:",
+    quickMessage:
+      "Здравствуйте! Нужна помощь по Sapar Quest. Почта аккаунта: . Проблема: ",
+  },
+  en: {
+    cardTitle: "Contact Support",
+    cardIntro: "Choose a convenient contact method. For a faster reply, briefly describe the issue and include the account email.",
+    mainDeveloper: "Lead developer",
+    assistant: "Project assistant",
+    supportPhone: "Support phone",
+    telegram: "Telegram",
+    whatsapp: "WhatsApp",
+    emailSubject: "Sapar Quest support request",
+    emailBody:
+      "Hello! I need help with Sapar Quest.%0A%0AAccount email:%0APage where the issue happened:%0AIssue description:%0AScreenshot or details:",
+    quickMessage:
+      "Hello! I need help with Sapar Quest. Account email: . Issue: ",
+  },
+  kk: {
+    cardTitle: "Қолдауға хабарласу",
+    cardIntro: "Өзіңізге ыңғайлы байланыс тәсілін таңдаңыз. Жауап тезірек болуы үшін мәселені қысқаша жазып, аккаунт поштасын көрсетіңіз.",
+    mainDeveloper: "Бас әзірлеуші",
+    assistant: "Жоба көмекшісі",
+    supportPhone: "Қолдау нөмірі",
+    telegram: "Telegram",
+    whatsapp: "WhatsApp",
+    emailSubject: "Sapar Quest қолдауына өтініш",
+    emailBody:
+      "Сәлеметсіз бе! Sapar Quest бойынша көмек керек.%0A%0AАккаунт поштасы:%0AМәселе шыққан бет:%0AМәселенің сипаттамасы:%0AСкриншот немесе қосымша мәлімет:",
+    quickMessage:
+      "Сәлеметсіз бе! Sapar Quest бойынша көмек керек. Аккаунт поштасы: . Мәселе: ",
+  },
+};
+
+const supportContacts = {
+  leadEmail: "aldiyar220210@gmail.com",
+  assistantEmail: "azamatik908@gmail.com",
+  phoneDisplay: "+7 747 646 5285",
+  phoneLink: "+77476465285",
+  telegramHandle: "@Moukpu",
+  telegramLink: "https://t.me/Moukpu",
+  whatsappNumber: "77476465285",
 };
 
 let currentLanguage = getCurrentLanguage();
@@ -465,11 +520,90 @@ function translate(key) {
   return getTranslations()[key] ?? pageData.privacy.ru[key] ?? key;
 }
 
+function buildGmailLink(email, subject, body) {
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.replaceAll("%0A", "\n"))}`;
+}
+
+function buildWhatsappLink(message) {
+  return `https://wa.me/${supportContacts.whatsappNumber}?text=${encodeURIComponent(message)}`;
+}
+
+function renderContactLink({ href, icon, label, value }) {
+  return `
+    <a class="group flex items-center gap-4 rounded-[1.5rem] border border-surface-container bg-surface px-5 py-4 text-left transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-white hover:shadow-[0_12px_28px_rgba(0,102,104,0.10)]"
+      href="${escapeHtml(href)}"
+      target="_blank"
+      rel="noopener noreferrer">
+      <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-white font-black shadow-sm">
+        ${icon.startsWith("symbol:")
+          ? `<span class="material-symbols-outlined">${escapeHtml(icon.replace("symbol:", ""))}</span>`
+          : escapeHtml(icon)}
+      </span>
+      <span class="min-w-0">
+        <span class="block text-xs font-black uppercase tracking-widest text-primary">${escapeHtml(label)}</span>
+        <span class="block break-words text-base font-bold text-on-surface">${escapeHtml(value)}</span>
+      </span>
+    </a>
+  `;
+}
+
+function renderHelpContacts() {
+  if (getPageKey() !== "help") return "";
+
+  const labels = contactText[currentLanguage] || contactText.ru;
+  const mailBody = labels.emailBody;
+  const quickMessage = labels.quickMessage;
+  const contactItems = [
+    {
+      href: buildGmailLink(supportContacts.leadEmail, labels.emailSubject, mailBody),
+      icon: "symbol:mail",
+      label: labels.mainDeveloper,
+      value: supportContacts.leadEmail,
+    },
+    {
+      href: buildGmailLink(supportContacts.assistantEmail, labels.emailSubject, mailBody),
+      icon: "symbol:mail",
+      label: labels.assistant,
+      value: supportContacts.assistantEmail,
+    },
+    {
+      href: `tel:${supportContacts.phoneLink}`,
+      icon: "symbol:call",
+      label: labels.supportPhone,
+      value: supportContacts.phoneDisplay,
+    },
+    {
+      href: supportContacts.telegramLink,
+      icon: "TG",
+      label: labels.telegram,
+      value: supportContacts.telegramHandle,
+    },
+    {
+      href: buildWhatsappLink(quickMessage),
+      icon: "WA",
+      label: labels.whatsapp,
+      value: supportContacts.phoneDisplay,
+    },
+  ];
+
+  return `
+    <article class="bg-white rounded-[2rem] border border-primary/20 p-7 md:p-8 shadow-[0_14px_36px_rgba(46,47,45,0.06)]">
+      <div class="mb-6">
+        <h2 class="text-2xl font-black text-on-surface tracking-tight">${escapeHtml(labels.cardTitle)}</h2>
+        <p class="mt-3 text-on-surface-variant text-base leading-relaxed font-medium">${escapeHtml(labels.cardIntro)}</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        ${contactItems.map(renderContactLink).join("")}
+      </div>
+    </article>
+  `;
+}
+
 function renderSections() {
   const host = document.querySelector("[data-legal-sections]");
   if (!host) return;
 
-  host.innerHTML = getTranslations()
+  const sectionsHtml = getTranslations()
     .sections.map(
       (section) => `
         <article class="bg-white rounded-[2rem] border border-surface-container p-7 md:p-8 shadow-[0_14px_36px_rgba(46,47,45,0.06)]">
@@ -487,6 +621,8 @@ function renderSections() {
       `
     )
     .join("");
+
+  host.innerHTML = `${sectionsHtml}${renderHelpContacts()}`;
 }
 
 function applyTranslations() {
