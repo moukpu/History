@@ -14,6 +14,7 @@ const DRAG_THRESHOLD_PX = 10;
 const SUPPRESS_CLICK_MS = 140;
 const TAP_SELECTION_SUPPRESS_MS = 260;
 const SVG_FETCH_TIMEOUT_MS = 15000;
+const COMPACT_MAP_QUERY = "(max-width: 1023px), (pointer: coarse)";
 
 function normalizeSvgMarkup(markup) {
   return String(markup)
@@ -128,6 +129,50 @@ function prepareVisualCityGroup(cityGroup) {
     if (!label.dataset.originalFontSize) {
       label.dataset.originalFontSize = label.getAttribute("font-size") || "";
     }
+  });
+}
+
+function isCompactMapViewport() {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia(COMPACT_MAP_QUERY).matches
+  );
+}
+
+function resetCompactActiveCityStyles(cityGroup) {
+  cityGroup.querySelectorAll(".map-city-core, .map-city-ring").forEach((shape) => {
+    shape.style.removeProperty("display");
+    shape.style.removeProperty("opacity");
+    shape.style.removeProperty("stroke-width");
+    shape.style.removeProperty("vector-effect");
+  });
+}
+
+function applyCompactActiveCityStyles(cityGroup, isActive, isCompact) {
+  resetCompactActiveCityStyles(cityGroup);
+
+  if (!isCompact) {
+    return;
+  }
+
+  cityGroup.querySelectorAll(".map-city-core, .map-city-ring").forEach((shape) => {
+    shape.style.setProperty("vector-effect", "non-scaling-stroke");
+  });
+
+  const core = cityGroup.querySelector(".map-city-core");
+  if (core && isActive) {
+    core.style.setProperty("stroke-width", "0.65px");
+  }
+
+  if (!isActive) {
+    return;
+  }
+
+  cityGroup.querySelectorAll(".map-city-ring").forEach((ring) => {
+    ring.style.setProperty("display", "none");
+    ring.style.setProperty("opacity", "0");
+    ring.style.setProperty("stroke-width", "0px");
   });
 }
 
@@ -655,6 +700,7 @@ export function updatePeriodSvgMapState(
   { activeCity = null, factSession = null, mapState = null } = {}
 ) {
   const cityStates = new Map((mapState?.cities || []).map((item) => [item.city, item]));
+  const isCompact = isCompactMapViewport();
 
   container.querySelectorAll(INTERACTIVE_CITY_SELECTOR).forEach((cityGroup) => {
     const city = cityGroup.dataset.city;
@@ -669,5 +715,6 @@ export function updatePeriodSvgMapState(
     cityGroup.classList.toggle("is-active", isActive);
     cityGroup.classList.toggle("is-disabled", isDisabled);
     cityGroup.setAttribute("aria-pressed", isActive ? "true" : "false");
+    applyCompactActiveCityStyles(cityGroup, isActive, isCompact);
   });
 }
