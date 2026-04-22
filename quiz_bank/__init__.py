@@ -40,8 +40,7 @@ from .fact_challenge_validation import (
     validate_fact_challenges,
 )
 from .fact_challenges import build_fact_challenge_seed, build_supported_fact_challenge_pairs
-from .generator import generate_quiz_bank
-from .period_content import build_period_quiz_coverage_matrix, generate_period_quiz_bank
+from .period_content import build_period_quiz_coverage_matrix
 from .period_validation import build_period_quiz_report, validate_period_quiz_bank
 from .validation import build_review_report, load_quiz_bank_json, validate_quiz_bank
 
@@ -72,8 +71,6 @@ __all__ = [
     "build_timeline_period_catalog",
     "build_review_report",
     "ensure_database",
-    "generate_quiz_bank",
-    "generate_period_quiz_bank",
     "load_city_period_content_json",
     "load_fact_challenges_json",
     "load_quiz_bank_json",

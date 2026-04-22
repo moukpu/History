@@ -493,43 +493,6 @@ def _build_field_question(
     }
 
 
-def build_independence_1991_quiz_blueprints() -> dict[tuple[str, str], list[dict[str, object]]]:
-    records: dict[tuple[str, str], list[dict[str, object]]] = {}
-
-    for item in INDEPENDENCE_1991_CITIES:
-        blueprints = [
-            _build_field_question(item, "map_reason", "Почему этот город выделен на карте периода 1991 года?", item.map_reason),
-            _build_field_question(item, "name_note", "Какое утверждение о названии города верно для 1991 года?", item.name_note),
-            _build_field_question(item, "region_clue", "С какой частью Казахстана прежде всего связывали этот город в 1991 году?", f"В 1991 году этот город особенно связывали {item.region_clue}."),
-            _build_field_question(item, "admin_role", "Какую административную роль выполнял этот город в 1991 году?", f"В 1991 году этот город был {item.admin_role}."),
-            _build_field_question(item, "waterway_clue", "С каким водным объектом или водным направлением был связан этот город?", f"Город особенно связывали {item.waterway_clue}."),
-            _build_field_question(item, "landscape_clue", "Какой природный ориентир лучше всего помогает узнать этот город?", f"Этот город чаще всего узнают {item.landscape_clue}."),
-            _build_field_question(item, "economy_clue", "Какая отрасль или хозяйственная особенность выделяла этот город в 1991 году?", f"Для города в 1991 году было особенно характерно то, что он был связан {item.economy_clue}."),
-            _build_field_question(item, "transport_clue", "Какая транспортная роль больше всего подходила этому городу в 1991 году?", f"Для этого города была характерна связь {item.transport_clue}."),
-            _build_field_question(item, "period_role", "Какой статус лучше всего описывал этот город в период 1991 года?", f"В период 1991 года этот город прежде всего связывали {item.period_role}."),
-            _build_field_question(item, "importance_reason", "Почему этот город был важен для страны в начале 1990-х?", f"Город был важен потому, что {item.importance_reason}."),
-            _build_field_question(item, "subtitle", "Какое краткое определение лучше всего подходит этому городу?", item.subtitle),
-            _build_field_question(item, "development_clue", "Какое направление развития особенно связывали с этим городом в 1991 году?", f"В 1991 году этот город особенно связывали {item.development_clue}."),
-            _build_field_question(item, "geographic_clue", "Какое географическое утверждение об этом городе верно?", item.geographic_clue),
-            _build_field_question(item, "landmark_clue", "Какой ориентир сильнее всего связан с этим городом?", f"Для этого города особенно характерна связь {item.landmark_clue}."),
-            _build_field_question(item, "regional_connection", "С каким регионом или направлением страны особенно связан этот город?", f"Город особенно связан {item.regional_connection}."),
-            _build_field_question(item, "city_feature", "Какой признак помогает отличить этот город от многих других на карте 1991 года?", f"Заметнее всего этот город отличал {item.city_feature}."),
-            _build_field_question(item, "civic_role", "Какую гражданскую или управленческую роль играл этот город?", f"Этот город {item.civic_role}."),
-            _build_field_question(item, "short_description", "Какой вариант лучше всего передает учебное описание этого города периода 1991 года?", item.short_description),
-            _build_field_question(item, "map_reason", "Почему этот город заметен именно на карте 1991 года?", item.map_reason),
-            _build_field_question(item, "memory_fact", "Какой факт помогает вспомнить этот город в период первых лет независимости?", item.memory_fact),
-        ]
-
-        if len(blueprints) != QUESTION_COUNT:
-            raise ValueError(
-                f"Для {item.city}/{PERIOD_CODE} собрано {len(blueprints)} вопросов вместо {QUESTION_COUNT}."
-            )
-
-        records[(item.city, PERIOD_CODE)] = blueprints
-
-    return records
-
-
 def build_independence_1991_city_content_blueprints() -> dict[tuple[str, str], dict[str, object | None]]:
     return {
         (item.city, PERIOD_CODE): {

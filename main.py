@@ -118,7 +118,6 @@ def _load_dotenv_file(path: str = ".env") -> None:
 _load_dotenv_file()
 
 DB_PATH = os.getenv("DB_PATH", "quizzes.db")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip() or "llama-3.3-70b-versatile"
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
@@ -134,21 +133,7 @@ class CachedStaticFiles(StaticFiles):
             response.headers.setdefault("Cache-Control", "public, max-age=604800")
         return response
 
-_openai_client: AsyncOpenAI | None = None
 _groq_client: AsyncOpenAI | None = None
-
-
-def get_openai_client() -> AsyncOpenAI:
-    global _openai_client
-    if _openai_client is None:
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise HTTPException(
-                status_code=503,
-                detail="OPENAI_API_KEY is not configured on the server.",
-            )
-        _openai_client = AsyncOpenAI(api_key=api_key)
-    return _openai_client
 
 
 def get_groq_client() -> AsyncOpenAI:
@@ -660,52 +645,6 @@ async def map_state(player_id: str, period_code: str) -> MapStateResponse:
 @app.get("/api/map-initial/{player_id}", response_model=MapInitialResponse)
 async def map_initial(player_id: str) -> MapInitialResponse:
     return get_map_initial_response(DB_PATH, player_id)
-
-
-SYSTEM_PROMPT = (
-    "Ты создаёшь один школьный вопрос-викторину о городе Казахстана. "
-    "Верни строго JSON-объект без markdown и без пояснений. "
-    "Все тексты должны быть только на русском языке. "
-    "Схема ответа: "
-    '{"question":"...", "options":["...","...","...","..."], "correct_index":0, "fact":"..."} '
-    "Вариантов ответа должно быть ровно 4, правильный ответ — только один, "
-    "fact должен быть коротким и понятным."
-)
-
-
-@app.get("/api/quiz/dynamic/{city}", response_model=QuizResponse)
-async def get_dynamic_quiz(city: str) -> QuizResponse:
-    try:
-        completion = await get_openai_client().chat.completions.create(
-            model=OPENAI_MODEL,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {
-                    "role": "user",
-                    "content": (
-                        "Сгенерируй один простой вопрос о городе Казахстана: "
-                        f"{city}."
-                    ),
-                },
-            ],
-            temperature=0.5,
-        )
-    except OpenAIError as error:
-        raise HTTPException(
-            status_code=502,
-            detail=f"OpenAI API error: {error}",
-        ) from error
-
-    raw = completion.choices[0].message.content or ""
-    try:
-        payload = json.loads(raw)
-        return QuizResponse(**payload)
-    except (json.JSONDecodeError, ValidationError, TypeError) as error:
-        raise HTTPException(
-            status_code=502,
-            detail=f"Malformed quiz returned by the model: {error}",
-        ) from error
 
 
 # --- ENT Test (from local JSON file) ---

@@ -106,7 +106,6 @@ Optional Railway variables:
 
 - `GROQ_API_KEY` for AI analysis in ENT attempt reviews
 - `GROQ_MODEL=llama-3.3-70b-versatile` unless another supported Groq model is chosen
-- `OPENAI_API_KEY` for dynamic quiz generation
 
 Do not commit real `.env` values. Use `.env.railway.example` as the variable checklist.
 
@@ -174,14 +173,6 @@ Do not commit real `.env` values. Use `.env.railway.example` as the variable che
 Groq is optional for the main app, but it powers AI analysis in ENT attempt reviews:
 
 - `GET /api/ent/attempts/{player_id}/{attempt_id}/analysis`
-
-OpenAI is also optional.
-
-Only the dynamic quiz endpoint depends on `OPENAI_API_KEY`:
-
-- `GET /api/quiz/dynamic/{city}`
-
-Core map, profile, leaderboard, city tests, and ENT tests should still work without an OpenAI key.
 
 ## Files to inspect first for common tasks
 
@@ -277,7 +268,6 @@ Do not hardcode content in scattered frontend files if there is already a source
 ### Period quizzes
 
 ```bash
-python scripts/generate_period_quizzes.py
 python scripts/validate_period_quizzes.py
 python scripts/import_period_quizzes.py --db quizzes.db
 ```

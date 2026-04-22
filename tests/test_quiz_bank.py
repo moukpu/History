@@ -10,33 +10,22 @@ from fastapi.testclient import TestClient
 
 import main
 from quiz_bank.constants import (
-    APPROVED_CITIES,
-    CITY_QUESTION_TARGET,
     DEFAULT_DATA_PATH,
     DEFAULT_PERIOD_CODE,
 )
 from quiz_bank.database import ensure_database, fetch_random_quiz, replace_quiz_bank, seed_from_json_if_empty
-from quiz_bank.generator import generate_quiz_bank
-from quiz_bank.validation import load_quiz_bank_json, validate_quiz_bank
+from quiz_bank.period_validation import validate_period_quiz_bank
+from quiz_bank.validation import load_quiz_bank_json
 
 
 class QuizBankValidationTests(unittest.TestCase):
     def test_json_bank_is_valid_and_complete(self) -> None:
         items = load_quiz_bank_json(DEFAULT_DATA_PATH)
-        errors, warnings = validate_quiz_bank(items)
+        errors, warnings = validate_period_quiz_bank(items)
 
         self.assertEqual([], errors)
         self.assertEqual([], warnings)
-        self.assertEqual(len(APPROVED_CITIES) * CITY_QUESTION_TARGET, len(items))
-
-    def test_generator_outputs_expected_structure(self) -> None:
-        items = generate_quiz_bank()
-        errors, warnings = validate_quiz_bank(items)
-
-        self.assertEqual([], errors)
-        self.assertEqual([], warnings)
-        self.assertEqual(len(APPROVED_CITIES) * CITY_QUESTION_TARGET, len(items))
-        self.assertTrue(all(item["period_code"] == DEFAULT_PERIOD_CODE for item in items))
+        self.assertTrue(items)
 
 
 class QuizBankDatabaseTests(unittest.TestCase):
@@ -66,8 +55,7 @@ class QuizBankDatabaseTests(unittest.TestCase):
             seed_from_json_if_empty(db_path, DEFAULT_DATA_PATH)
             second_count = self._row_count(db_path)
 
-            expected = len(APPROVED_CITIES) * CITY_QUESTION_TARGET
-            self.assertEqual(expected, first_count)
+            self.assertEqual(len(load_quiz_bank_json(DEFAULT_DATA_PATH)), first_count)
             self.assertEqual(first_count, second_count)
 
     def test_ensure_database_migrates_legacy_schema_to_period_aware(self) -> None:

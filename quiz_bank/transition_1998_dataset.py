@@ -558,40 +558,6 @@ def _build_field_question(
     }
 
 
-def build_transition_1998_quiz_blueprints() -> dict[tuple[str, str], list[dict[str, object]]]:
-    records: dict[tuple[str, str], list[dict[str, object]]] = {}
-
-    for item in TRANSITION_1998_CITIES:
-        blueprints = [
-            _build_field_question(item, "reason_on_map", "Почему этот город выделен на карте периода 1998 года?", item.reason_on_map),
-            _build_field_question(item, "name_note", "Какое утверждение о названии города верно для 1998 года?", item.name_note),
-            _build_field_question(item, "macro_region", "В какой части Казахстана расположен этот город?", f"Город располагался {item.macro_region}."),
-            _build_field_question(item, "admin_role", "Какую административную роль выполнял город в 1998 году?", f"В 1998 году этот город был {item.admin_role}."),
-            _build_field_question(item, "waterway", "С каким водным объектом связан этот город?", f"Город особенно связан {item.waterway}."),
-            _build_field_question(item, "natural_setting", "Какой природный ориентир лучше всего помогает узнать этот город?", f"Этот город чаще всего связывают {item.natural_setting}."),
-            _build_field_question(item, "economy_focus", "Какая отрасль особенно выделяла этот город в конце 1990-х?", f"Для города конца 1990-х было особенно важно то, что он был связан {item.economy_focus}."),
-            _build_field_question(item, "transport_role", "Какая транспортная или логистическая роль подходила этому городу?", f"Для этого города была характерна связь {item.transport_role}."),
-            _build_field_question(item, "period_role", "Какой статус лучше всего описывал город в период 1998 года?", f"В переходный период город прежде всего связывали {item.period_role}."),
-            _build_field_question(item, "importance_reason", "Почему этот город был важен для страны в конце 1990-х?", item.importance_reason),
-            _build_field_question(item, "subtitle", "Какое краткое определение лучше всего подходит этому городу?", item.subtitle),
-            _build_field_question(item, "development_note", "Какое направление развития особенно связывали с городом в 1998 году?", item.development_note),
-            _build_field_question(item, "geographic_note", "Какое географическое утверждение о городе верно?", item.geographic_note),
-            _build_field_question(item, "landmark_note", "Какой ориентир сильнее всего связан с этим городом?", item.landmark_note),
-            _build_field_question(item, "regional_connection", "С каким регионом или направлением страны особенно связан этот город?", f"Город особенно связан {item.regional_connection}."),
-            _build_field_question(item, "city_feature", "Какой признак помогает отличить этот город от многих других на карте 1998 года?", f"Заметнее всего этот город отличал {item.city_feature}."),
-            _build_field_question(item, "civic_role", "Какую гражданскую или управленческую роль играл этот город?", item.civic_role),
-            _build_field_question(item, "short_description", "Какой вариант лучше всего передаёт учебное описание этого города?", item.short_description),
-            _build_field_question(item, "interesting_fact", "Какое историческое пояснение подходит этому городу?", item.interesting_fact),
-            _build_field_question(item, "reason_on_map", "Почему город заметно выделяется именно на карте периода 1998 года?", item.reason_on_map),
-        ]
-
-        if len(blueprints) != QUESTION_COUNT:
-            raise ValueError(f"Для {item.city}/{PERIOD_CODE} сгенерировано {len(blueprints)} вопросов вместо {QUESTION_COUNT}.")
-        records[(item.city, PERIOD_CODE)] = blueprints
-
-    return records
-
-
 def build_transition_1998_city_content_blueprints() -> dict[tuple[str, str], dict[str, object | None]]:
     return {
         (item.city, PERIOD_CODE): {

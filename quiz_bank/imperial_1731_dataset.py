@@ -223,37 +223,6 @@ def _build_field_question(
     }
 
 
-def build_imperial_1731_quiz_blueprints() -> dict[tuple[str, str], list[dict[str, object]]]:
-    records: dict[tuple[str, str], list[dict[str, object]]] = {}
-
-    for item in IMPERIAL_1731_CITIES:
-        blueprints = [
-            _build_field_question(item, "reason_on_map", "Почему этот город выделен на карте периода 1731 года?", item.reason_on_map),
-            _build_field_question(item, "name_note", "Какое утверждение о названии этого города верно для периода 1731 года?", item.name_note),
-            _build_field_question(item, "macro_region", "В какой части Казахстана находился этот город в 1731 году?", f"В 1731 году этот город находился {item.macro_region}."),
-            _build_field_question(item, "admin_role", "Какую роль прежде всего играл этот город в 1731 году?", f"В 1731 году этот город был {item.admin_role}."),
-            _build_field_question(item, "waterway", "С каким водным ориентиром или направлением был связан этот город?", f"Этот город особенно связывали {item.waterway}."),
-            _build_field_question(item, "natural_setting", "Какой природный ориентир лучше всего помогает узнать этот город?", f"Этот город чаще всего узнают {item.natural_setting}."),
-            _build_field_question(item, "economy_focus", "Какая хозяйственная особенность особенно подходила этому городу в 1731 году?", f"Для города в 1731 году было особенно характерно то, что он был связан {item.economy_focus}."),
-            _build_field_question(item, "transport_role", "Какая транспортная роль лучше всего описывает этот город?", f"Для этого города была характерна связь {item.transport_role}."),
-            _build_field_question(item, "period_role", "Какой статус лучше всего описывал этот город в эпоху 1731 года?", f"В 1731 году этот город прежде всего связывали {item.period_role}."),
-            _build_field_question(item, "importance_reason", "Почему этот город был важен для региона в 1731 году?", f"Город был важен потому, что {item.importance_reason}."),
-            _build_field_question(item, "subtitle", "Какое краткое определение лучше всего подходит этому городу?", item.subtitle),
-            _build_field_question(item, "development_note", "Какое направление исторического развития особенно связано с этим городом к началу XVIII века?", item.development_note),
-            _build_field_question(item, "geographic_note", "Какое географическое утверждение об этом городе верно?", item.geographic_note),
-            _build_field_question(item, "landmark_note", "Какой ориентир сильнее всего связан с этим городом?", f"Этот город особенно узнают {item.landmark_note}."),
-            _build_field_question(item, "regional_connection", "С каким направлением южного региона был связан этот город?", f"Город был связан {item.regional_connection}."),
-            _build_field_question(item, "city_feature", "Какая особенность лучше всего выделяет этот город на исторической карте?", f"Особенность этого города - {item.city_feature}."),
-            _build_field_question(item, "civic_role", "Какую городскую функцию лучше всего выполнял этот центр?", f"Этот город {item.civic_role}."),
-            _build_field_question(item, "reason_on_map", "Почему этот город важно видеть именно на карте 1731 года?", item.reason_on_map),
-            _build_field_question(item, "memory_fact", "Какой факт лучше всего помогает запомнить этот город?", item.memory_fact),
-            _build_field_question(item, "interesting_fact", "Какой интересный факт верно относится к этому городу?", item.interesting_fact),
-        ]
-        records[(item.city, PERIOD_CODE)] = blueprints
-
-    return records
-
-
 def build_imperial_1731_city_content_blueprints() -> dict[tuple[str, str], dict[str, object | None]]:
     return {
         (item.city, PERIOD_CODE): {

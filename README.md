@@ -44,7 +44,6 @@ Notes:
 - Add Python to `PATH` during installation if the installer offers that option.
 - The core site works without Node.js because the frontend can also be served by Python.
 - `GROQ_API_KEY` is optional. It is required for AI analysis in ENT attempt reviews.
-- `OPENAI_API_KEY` is optional. It is only required for the dynamic quiz endpoint `/api/quiz/dynamic/{city}`. The main map, profile, leaderboard, city tests, and ENT tests work without it.
 - `GOOGLE_CLIENT_ID` is optional. It is only required if you want the Google sign-in button to work.
 
 ## Quick start
@@ -233,7 +232,6 @@ Important variable notes:
 - `GOOGLE_CLIENT_ID` is not secret, but it is environment-specific.
 - `GROQ_API_KEY` is optional and should be set if you want AI analysis in ENT attempt reviews.
 - `GROQ_MODEL` defaults to `llama-3.3-70b-versatile`.
-- `OPENAI_API_KEY` is optional and should be set only if you want dynamic quiz generation.
 - Do not commit your real `.env`; use Railway service variables.
 
 ## Gameplay rules
@@ -280,12 +278,11 @@ node --check frontend/shared/leaderboard.js
 
 ## Data regeneration and import
 
-The repo keeps source data in `data/` and import helpers in `scripts/`.
+The repo keeps source data in `data/` and validation/import helpers in `scripts/`.
 
 ### Period quizzes
 
 ```bash
-python scripts/generate_period_quizzes.py
 python scripts/validate_period_quizzes.py
 python scripts/import_period_quizzes.py --db quizzes.db
 ```
@@ -321,24 +318,6 @@ The frontend default API base lives in:
 ### Port 8000 or 3000 is already busy
 
 Run the server on a different port and update the frontend API base if needed.
-
-### Dynamic quiz endpoint returns an OpenAI error
-
-Set an API key before starting the backend:
-
-Windows PowerShell:
-
-```powershell
-$env:OPENAI_API_KEY="your_key_here"
-python -m uvicorn main:app --host 127.0.0.1 --port 8000
-```
-
-Linux or macOS:
-
-```bash
-export OPENAI_API_KEY="your_key_here"
-python -m uvicorn main:app --host 127.0.0.1 --port 8000
-```
 
 ## Additional documentation
 

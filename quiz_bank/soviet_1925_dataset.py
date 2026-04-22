@@ -439,43 +439,6 @@ def _build_field_question(
     }
 
 
-def build_soviet_1925_quiz_blueprints() -> dict[tuple[str, str], list[dict[str, object]]]:
-    records: dict[tuple[str, str], list[dict[str, object]]] = {}
-
-    for item in SOVIET_1925_CITIES:
-        blueprints = [
-            _build_field_question(item, "reason_on_map", "Почему этот город выделен на карте периода 1925 года?", item.reason_on_map),
-            _build_field_question(item, "name_note", "Какое утверждение о названии города верно для 1925 года?", item.name_note),
-            _build_field_question(item, "macro_region", "В какой части Казахстана располагался этот город в 1925 году?", f"В 1925 году этот город находился {item.macro_region}."),
-            _build_field_question(item, "admin_role", "Какую административную роль играл этот город в 1925 году?", f"В 1925 году этот город был {item.admin_role}."),
-            _build_field_question(item, "waterway", "С каким водным объектом или водным направлением связывали этот город?", f"Город особенно связывали {item.waterway}."),
-            _build_field_question(item, "natural_setting", "Какой природный ориентир лучше всего помогает узнать этот город?", f"Этот город чаще всего узнают {item.natural_setting}."),
-            _build_field_question(item, "economy_focus", "Какая хозяйственная особенность особенно выделяла этот город в 1925 году?", f"Для города в 1925 году было особенно характерно то, что он был связан {item.economy_focus}."),
-            _build_field_question(item, "transport_role", "Какая транспортная роль лучше всего подходила этому городу в 1925 году?", f"Для этого города была характерна связь {item.transport_role}."),
-            _build_field_question(item, "period_role", "Какой статус лучше всего описывал этот город в ранний советский период?", f"В 1925 году этот город прежде всего связывали {item.period_role}."),
-            _build_field_question(item, "importance_reason", "Почему этот город был важен для республики в 1925 году?", f"Город был важен потому, что {item.importance_reason}."),
-            _build_field_question(item, "subtitle", "Какое краткое определение лучше всего подходит этому городу?", item.subtitle),
-            _build_field_question(item, "development_note", "Какое направление развития особенно связывали с этим городом в середине 1920-х?", item.development_note),
-            _build_field_question(item, "geographic_note", "Какое географическое утверждение об этом городе верно?", item.geographic_note),
-            _build_field_question(item, "landmark_note", "Какой ориентир сильнее всего связан с этим городом?", f"Для этого города особенно характерна связь {item.landmark_note}."),
-            _build_field_question(item, "regional_connection", "С каким регионом или направлением особенно связан этот город?", f"Город особенно связан {item.regional_connection}."),
-            _build_field_question(item, "city_feature", "Какой признак помогает отличить этот город на карте 1925 года?", f"Заметнее всего этот город отличал {item.city_feature}."),
-            _build_field_question(item, "civic_role", "Какую гражданскую или управленческую роль играл этот город?", f"Этот город {item.civic_role}."),
-            _build_field_question(item, "short_description", "Какой вариант лучше всего передаёт учебное описание этого города периода 1925 года?", item.short_description),
-            _build_field_question(item, "interesting_fact", "Какое историческое пояснение лучше всего подходит этому городу?", item.interesting_fact),
-            _build_field_question(item, "reason_on_map", "Почему этот город заметен именно на карте периода 1925 года?", item.reason_on_map),
-        ]
-
-        if len(blueprints) != QUESTION_COUNT:
-            raise ValueError(
-                f"Для {item.city}/{PERIOD_CODE} собрано {len(blueprints)} вопросов вместо {QUESTION_COUNT}."
-            )
-
-        records[(item.city, PERIOD_CODE)] = blueprints
-
-    return records
-
-
 def build_soviet_1925_city_content_blueprints() -> dict[tuple[str, str], dict[str, object | None]]:
     return {
         (item.city, PERIOD_CODE): {

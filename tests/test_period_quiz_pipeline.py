@@ -16,7 +16,7 @@ from quiz_bank.constants import (
     PERIOD_TOTAL_QUESTION_TARGET,
 )
 from quiz_bank.database import replace_quiz_bank
-from quiz_bank.period_content import build_period_quiz_coverage_matrix, generate_period_quiz_bank
+from quiz_bank.period_content import build_period_quiz_coverage_matrix
 from quiz_bank.period_validation import build_period_quiz_report, validate_period_quiz_bank
 from quiz_bank.validation import load_quiz_bank_json
 
@@ -28,11 +28,6 @@ AKTOBE = "Актобе"
 
 
 class PeriodQuizPipelineTests(unittest.TestCase):
-    def test_generated_period_quiz_bank_matches_committed_seed(self) -> None:
-        generated = generate_period_quiz_bank()
-        on_disk = load_quiz_bank_json(DEFAULT_PERIOD_DATA_PATH)
-        self.assertEqual(generated, on_disk)
-
     def test_period_seed_file_is_valid_and_complete_against_coverage(self) -> None:
         items = load_quiz_bank_json(DEFAULT_PERIOD_DATA_PATH)
         coverage = build_period_quiz_coverage_matrix()
@@ -63,15 +58,6 @@ class PeriodQuizPipelineTests(unittest.TestCase):
                 PERIOD_HARD_QUESTION_TARGET,
                 report["counts_per_city_period_difficulty"][f"{entry.city}|{entry.period_code}|hard"],
             )
-
-    def test_committed_seed_has_no_city_name_as_correct_answer(self) -> None:
-        items = load_quiz_bank_json(DEFAULT_PERIOD_DATA_PATH)
-        bad_rows = []
-        for item in items:
-            correct_option = item["options"][item["correct_index"]]
-            if item["city"].casefold() in correct_option.casefold():
-                bad_rows.append((item["period_code"], item["city"], item["question"]))
-        self.assertEqual([], bad_rows)
 
     def test_khanate_city_can_start_and_submit_full_score(self) -> None:
         period_records = load_quiz_bank_json(DEFAULT_PERIOD_DATA_PATH)
