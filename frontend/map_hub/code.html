@@ -119,6 +119,55 @@
         opacity: 1;
         stroke: #ffd709;
       }
+      @media (max-width: 1023px) {
+        .map-page-shell {
+          min-height: auto !important;
+          overflow: visible !important;
+        }
+        .map-page-stage {
+          flex: none !important;
+          height: min(72svh, 34rem) !important;
+          min-height: 28rem !important;
+        }
+        [data-map-backdrop],
+        [data-map-markers] {
+          top: 5.75rem !important;
+          right: 0.75rem !important;
+          bottom: 7.75rem !important;
+          left: 0.75rem !important;
+        }
+        [data-map-backdrop] {
+          background-size: contain !important;
+          background-repeat: no-repeat !important;
+          background-position: center !important;
+        }
+        [data-map-backdrop].is-svg-mode svg {
+          max-width: 100%;
+          max-height: 100%;
+        }
+        [data-loading-state],
+        [data-error-state] {
+          top: 1rem !important;
+          right: 1rem !important;
+          left: 1rem !important;
+          max-width: none !important;
+        }
+      }
+      @media (max-width: 640px) {
+        .map-page-stage {
+          height: 74svh !important;
+          min-height: 30rem !important;
+        }
+        [data-map-backdrop],
+        [data-map-markers] {
+          top: 6.25rem !important;
+          bottom: 8.5rem !important;
+        }
+        [data-player-tests],
+        [data-player-achievements] {
+          font-size: 1rem !important;
+        }
+      }
       @media (min-width: 1024px) {
         .map-page-shell {
           height: calc(100svh - 5rem);

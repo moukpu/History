@@ -32,15 +32,85 @@
       h1, h2, h3, h4 {
         font-family: "Montserrat", sans-serif;
       }
+      @media (max-width: 767px) {
+        .home-nav {
+          height: 6.75rem !important;
+          align-content: flex-start;
+          flex-wrap: wrap;
+          padding: 0.9rem 1.5rem 0.75rem !important;
+        }
+        .home-nav-links {
+          display: flex !important;
+          order: 3;
+          flex-basis: 100%;
+          position: static !important;
+          transform: none !important;
+          justify-content: space-between;
+          gap: 0.5rem;
+          margin-top: 0.7rem;
+        }
+        .home-nav-links a {
+          min-width: 0;
+          border-bottom-width: 3px;
+          font-size: 0.82rem;
+          line-height: 1.1;
+          padding-bottom: 0.2rem;
+          white-space: nowrap;
+        }
+        .home-main {
+          padding-top: 6.75rem !important;
+        }
+        .home-hero-section {
+          padding: 4.5rem 2rem 3.5rem !important;
+        }
+        .home-hero-title {
+          font-size: clamp(3.05rem, 13vw, 3.65rem) !important;
+          line-height: 0.95 !important;
+          margin-bottom: 1.5rem !important;
+        }
+        .home-hero-subtitle {
+          font-size: 1.05rem !important;
+          line-height: 1.75 !important;
+          margin-bottom: 2.25rem !important;
+        }
+        .home-hero-actions a {
+          font-size: 1rem !important;
+          padding: 1rem 1.5rem !important;
+        }
+      }
+      @media (max-width: 430px) {
+        .home-nav {
+          padding-right: 1rem !important;
+          padding-left: 1rem !important;
+        }
+        .home-nav > a:first-child {
+          font-size: 1.45rem !important;
+        }
+        .home-nav .ml-auto {
+          gap: 0.65rem !important;
+        }
+        .home-nav [data-language-toggle] {
+          min-width: 6.75rem !important;
+          height: 2.65rem !important;
+          padding-right: 0.75rem !important;
+          padding-left: 0.75rem !important;
+        }
+        .home-nav [data-language-current] {
+          font-size: 0.82rem !important;
+        }
+        .home-nav-links a {
+          font-size: 0.76rem;
+        }
+      }
     </style>
   </head>
   <body class="bg-background text-on-background min-h-screen flex flex-col overflow-x-hidden">
-    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] flex items-center px-8 h-20">
+    <nav class="home-nav fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] flex items-center px-8 h-20">
       <a class="text-2xl font-black bg-gradient-to-br from-[#006668] to-[#52f2f5] bg-clip-text text-transparent tracking-tighter" href="./code.html">
         Sapar Quest
       </a>
       
-      <div class="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+      <div class="home-nav-links hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
         <a data-i18n="nav_explore" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#006668] border-b-4 border-[#ffd709] pb-1 hover:scale-105 hover:opacity-100 transition-all" href="./code.html">Главная</a>
         <a data-i18n="nav_map" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../map_hub/code.html">Карта</a>
         <a data-i18n="nav_leaderboard" class="font-['Plus_Jakarta_Sans'] tracking-tight font-bold text-base text-[#2e2f2d] opacity-70 hover:scale-105 hover:opacity-100 transition-all" href="../leaderboard/code.html">Рейтинг</a>
@@ -80,13 +150,13 @@
       Ошибка загрузки главной страницы.
     </div>
 
-    <main class="pt-20 flex-1 flex flex-col md:flex-row">
-      <section class="flex-1 px-8 md:px-16 lg:px-24 py-16 md:py-24 flex flex-col justify-center items-start bg-surface relative z-10">
+    <main class="home-main pt-20 flex-1 flex flex-col md:flex-row">
+      <section class="home-hero-section flex-1 px-8 md:px-16 lg:px-24 py-16 md:py-24 flex flex-col justify-center items-start bg-surface relative z-10">
         <div class="max-w-3xl">
           <span data-i18n="nav_map" class="bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6 inline-block">Карта</span>
-          <h1 data-i18n="hero_title" class="text-6xl md:text-7xl font-black text-on-surface leading-[0.9] tracking-tighter mb-8">Открой историю степи</h1>
-          <p data-i18n="hero_subtitle" class="text-xl text-on-surface-variant leading-relaxed max-w-xl font-medium mb-10 opacity-90">Интерактивное путешествие по эпохам Казахстана. Пройди путь от древних поселений до современных мегаполисов.</p>
-          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+          <h1 data-i18n="hero_title" class="home-hero-title text-6xl md:text-7xl font-black text-on-surface leading-[0.9] tracking-tighter mb-8">Открой историю степи</h1>
+          <p data-i18n="hero_subtitle" class="home-hero-subtitle text-xl text-on-surface-variant leading-relaxed max-w-xl font-medium mb-10 opacity-90">Интерактивное путешествие по эпохам Казахстана. Пройди путь от древних поселений до современных мегаполисов.</p>
+          <div class="home-hero-actions flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
             <a data-i18n="btn_start_exploring" data-start-exploring="" class="w-full sm:w-auto justify-center bg-primary text-on-primary px-8 sm:px-10 py-5 rounded-full font-black text-lg sm:text-xl hover:scale-105 hover:shadow-2xl transition-all active:scale-95 shadow-xl flex items-center gap-3 text-center" href="../map_hub/code.html">
               Начать путешествие <span class="material-symbols-outlined">arrow_forward</span>
             </a>
