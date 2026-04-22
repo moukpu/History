@@ -5,9 +5,15 @@
   "description": "Static frontend for the Kazakhstan interactive timeline map",
   "scripts": {
     "start": "node scripts/serve-static.mjs",
-    "dev": "node scripts/serve-static.mjs"
+    "dev": "node scripts/serve-static.mjs",
+    "build:css": "tailwindcss -c tailwind.config.cjs -i ./shared/tailwind-input.css -o ./shared/tailwind.css --minify"
   },
   "dependencies": {
     "cheerio": "^1.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.11",
+    "tailwindcss": "^3.4.17"
   }
 }
