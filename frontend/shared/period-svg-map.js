@@ -141,7 +141,7 @@ function isCompactMapViewport() {
 }
 
 function resetCompactActiveCityStyles(cityGroup) {
-  cityGroup.querySelectorAll(".map-city-core, .map-city-ring").forEach((shape) => {
+  cityGroup.querySelectorAll(".map-city-core, .map-city-ring, .map-city-label").forEach((shape) => {
     shape.style.removeProperty("display");
     shape.style.removeProperty("opacity");
     shape.style.removeProperty("stroke-width");
@@ -158,6 +158,13 @@ function applyCompactActiveCityStyles(cityGroup, isActive, isCompact) {
 
   cityGroup.querySelectorAll(".map-city-core, .map-city-ring").forEach((shape) => {
     shape.style.setProperty("vector-effect", "non-scaling-stroke");
+  });
+
+  cityGroup.querySelectorAll(".map-city-label").forEach((label) => {
+    label.style.setProperty("vector-effect", "non-scaling-stroke");
+    if (isActive) {
+      label.style.setProperty("stroke-width", "0.45px");
+    }
   });
 
   const core = cityGroup.querySelector(".map-city-core");
