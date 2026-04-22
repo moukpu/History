@@ -8,7 +8,6 @@ import {
 import {
   createElementFromHtml,
   escapeHtml,
-  getErrorMessage,
   setHtml,
   setText,
   setVisible,
@@ -17,7 +16,127 @@ import {
 const STORAGE_KEY = "sapar-ent-test-state";
 const ENT_QUESTION_COUNT = 20;
 const ENT_DURATION_MS = 10 * 60 * 1000;
-const START_BUTTON_READY_TEXT = "Окей, начать";
+
+const translations = {
+  ru: {
+    page_title: "Sapar Quest - Подготовка к ЕНТ",
+    header_subtitle: "Подготовка к ЕНТ",
+    timer_label: "Осталось",
+    start_modal_title: "ЕНТ-тест готов",
+    start_modal_body:
+      "Вас ждут 20 вопросов по истории Казахстана. На весь тест дается 10 минут. Когда время закончится, тест сдастся автоматически, а неотвеченные вопросы дадут 0 баллов.",
+    start_button: "Окей, начать",
+    load_error: "Ошибка загрузки.",
+    loading_question_title: "Вопрос загружается...",
+    loading_question_body: "Подождите немного, тест ЕНТ загружается.",
+    btn_prev: "← Назад",
+    btn_next_arrow: "Следующий вопрос →",
+    btn_finish: "Завершить тест",
+    result_badge_default: "Результат",
+    result_finished_title: "Тест завершён",
+    return_home: "Вернуться на главную",
+    ent_badge: "ЕНТ",
+    sidebar_title: "История Казахстана",
+    sidebar_body:
+      "Тестовые вопросы по истории Казахстана для подготовки к Единому Национальному Тестированию.",
+    tips_title: "Советы для ЕНТ",
+    tip_read: "Не торопитесь - внимательно читайте вопрос",
+    tip_exclude: "Исключайте заведомо неверные варианты",
+    question_hint: "Вопрос {current} из {total}. Выберите один правильный ответ.",
+    label_test_passed_check: "Тест пройден ✓",
+    label_test_failed: "Тест не пройден",
+    result_success_title: "Отлично! Вы хорошо знаете историю Казахстана.",
+    result_fail_title: "Стоит повторить материал и попробовать ещё раз.",
+    result_body_text: "Результат: {correct} из {total} ({percent}%).",
+    result_success_secondary:
+      "Продолжайте готовиться - вы на верном пути к успешной сдаче ЕНТ!",
+    result_fail_secondary: "Не расстраивайтесь, повторите материал и пройдите тест заново.",
+    result_timeout_secondary:
+      "Время вышло. Тест сдан автоматически, неотвеченные вопросы засчитаны как 0 баллов.",
+    error_select_answer: "Выберите вариант ответа перед продолжением.",
+    error_test_unavailable: "Тест ЕНТ пока недоступен",
+    error_test_unavailable_hint: "Вернитесь на главную и попробуйте снова.",
+    error_submit: "Не удалось отправить тест. Попробуйте ещё раз.",
+  },
+  en: {
+    page_title: "Sapar Quest - UNT Preparation",
+    header_subtitle: "UNT preparation",
+    timer_label: "Time left",
+    start_modal_title: "UNT test is ready",
+    start_modal_body:
+      "You will answer 20 questions on the history of Kazakhstan. You have 10 minutes for the whole test. When time runs out, the test will be submitted automatically, and unanswered questions will count as 0 points.",
+    start_button: "OK, start",
+    load_error: "Loading error.",
+    loading_question_title: "Question is loading...",
+    loading_question_body: "Please wait while the UNT test loads.",
+    btn_prev: "← Back",
+    btn_next_arrow: "Next question →",
+    btn_finish: "Finish test",
+    result_badge_default: "Result",
+    result_finished_title: "Test completed",
+    return_home: "Return to home",
+    ent_badge: "UNT",
+    sidebar_title: "History of Kazakhstan",
+    sidebar_body:
+      "History of Kazakhstan practice questions for preparation for the Unified National Testing exam.",
+    tips_title: "UNT tips",
+    tip_read: "Do not rush - read each question carefully",
+    tip_exclude: "Eliminate clearly incorrect options",
+    question_hint: "Question {current} of {total}. Choose one correct answer.",
+    label_test_passed_check: "Test passed ✓",
+    label_test_failed: "Test not passed",
+    result_success_title: "Great work! You know the history of Kazakhstan well.",
+    result_fail_title: "Review the material and try again.",
+    result_body_text: "Result: {correct} of {total} ({percent}%).",
+    result_success_secondary: "Keep practicing - you are on the right path for the UNT.",
+    result_fail_secondary: "Review the topic and retake the test when you are ready.",
+    result_timeout_secondary:
+      "Time is up. The test was submitted automatically, and unanswered questions counted as 0 points.",
+    error_select_answer: "Choose an answer before continuing.",
+    error_test_unavailable: "The UNT test is not available yet",
+    error_test_unavailable_hint: "Return to the home page and try again.",
+    error_submit: "Could not submit the test. Try again.",
+  },
+  kk: {
+    page_title: "Sapar Quest - ҰБТ-ға дайындық",
+    header_subtitle: "ҰБТ-ға дайындық",
+    timer_label: "Қалған уақыт",
+    start_modal_title: "ҰБТ тесті дайын",
+    start_modal_body:
+      "Сізді Қазақстан тарихы бойынша 20 сұрақ күтеді. Бүкіл тестке 10 минут беріледі. Уақыт аяқталса, тест автоматты түрде тапсырылады, ал жауапсыз сұрақтар 0 балл болып есептеледі.",
+    start_button: "Жақсы, бастау",
+    load_error: "Жүктеу қатесі.",
+    loading_question_title: "Сұрақ жүктелуде...",
+    loading_question_body: "ҰБТ тесті жүктелгенше сәл күтіңіз.",
+    btn_prev: "← Артқа",
+    btn_next_arrow: "Келесі сұрақ →",
+    btn_finish: "Тестті аяқтау",
+    result_badge_default: "Нәтиже",
+    result_finished_title: "Тест аяқталды",
+    return_home: "Басты бетке оралу",
+    ent_badge: "ҰБТ",
+    sidebar_title: "Қазақстан тарихы",
+    sidebar_body:
+      "Ұлттық бірыңғай тестілеуге дайындалуға арналған Қазақстан тарихы сұрақтары.",
+    tips_title: "ҰБТ кеңестері",
+    tip_read: "Асықпаңыз - сұрақты мұқият оқыңыз",
+    tip_exclude: "Анық қате жауаптарды алып тастаңыз",
+    question_hint: "{total} сұрақтың {current}-сұрағы. Бір дұрыс жауапты таңдаңыз.",
+    label_test_passed_check: "Тест өтті ✓",
+    label_test_failed: "Тест өтпеді",
+    result_success_title: "Жақсы нәтиже! Сіз Қазақстан тарихын жақсы білесіз.",
+    result_fail_title: "Материалды қайталап, тағы бір рет байқап көріңіз.",
+    result_body_text: "Нәтиже: {correct}/{total} ({percent}%).",
+    result_success_secondary: "Дайындықты жалғастырыңыз - ҰБТ-ға дұрыс бағыттасыз.",
+    result_fail_secondary: "Тақырыпты қайталап, дайын болғанда тестті қайта тапсырыңыз.",
+    result_timeout_secondary:
+      "Уақыт аяқталды. Тест автоматты түрде тапсырылды, жауапсыз сұрақтар 0 балл болып есептелді.",
+    error_select_answer: "Жалғастыру үшін жауап нұсқасын таңдаңыз.",
+    error_test_unavailable: "ҰБТ тесті әзірге қолжетімді емес",
+    error_test_unavailable_hint: "Басты бетке оралып, қайта байқап көріңіз.",
+    error_submit: "Тестті жіберу мүмкін болмады. Қайта байқап көріңіз.",
+  },
+};
 
 const state = {
   playerId: null,
@@ -32,6 +151,22 @@ const state = {
 };
 
 const elements = {};
+
+function translate(key, params = {}) {
+  const language = getCurrentLanguage();
+  const value = translations[language]?.[key] ?? translations.ru[key] ?? key;
+  return typeof value === "function" ? value(params) : value;
+}
+
+function applyTranslations() {
+  document.documentElement.lang = getCurrentLanguage();
+  document.title = translate("page_title");
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    if (element.closest("footer")) return;
+    setText(element, translate(element.dataset.i18n));
+  });
+}
 
 function queryRequired(selector) {
   const element = document.querySelector(selector);
@@ -145,7 +280,8 @@ function startCountdown() {
     if (state.quiz && isTimerStarted() && getRemainingMs() <= 0) {
       stopTimer();
       submitQuiz({ allowIncomplete: true, timedOut: true }).catch((error) => {
-        showError(getErrorMessage(error));
+        console.error(error);
+        showError(translate("error_submit"));
       });
     }
   }, 250);
@@ -223,7 +359,7 @@ function renderQuestion() {
 
   setText(elements.questionTitle, visibleQuestion.question);
   
-  const qHint = (window.saparI18n?.t("question_hint") || "Вопрос {current} из {total}. Выберите один правильный ответ.")
+  const qHint = translate("question_hint")
     .replace("{current}", state.quiz.currentIndex + 1)
     .replace("{total}", state.quiz.questions.length);
   setText(elements.questionBody, qHint);
@@ -276,8 +412,8 @@ function renderQuestion() {
   setText(
     elements.submitButton,
     state.quiz.currentIndex === state.quiz.questions.length - 1
-      ? (window.saparI18n?.t("btn_finish") || "Завершить тест")
-      : (window.saparI18n?.t("btn_next_arrow") || "Следующий вопрос →")
+      ? translate("btn_finish")
+      : translate("btn_next_arrow")
   );
 }
 
@@ -294,12 +430,12 @@ function renderResult() {
   const passed = percent >= 50;
 
   const statusKey = passed ? "label_test_passed_check" : "label_test_failed";
-  setText(elements.resultBadge, window.saparI18n?.t(statusKey) || (passed ? "Тест пройден ✓" : "Тест не пройден"));
+  setText(elements.resultBadge, translate(statusKey));
 
   const titleKey = passed ? "result_success_title" : "result_fail_title";
-  setText(elements.resultTitle, window.saparI18n?.t(titleKey) || (passed ? "Отлично! Вы хорошо знаете историю Казахстана." : "Стоит повторить материал и попробовать ещё раз."));
+  setText(elements.resultTitle, translate(titleKey));
 
-  const bodyText = (window.saparI18n?.t("result_body_text") || "Результат: {correct} из {total} ({percent}%).")
+  const bodyText = translate("result_body_text")
     .replace("{correct}", state.result.correct_answers)
     .replace("{total}", state.result.total_questions)
     .replace("{percent}", percent);
@@ -309,12 +445,13 @@ function renderResult() {
   setText(
     elements.resultSecondary,
     state.resultTimedOut
-      ? "Время вышло. Тест сдан автоматически, неотвеченные вопросы засчитаны как 0 баллов."
-      : window.saparI18n?.t(secondaryKey) || (passed ? "Продолжайте готовиться — вы на верном пути к успешной сдаче ЕНТ!" : "Не расстраивайтесь, повторите материал и пройдите тест заново.")
+      ? translate("result_timeout_secondary")
+      : translate(secondaryKey)
   );
 }
 
 function render() {
+  applyTranslations();
   renderHeader();
   renderQuestion();
 }
@@ -374,7 +511,7 @@ async function handleContinue() {
   if (!question) return;
 
   if (state.quiz.answers[question.id] === undefined) {
-    showError(window.saparI18n?.t("error_select_answer") || "Выберите вариант ответа перед продолжением.");
+    showError(translate("error_select_answer"));
     return;
   }
 
@@ -383,7 +520,8 @@ async function handleContinue() {
     try {
       await submitQuiz();
     } catch (error) {
-      showError(getErrorMessage(error));
+      console.error(error);
+      showError(translate("error_submit"));
     } finally {
       elements.submitButton.disabled = false;
     }
@@ -466,9 +604,8 @@ async function init() {
   console.log("ENT Test: Initializing...");
   mountLanguageMenu({
     onChange: () => {
-      if (state.quiz && !state.result) {
-        render();
-      }
+      applyTranslations();
+      if (state.quiz) render();
     },
   });
   if (!hasStoredAuthUser()) {
@@ -479,8 +616,8 @@ async function init() {
 
   cacheElements();
   bindEvents();
+  applyTranslations();
   setStartModalVisible(true);
-  setText(elements.startConfirmButton, START_BUTTON_READY_TEXT);
   setVisible(elements.submitButton, false);
   setVisible(elements.prevButton, false);
   syncTimerDisplay();
@@ -515,11 +652,10 @@ async function init() {
 }
 
 init().catch((error) => {
-  showError(getErrorMessage(error));
-  setText(elements.questionTitle, window.saparI18n?.t("error_test_unavailable") || "Тест ЕНТ пока недоступен");
-  setText(
-    elements.questionBody,
-    window.saparI18n?.t("error_test_unavailable_hint") || "Вернитесь на главную и попробуйте снова."
-  );
-  setHtml(elements.optionsGrid, "");
+  console.error(error);
+  applyTranslations();
+  showError(translate("load_error"));
+  setText(elements.questionTitle, translate("error_test_unavailable"));
+  setText(elements.questionBody, translate("error_test_unavailable_hint"));
+  elements.optionsGrid && setHtml(elements.optionsGrid, "");
 });

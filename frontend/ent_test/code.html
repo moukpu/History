@@ -115,7 +115,7 @@
           </button>
           <div class="flex flex-col">
             <span class="text-xl font-black bg-gradient-to-br from-[#006668] to-[#52f2f5] bg-clip-text text-transparent tracking-tighter">Sapar Quest</span>
-            <span class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Подготовка к ЕНТ</span>
+            <span class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest" data-i18n="header_subtitle">Подготовка к ЕНТ</span>
           </div>
         </div>
         
@@ -129,7 +129,7 @@
         <div class="flex items-center gap-4">
           <div class="flex items-center bg-primary text-on-primary px-6 py-2.5 rounded-full shadow-lg">
             <div class="flex flex-col leading-none">
-              <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Осталось</span>
+              <span class="text-[10px] font-black uppercase tracking-widest opacity-80" data-i18n="timer_label">Осталось</span>
               <span class="font-black text-xl leading-none tabular-nums" data-score-counter="">10:00</span>
             </div>
           </div>
@@ -141,16 +141,16 @@
           <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-secondary-container text-on-secondary-container shadow-inner">
             <span class="font-black text-xl tabular-nums">10:00</span>
           </div>
-          <h2 class="text-3xl font-black text-on-surface tracking-tight mb-4">ЕНТ-тест готов</h2>
-          <p class="text-on-surface-variant text-base md:text-lg leading-relaxed font-medium mb-8">
+          <h2 class="text-3xl font-black text-on-surface tracking-tight mb-4" data-i18n="start_modal_title">ЕНТ-тест готов</h2>
+          <p class="text-on-surface-variant text-base md:text-lg leading-relaxed font-medium mb-8" data-i18n="start_modal_body">
             Вас ждут 20 вопросов по истории Казахстана. На весь тест дается 10 минут; когда время закончится, тест сдастся автоматически, а неотвеченные вопросы дадут 0 баллов.
           </p>
-          <button type="button" class="w-full md:w-72 py-5 rounded-2xl bg-secondary text-on-secondary font-black text-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all" data-ent-start-confirm="">Окей, начать</button>
+          <button type="button" class="w-full md:w-72 py-5 rounded-2xl bg-secondary text-on-secondary font-black text-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all" data-ent-start-confirm="" data-i18n="start_button">Окей, начать</button>
         </div>
       </div>
 
       <div class="hidden rounded-xl border border-error/20 bg-error-container/10 px-5 py-4 text-sm text-error" data-error-state="">
-        <span data-error-message="">Ошибка загрузки.</span>
+        <span data-error-message="" data-i18n="load_error">Ошибка загрузки.</span>
       </div>
 
       <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -158,16 +158,16 @@
           <div class="bg-surface-container-lowest rounded-[2.5rem] p-10 md:p-14 shadow-xl border border-outline-variant/5 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container/20 rounded-bl-full -mr-16 -mt-16"></div>
             <div class="relative z-10">
-              <h1 class="font-body text-2xl md:text-4xl font-normal text-on-surface leading-tight mb-6 tracking-tight" data-question-title="">Вопрос загружается...</h1>
-              <p class="text-on-surface-variant text-lg leading-relaxed font-normal" data-question-body="">Подождите немного, тест ЕНТ загружается.</p>
+              <h1 class="font-body text-2xl md:text-4xl font-normal text-on-surface leading-tight mb-6 tracking-tight" data-question-title="" data-i18n="loading_question_title">Вопрос загружается...</h1>
+              <p class="text-on-surface-variant text-lg leading-relaxed font-normal" data-question-body="" data-i18n="loading_question_body">Подождите немного, тест ЕНТ загружается.</p>
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-options-grid=""></div>
 
           <div class="flex justify-center gap-4 mt-2">
-            <button class="w-full md:w-48 py-4 rounded-2xl bg-white border border-primary/10 text-primary font-black text-lg hover:bg-surface-container transition-all active:scale-95 hidden" data-prev-button="">← Назад</button>
-            <button class="w-full md:w-96 py-5 rounded-2xl bg-gradient-to-br from-secondary to-secondary-container text-on-secondary-container font-black text-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all" data-submit-button="">Следующий вопрос</button>
+            <button class="w-full md:w-48 py-4 rounded-2xl bg-white border border-primary/10 text-primary font-black text-lg hover:bg-surface-container transition-all active:scale-95 hidden" data-prev-button="" data-i18n="btn_prev">← Назад</button>
+            <button class="w-full md:w-96 py-5 rounded-2xl bg-gradient-to-br from-secondary to-secondary-container text-on-secondary-container font-black text-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all" data-submit-button="" data-i18n="btn_next_arrow">Следующий вопрос</button>
           </div>
         </section>
 
@@ -175,13 +175,13 @@
           <div class="bg-surface-container-lowest rounded-[2.5rem] p-10 md:p-14 shadow-2xl border border-outline-variant/5 relative overflow-hidden text-center">
             <div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container/20 rounded-bl-full -mr-16 -mt-16"></div>
             <div class="relative z-10 flex flex-col items-center">
-              <span class="inline-block px-6 py-2 bg-secondary-container text-on-secondary-container rounded-full text-xs font-black uppercase tracking-widest mb-8 shadow-sm" data-result-badge="">Результат</span>
-              <h1 class="text-4xl md:text-5xl font-black text-on-surface leading-tight tracking-tighter mb-4" data-result-title="">Тест завершён</h1>
+              <span class="inline-block px-6 py-2 bg-secondary-container text-on-secondary-container rounded-full text-xs font-black uppercase tracking-widest mb-8 shadow-sm" data-result-badge="" data-i18n="result_badge_default">Результат</span>
+              <h1 class="text-4xl md:text-5xl font-black text-on-surface leading-tight tracking-tighter mb-4" data-result-title="" data-i18n="result_finished_title">Тест завершён</h1>
               <p class="text-on-surface-variant text-xl leading-relaxed font-medium" data-result-body=""></p>
               <p class="mt-4 text-on-surface-variant leading-relaxed font-medium opacity-70" data-result-secondary=""></p>
               <div class="mt-8 flex flex-wrap justify-center gap-3" data-result-details=""></div>
               <div class="mt-10 w-full flex justify-center">
-                <a href="../home_page/code.html" class="w-full md:w-96 py-5 rounded-2xl bg-primary text-on-primary font-black text-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-center">Вернуться на главную</a>
+                <a href="../home_page/code.html" class="w-full md:w-96 py-5 rounded-2xl bg-primary text-on-primary font-black text-xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all text-center" data-i18n="return_home">Вернуться на главную</a>
               </div>
             </div>
           </div>
@@ -193,24 +193,24 @@
             <div class="w-24 h-24 bg-secondary-container rounded-full flex items-center justify-center mb-6 shadow-inner">
               <span class="material-symbols-outlined text-5xl text-on-secondary-container" style="font-variation-settings: 'FILL' 1">school</span>
             </div>
-            <span class="inline-flex rounded-full bg-surface-container-low px-4 py-1 text-[10px] font-black text-secondary mb-4 uppercase tracking-widest">ЕНТ</span>
-            <h3 class="text-2xl font-black text-on-surface mb-4 leading-tight tracking-tight">История Казахстана</h3>
-            <p class="text-on-surface-variant leading-relaxed text-sm font-medium mb-6">Тестовые вопросы по истории Казахстана для подготовки к Единому Национальному Тестированию.</p>
+            <span class="inline-flex rounded-full bg-surface-container-low px-4 py-1 text-[10px] font-black text-secondary mb-4 uppercase tracking-widest" data-i18n="ent_badge">ЕНТ</span>
+            <h3 class="text-2xl font-black text-on-surface mb-4 leading-tight tracking-tight" data-i18n="sidebar_title">История Казахстана</h3>
+            <p class="text-on-surface-variant leading-relaxed text-sm font-medium mb-6" data-i18n="sidebar_body">Тестовые вопросы по истории Казахстана для подготовки к Единому Национальному Тестированию.</p>
           </div>
 
           <div class="bg-white rounded-3xl p-8 shadow-lg border border-outline/5">
             <div class="flex items-center gap-3 mb-6">
               <span class="material-symbols-outlined text-secondary text-3xl">tips_and_updates</span>
-              <h4 class="font-black text-on-surface text-lg tracking-tight">Советы для ЕНТ</h4>
+              <h4 class="font-black text-on-surface text-lg tracking-tight" data-i18n="tips_title">Советы для ЕНТ</h4>
             </div>
             <div class="space-y-4">
               <div class="w-full flex items-center gap-3 p-4 rounded-2xl bg-surface-container-low border border-outline/5">
                 <span class="h-3 w-3 rounded-full bg-secondary"></span>
-                <span class="text-sm font-bold text-on-surface leading-tight">Не торопитесь — внимательно читайте вопрос</span>
+                <span class="text-sm font-bold text-on-surface leading-tight" data-i18n="tip_read">Не торопитесь — внимательно читайте вопрос</span>
               </div>
               <div class="w-full flex items-center gap-3 p-4 rounded-2xl bg-surface-container-low border border-outline/5">
                 <span class="material-symbols-outlined text-secondary text-xl">fact_check</span>
-                <span class="text-sm font-bold text-on-surface leading-tight">Исключайте заведомо неверные варианты</span>
+                <span class="text-sm font-bold text-on-surface leading-tight" data-i18n="tip_exclude">Исключайте заведомо неверные варианты</span>
               </div>
             </div>
           </div>

@@ -4,7 +4,6 @@ import {
   getCityImage,
   getLocalizedCityDisplayName,
   getLocalizedCityName,
-  getPeriodBadgeText,
 } from "./city-visuals.js";
 import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
 import {
@@ -20,11 +19,172 @@ import {
 import {
   createElementFromHtml,
   escapeHtml,
-  getErrorMessage,
   setHtml,
   setText,
   setVisible,
 } from "./helpers.js";
+
+const translations = {
+  ru: {
+    page_title: "Sapar Quest - Исторический тест",
+    header_subtitle: "Исторический тест",
+    label_achievements_short: "достиж.",
+    load_error: "Ошибка загрузки.",
+    loading: "Загрузка...",
+    loading_question_title: "Вопрос загружается...",
+    loading_question_body: "Подождите немного, тест загружается.",
+    btn_prev: "← Назад",
+    btn_next: "Следующий вопрос",
+    btn_finish: "Завершить тест",
+    result_badge_default: "Результат",
+    result_finished_title: "Тест завершён",
+    awards: "Награды",
+    return_map: "Вернуться к карте",
+    city_alt: "Город",
+    historical_period: "Исторический период",
+    period: "Период",
+    city_default: "Город",
+    sidebar_title_default: "История города",
+    sidebar_body_default:
+      "Вы открываете историю Казахстана через его великие города. Каждый вопрос приближает вас к пониманию наследия предков.",
+    tips_title: "Советы",
+    label_hist_hint: "Историческая подсказка",
+    label_city_importance: "Значимость города",
+    hint_message_default: "Подсказка появится здесь после выбора действия.",
+    history_summary_fallback: "Историческая справка появится после загрузки контента.",
+    interesting_fact_fallback: "Интересный факт появится после загрузки контента.",
+    historical_hint_unavailable: "Историческая подсказка пока недоступна.",
+    additional_hint_unavailable: "Дополнительная подсказка пока недоступна.",
+    question_hint: "Вопрос {current} из {total}. Выберите один ответ.",
+    label_test_passed_check: "Тест пройден ✓",
+    label_test_failed: "Тест не пройден",
+    result_success_title: "Отлично, вы завершили исторический тест.",
+    result_fail_title: "Попробуйте ещё раз, чтобы улучшить результат.",
+    result_body_text: "Результат: {correct} из {total} ({percent}%).",
+    result_success_secondary_quiz: "Новые достижения уже сохранены.",
+    result_fail_secondary_quiz:
+      "Прогресс попытки сохранён. Можно вернуться на карту и пройти тест заново.",
+    no_new_achievements: "Новых достижений в этой попытке нет.",
+    error_select_answer: "Выберите вариант ответа перед продолжением.",
+    error_test_unavailable: "Тест пока недоступен",
+    error_test_unavailable_hint_quiz:
+      "Вернитесь на карту, выберите город и попробуйте начать тест снова.",
+    error_submit: "Не удалось отправить тест. Попробуйте ещё раз.",
+  },
+  en: {
+    page_title: "Sapar Quest - Historical Test",
+    header_subtitle: "Historical test",
+    label_achievements_short: "achiev.",
+    load_error: "Loading error.",
+    loading: "Loading...",
+    loading_question_title: "Question is loading...",
+    loading_question_body: "Please wait while the test loads.",
+    btn_prev: "← Back",
+    btn_next: "Next question",
+    btn_finish: "Finish test",
+    result_badge_default: "Result",
+    result_finished_title: "Test completed",
+    awards: "Awards",
+    return_map: "Return to map",
+    city_alt: "City",
+    historical_period: "Historical period",
+    period: "Period",
+    city_default: "City",
+    sidebar_title_default: "City history",
+    sidebar_body_default:
+      "You are exploring Kazakhstan's history through its great cities. Each question brings you closer to understanding this heritage.",
+    tips_title: "Tips",
+    label_hist_hint: "Historical hint",
+    label_city_importance: "City importance",
+    hint_message_default: "A hint will appear here after you choose an action.",
+    history_summary_fallback: "Historical notes will appear after the content loads.",
+    interesting_fact_fallback: "An interesting fact will appear after the content loads.",
+    historical_hint_unavailable: "The historical hint is not available yet.",
+    additional_hint_unavailable: "The additional hint is not available yet.",
+    question_hint: "Question {current} of {total}. Choose one answer.",
+    label_test_passed_check: "Test passed ✓",
+    label_test_failed: "Test not passed",
+    result_success_title: "Great work, you completed the historical test.",
+    result_fail_title: "Try again to improve your result.",
+    result_body_text: "Result: {correct} of {total} ({percent}%).",
+    result_success_secondary_quiz: "New achievements have already been saved.",
+    result_fail_secondary_quiz:
+      "Your attempt progress was saved. You can return to the map and retake the test.",
+    no_new_achievements: "No new achievements in this attempt.",
+    error_select_answer: "Choose an answer before continuing.",
+    error_test_unavailable: "The test is not available yet",
+    error_test_unavailable_hint_quiz:
+      "Return to the map, choose a city, and try to start the test again.",
+    error_submit: "Could not submit the test. Try again.",
+  },
+  kk: {
+    page_title: "Sapar Quest - Тарихи тест",
+    header_subtitle: "Тарихи тест",
+    label_achievements_short: "жетіст.",
+    load_error: "Жүктеу қатесі.",
+    loading: "Жүктелуде...",
+    loading_question_title: "Сұрақ жүктелуде...",
+    loading_question_body: "Тест жүктелгенше сәл күтіңіз.",
+    btn_prev: "← Артқа",
+    btn_next: "Келесі сұрақ",
+    btn_finish: "Тестті аяқтау",
+    result_badge_default: "Нәтиже",
+    result_finished_title: "Тест аяқталды",
+    awards: "Марапаттар",
+    return_map: "Картаға оралу",
+    city_alt: "Қала",
+    historical_period: "Тарихи кезең",
+    period: "Кезең",
+    city_default: "Қала",
+    sidebar_title_default: "Қала тарихы",
+    sidebar_body_default:
+      "Сіз Қазақстан тарихын оның ұлы қалалары арқылы ашасыз. Әр сұрақ ата-баба мұрасын түсінуге жақындатады.",
+    tips_title: "Кеңестер",
+    label_hist_hint: "Тарихи кеңес",
+    label_city_importance: "Қаланың маңызы",
+    hint_message_default: "Әрекетті таңдағаннан кейін кеңес осы жерде пайда болады.",
+    history_summary_fallback: "Тарихи анықтама ақпарат жүктелгеннен кейін пайда болады.",
+    interesting_fact_fallback: "Қызықты факт ақпарат жүктелгеннен кейін пайда болады.",
+    historical_hint_unavailable: "Тарихи кеңес әзірге қолжетімді емес.",
+    additional_hint_unavailable: "Қосымша кеңес әзірге қолжетімді емес.",
+    question_hint: "{total} сұрақтың {current}-сұрағы. Бір жауапты таңдаңыз.",
+    label_test_passed_check: "Тест өтті ✓",
+    label_test_failed: "Тест өтпеді",
+    result_success_title: "Жақсы нәтиже, тарихи тестті аяқтадыңыз.",
+    result_fail_title: "Нәтижені жақсарту үшін тағы бір рет байқап көріңіз.",
+    result_body_text: "Нәтиже: {correct}/{total} ({percent}%).",
+    result_success_secondary_quiz: "Жаңа жетістіктер сақталды.",
+    result_fail_secondary_quiz:
+      "Талпыныс прогресі сақталды. Картаға оралып, тестті қайта тапсыруға болады.",
+    no_new_achievements: "Бұл талпыныста жаңа жетістік жоқ.",
+    error_select_answer: "Жалғастыру үшін жауап нұсқасын таңдаңыз.",
+    error_test_unavailable: "Тест әзірге қолжетімді емес",
+    error_test_unavailable_hint_quiz:
+      "Картаға оралып, қаланы таңдап, тестті қайта бастап көріңіз.",
+    error_submit: "Тестті жіберу мүмкін болмады. Қайта байқап көріңіз.",
+  },
+};
+
+const periodTitleTranslations = {
+  en: {
+    khanate_1465: "Kazakh Khanate",
+    imperial_1731: "Russian Empire Influence",
+    imperial_1868: "Imperial Administrative Reform",
+    soviet_1925: "Soviet Kazakhstan",
+    independence_1991: "Independent Kazakhstan",
+    transition_1998: "Capital Relocation Era",
+    modern_2025: "Modern Kazakhstan",
+  },
+  kk: {
+    khanate_1465: "Қазақ хандығы",
+    imperial_1731: "Ресей империясының ықпалы",
+    imperial_1868: "Империялық әкімшілік реформа",
+    soviet_1925: "Кеңестік Қазақстан",
+    independence_1991: "Тәуелсіз Қазақстан",
+    transition_1998: "Астананы көшіру кезеңі",
+    modern_2025: "Қазіргі Қазақстан",
+  },
+};
 
 const state = {
   playerId: null,
@@ -37,6 +197,50 @@ const state = {
 };
 
 const elements = {};
+
+function translate(key, params = {}) {
+  const language = getCurrentLanguage();
+  const value = translations[language]?.[key] ?? translations.ru[key] ?? key;
+  return typeof value === "function" ? value(params) : value;
+}
+
+function applyTranslations() {
+  document.documentElement.lang = getCurrentLanguage();
+  document.title = translate("page_title");
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    if (element.closest("footer")) return;
+    setText(element, translate(element.dataset.i18n));
+  });
+
+  document.querySelector("[data-sidebar-image]")?.setAttribute("alt", translate("city_alt"));
+  if (!state.quiz) {
+    document.querySelector("[data-xp-counter]") &&
+      setText(document.querySelector("[data-xp-counter]"), `0 ${translate("label_achievements_short")}`);
+  }
+}
+
+function getLocalizedPeriodTitle(period) {
+  if (!period) {
+    return translate("historical_period");
+  }
+
+  return periodTitleTranslations[getCurrentLanguage()]?.[period.code] || period.title;
+}
+
+function getLocalizedCityContentValue(field, fallbackKey) {
+  const language = getCurrentLanguage();
+  const translated = state.cityContent?.translations?.[language]?.[field];
+  if (translated) {
+    return translated;
+  }
+
+  if (language === "ru" && state.cityContent?.[field]) {
+    return state.cityContent[field];
+  }
+
+  return translate(fallbackKey);
+}
 
 function queryRequired(selector) {
   const element = document.querySelector(selector);
@@ -127,7 +331,7 @@ function renderHeader() {
     `${progressValue} / ${state.quiz.questions.length}`
   );
   const achCount = state.bootstrap?.player_summary?.total_achievements_unlocked ?? 0;
-  const achUnit = window.saparI18n?.t("label_achievements_short") || "достиж.";
+  const achUnit = translate("label_achievements_short");
   setText(elements.xpCounter, `${achCount} ${achUnit}`);
 }
 
@@ -138,22 +342,26 @@ function renderSidebar() {
       state.quiz?.city,
       state.cityContent?.display_name || state.quiz?.city,
       language
-    ) || "Город";
-  const periodBadge = state.period ? getPeriodBadgeText(state.period) : "Период";
-  const historySummary =
-    state.cityContent?.history_summary ||
-    "Историческая справка появится после загрузки контента.";
-  const interestingFact =
-    state.cityContent?.interesting_fact ||
-    "Интересный факт появится после загрузки контента.";
+    ) || translate("city_default");
+  const periodBadge = state.period
+    ? `${state.period.year_label} • ${getLocalizedPeriodTitle(state.period)}`
+    : translate("period");
+  const historySummary = getLocalizedCityContentValue(
+    "history_summary",
+    "history_summary_fallback"
+  );
+  const interestingFact = getLocalizedCityContentValue(
+    "interesting_fact",
+    "interesting_fact_fallback"
+  );
 
   elements.sidebarImage.src = getCityImage(state.quiz?.city, state.quiz?.periodCode);
   elements.sidebarImage.alt = displayName;
   setText(elements.sidebarTag, periodBadge);
   setText(elements.sidebarTitle, displayName);
   setText(elements.sidebarBody, interestingFact);
-  setText(elements.hintPrimaryLabel, window.saparI18n?.t("label_hist_hint") || "Историческая подсказка");
-  setText(elements.hintSecondaryLabel, window.saparI18n?.t("label_city_importance") || "Почему город важен");
+  setText(elements.hintPrimaryLabel, translate("label_hist_hint"));
+  setText(elements.hintSecondaryLabel, translate("label_city_importance"));
   setText(elements.hintMessage, state.hintMessage || historySummary);
 }
 
@@ -181,7 +389,7 @@ function renderQuestion() {
     `${getLocalizedCityName(state.quiz.city, getCurrentLanguage())} • ${state.period?.year_label || state.quiz.periodCode}`
   );
   setText(elements.questionTitle, visibleQuestion.question);
-  const qHint = (window.saparI18n?.t("question_hint") || "Вопрос {current} из {total}. Выберите один ответ.")
+  const qHint = translate("question_hint")
     .replace("{current}", state.quiz.currentIndex + 1)
     .replace("{total}", state.quiz.questions.length);
   setText(elements.questionBody, qHint);
@@ -231,8 +439,8 @@ function renderQuestion() {
   setText(
     elements.submitButton,
     state.quiz.currentIndex === state.quiz.questions.length - 1
-      ? (window.saparI18n?.t("btn_finish") || "Завершить тест")
-      : (window.saparI18n?.t("btn_next") || "Следующий вопрос")
+      ? translate("btn_finish")
+      : translate("btn_next")
   );
 }
 
@@ -247,24 +455,24 @@ function renderResult() {
   setVisible(elements.prevButton, false);
 
   const statusKey = state.result.passed ? "label_test_passed_check" : "label_test_failed";
-  setText(elements.resultBadge, window.saparI18n?.t(statusKey) || (state.result.passed ? "Тест пройден" : "Тест не пройден"));
+  setText(elements.resultBadge, translate(statusKey));
 
   const titleKey = state.result.passed ? "result_success_title" : "result_fail_title";
-  setText(elements.resultTitle, window.saparI18n?.t(titleKey) || (state.result.passed ? "Отлично, вы завершили исторический тест." : "Попробуйте ещё раз, чтобы улучшить результат."));
+  setText(elements.resultTitle, translate(titleKey));
 
-  const bodyText = (window.saparI18n?.t("result_body_text") || "Результат: {correct} из {total} ({percent}%).")
+  const bodyText = translate("result_body_text")
     .replace("{correct}", state.result.correct_answers)
     .replace("{total}", state.result.total_questions)
     .replace("{percent}", state.result.score_percent);
   setText(elements.resultBody, bodyText);
 
   const secondaryKey = state.result.passed ? "result_success_secondary_quiz" : "result_fail_secondary_quiz";
-  setText(elements.resultSecondary, window.saparI18n?.t(secondaryKey) || (state.result.passed ? "Новые достижения уже сохранены." : "Прогресс попытки сохранён. Можно вернуться на карту и пройти тест заново."));
+  setText(elements.resultSecondary, translate(secondaryKey));
 
   if (state.result.unlocked_achievements.length === 0) {
     setHtml(
       elements.resultAchievements,
-      `<p class="text-sm text-on-surface-variant">${window.saparI18n?.t("no_new_achievements") || "Новых достижений в этой попытке нет."}</p>`
+      `<p class="text-sm text-on-surface-variant">${translate("no_new_achievements")}</p>`
     );
   } else {
     setHtml(
@@ -287,6 +495,7 @@ function renderResult() {
 }
 
 function render() {
+  applyTranslations();
   renderHeader();
   renderSidebar();
   renderQuestion();
@@ -323,7 +532,7 @@ async function handleContinue() {
   }
 
   if (state.quiz.answers[question.id] === undefined) {
-    showError(window.saparI18n?.t("error_select_answer") || "Выберите вариант ответа перед продолжением.");
+    showError(translate("error_select_answer"));
     return;
   }
 
@@ -332,7 +541,8 @@ async function handleContinue() {
     try {
       await submitQuiz();
     } catch (error) {
-      showError(getErrorMessage(error));
+      console.error(error);
+      showError(translate("error_submit"));
     } finally {
       elements.submitButton.disabled = false;
     }
@@ -365,7 +575,7 @@ async function restoreOrStartQuiz() {
 
   const pendingContext = getPendingQuizContext();
   if (!pendingContext?.city || !pendingContext?.periodCode) {
-    throw new Error("Нет активного теста. Вернитесь на карту и запустите новый.");
+    throw new Error(translate("error_test_unavailable_hint_quiz"));
   }
 
   const response = await api.startTest({
@@ -408,16 +618,16 @@ function bindEvents() {
   elements.submitButton.addEventListener("click", handleContinue);
   elements.prevButton.addEventListener("click", handlePrev);
   elements.primaryHintButton.addEventListener("click", () => {
-    state.hintMessage =
-      state.cityContent?.history_summary ||
-      "Историческая подсказка пока недоступна.";
+    state.hintMessage = getLocalizedCityContentValue(
+      "history_summary",
+      "historical_hint_unavailable"
+    );
     renderSidebar();
   });
   elements.secondaryHintButton.addEventListener("click", () => {
     state.hintMessage =
-      state.cityContent?.importance_reason ||
-      state.cityContent?.interesting_fact ||
-      "Дополнительная подсказка пока недоступна.";
+      getLocalizedCityContentValue("importance_reason", "additional_hint_unavailable") ||
+      getLocalizedCityContentValue("interesting_fact", "additional_hint_unavailable");
     renderSidebar();
   });
 }
@@ -454,7 +664,18 @@ function cacheElements() {
 }
 
 async function init() {
-  mountLanguageMenu();
+  mountLanguageMenu({
+    onChange: () => {
+      applyTranslations();
+      state.hintMessage = "";
+      if (state.quiz && !state.quiz.questions.every(questionHasCurrentTranslations)) {
+        clearActiveQuizState();
+        window.location.reload();
+        return;
+      }
+      if (state.quiz) render();
+    },
+  });
   if (!hasStoredAuthUser()) {
     window.location.href = "../registration/code.html";
     return;
@@ -462,18 +683,10 @@ async function init() {
 
   cacheElements();
   bindEvents();
+  applyTranslations();
   await reconcileStoredAuthUser();
   state.playerId = getOrCreatePlayerId();
   hideError();
-
-  window.addEventListener("sapar-language-change", () => {
-    if (state.quiz && !state.quiz.questions.every(questionHasCurrentTranslations)) {
-      clearActiveQuizState();
-      window.location.reload();
-      return;
-    }
-    render();
-  });
 
   await restoreOrStartQuiz();
   await loadSupportingData();
@@ -481,11 +694,10 @@ async function init() {
 }
 
 init().catch((error) => {
-  showError(getErrorMessage(error));
-  setText(elements.questionTitle, window.saparI18n?.t("error_test_unavailable") || "Тест пока недоступен");
-  setText(
-    elements.questionBody,
-    window.saparI18n?.t("error_test_unavailable_hint_quiz") || "Вернитесь на карту, выберите город и попробуйте начать тест снова."
-  );
-  setHtml(elements.optionsGrid, "");
+  console.error(error);
+  applyTranslations();
+  showError(translate("load_error"));
+  setText(elements.questionTitle, translate("error_test_unavailable"));
+  setText(elements.questionBody, translate("error_test_unavailable_hint_quiz"));
+  elements.optionsGrid && setHtml(elements.optionsGrid, "");
 });
