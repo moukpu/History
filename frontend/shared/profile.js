@@ -3,7 +3,7 @@ import { translateAchievement } from "./achievements-i18n.js";
 import { getLocalizedCityName } from "./city-visuals.js";
 import { escapeHtml, setHtml, setText, setVisible } from "./helpers.js";
 import { clearStoredPlayerId, reconcileStoredAuthUser } from "./storage.js";
-import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 
 const USER_KEY = "sapar-user";
 const AVATAR_STORAGE_KEY = "sapar-avatar-by-user";
@@ -217,6 +217,8 @@ function applyStaticTranslations() {
   document.querySelector("[data-profile-avatar-image]")?.setAttribute("alt", translate("avatar_alt"));
   document.querySelector("[data-avatar-crop-image]")?.setAttribute("alt", translate("avatar_edit_alt"));
   document.querySelector("[data-avatar-preview-image]")?.setAttribute("alt", translate("avatar_preview_alt"));
+
+  markLanguageReady();
 }
 
 function createEmptyAvatarEditor() {

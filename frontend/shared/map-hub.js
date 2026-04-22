@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 import {
   getCityImage,
   getCityVisual,
@@ -1850,6 +1850,8 @@ function applyStaticTranslations() {
     if (element.closest("footer")) return;
     element.textContent = translate(element.dataset.i18n);
   });
+
+  markLanguageReady();
 }
 
 function queryRequired(selector) {

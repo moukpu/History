@@ -1,4 +1,4 @@
-import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 
 const translations = {
   ru: {
@@ -115,6 +115,8 @@ function applyTranslations() {
     if (element.closest("footer")) return;
     element.innerHTML = translate(element.dataset.i18nHtml);
   });
+
+  markLanguageReady();
 }
 
 mountLanguageMenu({

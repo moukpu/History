@@ -2,6 +2,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Sapar Quest - Профиль</title>
+    <script src="../shared/language-boot.js"></script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
@@ -177,7 +178,7 @@
       <header class="flex flex-col md:flex-row items-center md:items-start gap-10 mb-16">
         <div class="relative group">
           <div class="w-40 h-40 md:w-48 md:h-48 rounded-full border-8 border-white shadow-2xl overflow-hidden bg-surface-container-low flex items-center justify-center relative">
-            <img alt="Аватар" class="w-full h-full object-cover hidden" data-profile-avatar-image="">
+            <img alt="Аватар" class="w-full h-full object-cover hidden" data-profile-avatar-image="" decoding="async">
             <div class="flex flex-col items-center justify-center text-outline-variant" data-profile-avatar-fallback="">
               <span class="material-symbols-outlined text-6xl" style="font-variation-settings: 'FILL' 1;">person</span>
             </div>
@@ -288,7 +289,7 @@
         <div class="flex-1 overflow-y-auto p-10 flex flex-col md:flex-row gap-10">
           <div class="flex flex-col items-center gap-6">
             <div class="avatar-crop-stage" data-avatar-crop-stage="">
-              <img alt="Редактирование" class="avatar-crop-image hidden" data-avatar-crop-image="" draggable="false">
+              <img alt="Редактирование" class="avatar-crop-image hidden" data-avatar-crop-image="" draggable="false" decoding="async">
               <div class="absolute inset-0 flex flex-col items-center justify-center text-outline-variant p-6 text-center" data-avatar-crop-empty="">
                 <span class="material-symbols-outlined text-5xl mb-2">image</span>
                 <p data-i18n="avatar_crop_empty" class="text-xs font-bold">Выберите шаблон или загрузите своё фото</p>
@@ -314,7 +315,7 @@
             <div class="pt-8 border-t border-outline/5">
               <label data-i18n="avatar_preview" class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4">Предпросмотр</label>
               <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg flex items-center justify-center bg-surface">
-                <img alt="Превью" class="w-full h-full object-cover hidden" data-avatar-preview-image="">
+                <img alt="Превью" class="w-full h-full object-cover hidden" data-avatar-preview-image="" decoding="async">
                 <span class="material-symbols-outlined text-4xl text-outline-variant" data-avatar-preview-fallback="">person</span>
               </div>
             </div>

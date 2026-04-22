@@ -1,6 +1,6 @@
 import { getApiBaseUrl } from "./config.js";
 import { escapeHtml, setHtml, setText } from "./helpers.js";
-import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 import { getOrCreatePlayerId, reconcileStoredAuthUser } from "./storage.js";
 
 const AVATAR_STORAGE_KEY = "sapar-avatar-by-user";
@@ -167,6 +167,8 @@ function applyStaticTranslations() {
   if (errorMessage && errorMessage.textContent.trim() === "") {
     setText(errorMessage, translate("load_error"));
   }
+
+  markLanguageReady();
 }
 
 function renderPodium(entries) {

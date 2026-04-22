@@ -1,6 +1,6 @@
 import { getApiBaseUrl } from "./config.js";
 import { clearStoredPlayerId, reconcileStoredAuthUser, setStoredPlayerId } from "./storage.js";
-import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 
 const USER_KEY = "sapar-user";
 const AVATAR_STORAGE_KEY = "sapar-avatar-by-user";
@@ -271,6 +271,8 @@ function applyStaticTranslations() {
   if (googleStatus && googleStatus.dataset.googleStatusKey) {
     googleStatus.textContent = translate(googleStatus.dataset.googleStatusKey);
   }
+
+  markLanguageReady();
 }
 
 function loadGoogleScript() {

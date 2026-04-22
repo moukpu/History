@@ -1,7 +1,7 @@
 import { api } from "./api.js";
 import { getOrCreatePlayerId, reconcileStoredAuthUser } from "./storage.js";
 import { getErrorMessage, setText } from "./helpers.js";
-import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 
 const translations = {
   ru: {
@@ -176,6 +176,7 @@ function applyTranslations() {
     setTranslatedElementText(element, translate(element.dataset.i18n));
   });
 
+  markLanguageReady();
 }
 
 function getLocalizedPeriodTitle(period) {

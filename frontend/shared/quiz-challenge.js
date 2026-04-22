@@ -5,7 +5,7 @@ import {
   getLocalizedCityDisplayName,
   getLocalizedCityName,
 } from "./city-visuals.js";
-import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 import {
   clearActiveQuizState,
   clearPendingQuizContext,
@@ -218,6 +218,8 @@ function applyTranslations() {
     document.querySelector("[data-xp-counter]") &&
       setText(document.querySelector("[data-xp-counter]"), `0 ${translate("label_achievements_short")}`);
   }
+
+  markLanguageReady();
 }
 
 function getLocalizedPeriodTitle(period) {

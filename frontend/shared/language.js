@@ -46,6 +46,15 @@ export function setCurrentLanguage(language) {
   }
 }
 
+export function markLanguageReady() {
+  if (typeof window.saparMarkLanguageReady === "function") {
+    window.saparMarkLanguageReady();
+    return;
+  }
+
+  delete document.documentElement.dataset.saparLangPending;
+}
+
 export function mountLanguageMenu({ onChange } = {}) {
   if (typeof onChange === "function") {
     listeners.add(onChange);
@@ -181,4 +190,3 @@ function updateLanguageMenu(language) {
     option.querySelector("[data-language-check]")?.classList.toggle("opacity-0", !active);
   });
 }
-

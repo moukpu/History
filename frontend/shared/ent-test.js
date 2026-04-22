@@ -1,5 +1,5 @@
 import { api } from "./api.js";
-import { getCurrentLanguage, mountLanguageMenu } from "./language.js";
+import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 import {
   getOrCreatePlayerId,
   hasStoredAuthUser,
@@ -166,6 +166,8 @@ function applyTranslations() {
     if (element.closest("footer")) return;
     setText(element, translate(element.dataset.i18n));
   });
+
+  markLanguageReady();
 }
 
 function queryRequired(selector) {
