@@ -50,6 +50,42 @@ const state = {
 
 const elements = {};
 let currentLanguage = getCurrentLanguage();
+const mapDebugStartedAt = globalThis.performance?.now?.() || Date.now();
+
+function getElapsedMs() {
+  const now = globalThis.performance?.now?.() || Date.now();
+  return Math.round(now - mapDebugStartedAt);
+}
+
+function mapDebug(step, details = {}) {
+  console.info(`[Sapar map +${getElapsedMs()}ms] ${step}`, details);
+}
+
+function setMapLoading(visible, reason) {
+  setVisible(elements.loadingState, visible);
+  mapDebug(visible ? "loading shown" : "loading hidden", {
+    reason,
+    hidden: elements.loadingState?.classList.contains("hidden"),
+  });
+}
+
+function exposeMapDebugState() {
+  globalThis.saparMapDebugState = () => {
+    const snapshot = {
+      elapsedMs: getElapsedMs(),
+      loadingHidden: elements.loadingState?.classList.contains("hidden"),
+      errorHidden: elements.errorState?.classList.contains("hidden"),
+      playerId: state.playerId,
+      selectedPeriodCode: state.selectedPeriodCode,
+      selectedCity: state.selectedCity,
+      cachedMapPeriods: Object.keys(state.mapStateCache),
+      cachedCityContent: Object.keys(state.cityContentCache).length,
+      hasBootstrap: Boolean(state.bootstrap),
+    };
+    console.table(snapshot);
+    return snapshot;
+  };
+}
 
 const translations = {
   ru: {
@@ -2036,17 +2072,24 @@ function renderMapBackground() {
 }
 
 async function syncMapSurface(periodCode) {
+  mapDebug("map surface start", { periodCode, svg: hasPeriodSvgMap(periodCode) });
   if (hasPeriodSvgMap(periodCode)) {
     await mountPeriodSvgMap(elements.mapBackdrop, periodCode, (city) => {
       handleCityInteraction(city).catch(showGlobalError);
     });
     updatePeriodSvgMapLabels(elements.mapBackdrop, currentLanguage);
     setVisible(elements.markerLayer, false);
+    mapDebug("map surface ready", {
+      periodCode,
+      mode: "svg",
+      cityCount: getInteractiveSvgCities(elements.mapBackdrop).length,
+    });
     return;
   }
 
   clearPeriodSvgMap(elements.mapBackdrop);
   setVisible(elements.markerLayer, true);
+  mapDebug("map surface ready", { periodCode, mode: "markers" });
 }
 
 async function handleCityInteraction(city) {
@@ -2331,34 +2374,57 @@ function clearStatusMessage() {
 }
 
 function render() {
+  mapDebug("render start", {
+    periodCode: state.selectedPeriodCode,
+    city: state.selectedCity,
+  });
   renderBootstrapSummary();
   renderTimeline();
   renderMapBackground();
   renderMarkers();
   renderPanel();
+  mapDebug("render done", {
+    periodCode: state.selectedPeriodCode,
+    city: state.selectedCity,
+  });
 }
 
 async function loadCityContent(city) {
   const cacheKey = `${state.selectedPeriodCode}::${city}`;
   if (cacheKey in state.cityContentCache) {
+    mapDebug("city content cache hit", { cacheKey });
     return state.cityContentCache[cacheKey];
   }
+
+  const startedAt = globalThis.performance?.now?.() || Date.now();
+  mapDebug("city content request start", { cacheKey });
 
   try {
     const response = await api.getCityContent(state.selectedPeriodCode, city);
     state.cityContentCache[cacheKey] = response.content;
+    mapDebug("city content request done", {
+      cacheKey,
+      durationMs: Math.round((globalThis.performance?.now?.() || Date.now()) - startedAt),
+      hasContent: Boolean(response.content),
+    });
     return response.content;
   } catch (error) {
     if (error?.status === 404) {
       state.cityContentCache[cacheKey] = null;
+      mapDebug("city content missing", { cacheKey, status: 404 });
       return null;
     }
 
+    mapDebug("city content request failed", {
+      cacheKey,
+      message: getErrorMessage(error),
+    });
     throw error;
   }
 }
 
 async function selectCity(city) {
+  mapDebug("city selected", { city, periodCode: state.selectedPeriodCode });
   state.selectedCity = city;
   setLastCity(city);
   clearStatusMessage();
@@ -2376,19 +2442,31 @@ async function selectCity(city) {
 
 async function loadMapState(periodCode) {
   clearStatusMessage();
-  setVisible(elements.loadingState, true);
+  setMapLoading(true, `map-state:${periodCode}`);
   setVisible(elements.errorState, false);
+
+  const startedAt = globalThis.performance?.now?.() || Date.now();
+  mapDebug("map state request start", { periodCode });
 
   try {
     const mapState = await api.getMapState(state.playerId, periodCode);
+    mapDebug("map state request done", {
+      periodCode,
+      durationMs: Math.round((globalThis.performance?.now?.() || Date.now()) - startedAt),
+      cities: mapState?.cities?.length || 0,
+    });
     state.mapStateCache[periodCode] = mapState;
     await applyMapState(mapState);
   } finally {
-    setVisible(elements.loadingState, false);
+    setMapLoading(false, `map-state:${periodCode}:finally`);
   }
 }
 
 async function applyMapState(mapState) {
+  mapDebug("apply map state start", {
+    periodCode: mapState?.period_code,
+    cities: mapState?.cities?.length || 0,
+  });
   await syncMapSurface(mapState.period_code);
 
   const lastCity = getLastCity();
@@ -2424,13 +2502,20 @@ async function applyMapState(mapState) {
   }
 
   render();
+  setMapLoading(false, "map rendered");
+  mapDebug("apply map state first render done", {
+    periodCode: state.selectedPeriodCode,
+    city: state.selectedCity,
+  });
 
   if (state.selectedCity) {
     const selectedCity = state.selectedCity;
+    mapDebug("city content background load queued", { selectedCity });
     loadCityContent(selectedCity)
       .then(() => {
         if (state.selectedCity === selectedCity) {
           render();
+          mapDebug("city content background render done", { selectedCity });
         }
       })
       .catch((error) => {
@@ -2440,11 +2525,19 @@ async function applyMapState(mapState) {
 }
 
 async function loadBootstrap() {
-  setVisible(elements.loadingState, true);
+  setMapLoading(true, "bootstrap");
   setVisible(elements.errorState, false);
+
+  const startedAt = globalThis.performance?.now?.() || Date.now();
+  mapDebug("bootstrap request start", { playerId: state.playerId });
 
   try {
     const initial = await api.getMapInitial(state.playerId);
+    mapDebug("bootstrap request done", {
+      durationMs: Math.round((globalThis.performance?.now?.() || Date.now()) - startedAt),
+      periods: initial?.bootstrap?.periods?.length || 0,
+      initialMapPeriod: initial?.map_state?.period_code,
+    });
     state.bootstrap = initial.bootstrap;
 
     const periods = state.bootstrap.periods || [];
@@ -2470,7 +2563,7 @@ async function loadBootstrap() {
       await loadMapState(state.selectedPeriodCode);
     }
   } finally {
-    setVisible(elements.loadingState, false);
+    setMapLoading(false, "bootstrap:finally");
   }
 }
 
@@ -2561,9 +2654,10 @@ function openQuizChallenge() {
 }
 
 function showGlobalError(error) {
-  setVisible(elements.loadingState, false);
+  setMapLoading(false, "global error");
   setVisible(elements.errorState, true);
   setText(elements.errorMessage, getErrorMessage(error));
+  mapDebug("global error", { message: getErrorMessage(error) });
 }
 
 function bindEvents() {
@@ -2622,9 +2716,12 @@ function cacheElements() {
 
 async function init() {
   cacheElements();
+  exposeMapDebugState();
+  mapDebug("init start");
   mountLanguageMenu({
     onChange: (language) => {
       currentLanguage = language;
+      mapDebug("language changed", { language });
       applyStaticTranslations();
       render();
     },
@@ -2634,9 +2731,12 @@ async function init() {
   clearActiveFactSession();
   state.factSession = null;
   state.factResult = null;
+  mapDebug("auth reconcile start");
   await reconcileStoredAuthUser();
   state.playerId = getOrCreatePlayerId();
+  mapDebug("auth/player ready", { playerId: state.playerId });
   await loadBootstrap();
+  mapDebug("init done");
 }
 
 init().catch(showGlobalError);
