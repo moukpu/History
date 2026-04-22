@@ -4,6 +4,63 @@
 
 @layer components {
   @media (max-width: 767px) {
+    body {
+      font-size: 14px;
+    }
+
+    main {
+      font-size: 0.92rem;
+    }
+
+    main h1 {
+      font-size: clamp(2rem, 8.5vw, 2.7rem) !important;
+      line-height: 1.06 !important;
+    }
+
+    main h2 {
+      font-size: clamp(1.45rem, 6vw, 2rem) !important;
+      line-height: 1.12 !important;
+    }
+
+    main h3 {
+      font-size: clamp(1rem, 4.4vw, 1.25rem) !important;
+      line-height: 1.2 !important;
+    }
+
+    main p,
+    main li,
+    main label,
+    main input,
+    main textarea,
+    main button,
+    main a {
+      font-size: 0.92rem;
+    }
+
+    main .text-lg {
+      font-size: 1rem !important;
+      line-height: 1.45 !important;
+    }
+
+    main .text-xl,
+    main .text-2xl {
+      font-size: 1.08rem !important;
+      line-height: 1.35 !important;
+    }
+
+    main .py-5 {
+      padding-top: 0.9rem !important;
+      padding-bottom: 0.9rem !important;
+    }
+
+    main .p-8 {
+      padding: 1.25rem !important;
+    }
+
+    main .p-6 {
+      padding: 1rem !important;
+    }
+
     .home-nav {
       height: 6.75rem !important;
       align-content: flex-start;
@@ -118,6 +175,85 @@
       background: #ffd709;
       color: #5b4b00;
       box-shadow: 0 8px 18px rgba(255, 215, 9, 0.28);
+    }
+
+    .leaderboard-podium {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 0.55rem !important;
+      align-items: end !important;
+      margin-bottom: 2rem !important;
+    }
+
+    .leaderboard-podium [data-podium-secondary] {
+      order: 1 !important;
+    }
+
+    .leaderboard-podium [data-podium-primary] {
+      order: 2 !important;
+      transform: none !important;
+    }
+
+    .leaderboard-podium [data-podium-tertiary] {
+      order: 3 !important;
+    }
+
+    .leaderboard-podium [data-podium-secondary] [data-podium-avatar],
+    .leaderboard-podium [data-podium-tertiary] [data-podium-avatar] {
+      width: 4rem !important;
+      height: 4rem !important;
+      border-width: 4px !important;
+    }
+
+    .leaderboard-podium [data-podium-primary] [data-podium-avatar] {
+      width: 4.75rem !important;
+      height: 4.75rem !important;
+      border-width: 4px !important;
+    }
+
+    .leaderboard-podium [data-podium-avatar] .material-symbols-outlined {
+      font-size: 2rem !important;
+    }
+
+    .leaderboard-podium [data-podium-primary] [data-podium-avatar] .material-symbols-outlined {
+      font-size: 2.25rem !important;
+    }
+
+    .leaderboard-podium [data-podium-primary] .absolute.-top-8 {
+      top: -1.3rem !important;
+    }
+
+    .leaderboard-podium [data-podium-primary] .absolute.-top-8 .material-symbols-outlined {
+      font-size: 1.55rem !important;
+    }
+
+    .leaderboard-podium [data-podium-secondary] > div:last-child,
+    .leaderboard-podium [data-podium-primary] > div:last-child,
+    .leaderboard-podium [data-podium-tertiary] > div:last-child {
+      padding: 0.72rem !important;
+      border-radius: 1rem !important;
+      min-width: 0;
+    }
+
+    .leaderboard-podium h3 {
+      font-size: 0.72rem !important;
+      line-height: 1.15 !important;
+      overflow-wrap: anywhere;
+    }
+
+    .leaderboard-podium [data-podium-score] {
+      font-size: 0.78rem !important;
+      line-height: 1.2 !important;
+    }
+
+    .leaderboard-podium [data-podium-detail] {
+      margin-top: 0.25rem !important;
+      font-size: 0.5rem !important;
+      letter-spacing: 0.08em !important;
+      line-height: 1.15 !important;
+    }
+
+    [data-leaderboard-rows] {
+      gap: 0.65rem !important;
     }
   }
 }
