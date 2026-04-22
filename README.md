@@ -43,6 +43,7 @@ Notes:
 
 - Add Python to `PATH` during installation if the installer offers that option.
 - The core site works without Node.js because the frontend can also be served by Python.
+- `GROQ_API_KEY` is optional. It is required for AI analysis in ENT attempt reviews.
 - `OPENAI_API_KEY` is optional. It is only required for the dynamic quiz endpoint `/api/quiz/dynamic/{city}`. The main map, profile, leaderboard, city tests, and ENT tests work without it.
 - `GOOGLE_CLIENT_ID` is optional. It is only required if you want the Google sign-in button to work.
 
@@ -230,6 +231,8 @@ Add it under **Authorized JavaScript origins** for the same OAuth Web Client ID.
 Important variable notes:
 
 - `GOOGLE_CLIENT_ID` is not secret, but it is environment-specific.
+- `GROQ_API_KEY` is optional and should be set if you want AI analysis in ENT attempt reviews.
+- `GROQ_MODEL` defaults to `llama-3.3-70b-versatile`.
 - `OPENAI_API_KEY` is optional and should be set only if you want dynamic quiz generation.
 - Do not commit your real `.env`; use Railway service variables.
 

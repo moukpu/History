@@ -114,6 +114,7 @@ _load_dotenv_file()
 
 DB_PATH = os.getenv("DB_PATH", "quizzes.db")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 
@@ -128,6 +129,7 @@ class CachedStaticFiles(StaticFiles):
         return response
 
 _openai_client: AsyncOpenAI | None = None
+_groq_client: AsyncOpenAI | None = None
 
 
 def get_openai_client() -> AsyncOpenAI:
@@ -141,6 +143,22 @@ def get_openai_client() -> AsyncOpenAI:
             )
         _openai_client = AsyncOpenAI(api_key=api_key)
     return _openai_client
+
+
+def get_groq_client() -> AsyncOpenAI:
+    global _groq_client
+    if _groq_client is None:
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise HTTPException(
+                status_code=503,
+                detail="GROQ_API_KEY is not configured on the server.",
+            )
+        _groq_client = AsyncOpenAI(
+            api_key=api_key,
+            base_url="https://api.groq.com/openai/v1",
+        )
+    return _groq_client
 
 
 def verify_google_id_token(credential: str) -> dict[str, str]:
@@ -498,8 +516,8 @@ async def ent_attempt_analysis(
     )
 
     try:
-        completion = await get_openai_client().chat.completions.create(
-            model=OPENAI_MODEL,
+        completion = await get_groq_client().chat.completions.create(
+            model=GROQ_MODEL,
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -517,7 +535,7 @@ async def ent_attempt_analysis(
     except OpenAIError as error:
         raise HTTPException(
             status_code=502,
-            detail=f"OpenAI API error: {error}",
+            detail=f"Groq API error: {error}",
         ) from error
 
     raw = completion.choices[0].message.content or ""
