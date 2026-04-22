@@ -50,15 +50,10 @@ const state = {
 
 const elements = {};
 let currentLanguage = getCurrentLanguage();
-const mapDebugStartedAt = globalThis.performance?.now?.() || Date.now();
-
-function getElapsedMs() {
-  const now = globalThis.performance?.now?.() || Date.now();
-  return Math.round(now - mapDebugStartedAt);
-}
 
 function mapDebug(step, details = {}) {
-  console.info(`[Sapar map +${getElapsedMs()}ms] ${step}`, details);
+  void step;
+  void details;
 }
 
 function setMapLoading(visible, reason) {
@@ -67,24 +62,6 @@ function setMapLoading(visible, reason) {
     reason,
     hidden: elements.loadingState?.classList.contains("hidden"),
   });
-}
-
-function exposeMapDebugState() {
-  globalThis.saparMapDebugState = () => {
-    const snapshot = {
-      elapsedMs: getElapsedMs(),
-      loadingHidden: elements.loadingState?.classList.contains("hidden"),
-      errorHidden: elements.errorState?.classList.contains("hidden"),
-      playerId: state.playerId,
-      selectedPeriodCode: state.selectedPeriodCode,
-      selectedCity: state.selectedCity,
-      cachedMapPeriods: Object.keys(state.mapStateCache),
-      cachedCityContent: Object.keys(state.cityContentCache).length,
-      hasBootstrap: Boolean(state.bootstrap),
-    };
-    console.table(snapshot);
-    return snapshot;
-  };
 }
 
 const translations = {
@@ -2716,7 +2693,6 @@ function cacheElements() {
 
 async function init() {
   cacheElements();
-  exposeMapDebugState();
   mapDebug("init start");
   mountLanguageMenu({
     onChange: (language) => {
