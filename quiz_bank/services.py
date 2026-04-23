@@ -276,7 +276,7 @@ def _calculate_timed_city_points(
     elapsed = max(0, int(elapsed_seconds or 0))
     if elapsed < 30:
         speed_points = 50
-    elif elapsed < 40:
+    elif elapsed < 50:
         speed_points = 40
     else:
         speed_points = 20
