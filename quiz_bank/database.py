@@ -2198,7 +2198,15 @@ def get_player_progress(db_path: str | Path, player_id: str) -> dict[str, Any]:
                     WHERE player_id = ? AND passed = 1
                 ) AS total_passed_tests,
                 (
-                    SELECT COALESCE(SUM(correct_answers) * 100 / NULLIF(SUM(total_questions), 0), 0)
+                    SELECT COALESCE(
+                        ROUND(
+                            AVG(
+                                (CAST(correct_answers AS REAL) * 100.0)
+                                / NULLIF(total_questions, 0)
+                            )
+                        ),
+                        0
+                    )
                     FROM test_results
                     WHERE player_id = ? AND city != 'ЕНТ'
                 ) AS overall_accuracy_percent,
@@ -2711,12 +2719,28 @@ def get_leaderboard(db_path: str | Path, limit: int = 50) -> list[dict[str, Any]
                 u.avatar_url AS avatar_url,
                 COALESCE(SUM(pcp.best_score), 0) AS total_score,
                 COALESCE(SUM(pcp.total_attempts), 0) AS total_tests,
-                CAST(ROUND(COALESCE(AVG(pcp.best_score), 0)) AS INTEGER) AS accuracy,
+                COALESCE(tr.accuracy, 0) AS accuracy,
                 COALESCE(pa.achievements_count, 0) AS achievements_count
             FROM users u
             LEFT JOIN player_city_progress pcp
                 ON pcp.player_id = u.id
                AND pcp.city != 'ЕНТ'
+            LEFT JOIN (
+                SELECT
+                    player_id,
+                    CAST(
+                        ROUND(
+                            AVG(
+                                (CAST(correct_answers AS REAL) * 100.0)
+                                / NULLIF(total_questions, 0)
+                            )
+                        ) AS INTEGER
+                    ) AS accuracy
+                FROM test_results
+                WHERE city != 'ЕНТ'
+                GROUP BY player_id
+            ) tr
+                ON tr.player_id = u.id
             LEFT JOIN (
                 SELECT player_id, COUNT(*) AS achievements_count
                 FROM player_achievements

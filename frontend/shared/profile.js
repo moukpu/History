@@ -997,22 +997,7 @@ function formatCompletedAt(value) {
 }
 
 function calculateProfileAccuracy(progress) {
-  const backendAccuracy = Number(progress?.overall_accuracy_percent ?? 0);
-  const cityProgress = Array.isArray(progress?.city_progress) ? progress.city_progress : [];
-  const attemptedItems = cityProgress.filter(
-    (item) => (Number(item?.total_attempts ?? 0) > 0 || Number(item?.best_score ?? 0) > 0) && item.city !== "ЕНТ"
-  );
-
-  if (attemptedItems.length === 0) {
-    return backendAccuracy;
-  }
-
-  const derivedAccuracy = Math.round(
-    attemptedItems.reduce((sum, item) => sum + Number(item?.best_score ?? 0), 0) /
-      attemptedItems.length
-  );
-
-  return Math.max(backendAccuracy, derivedAccuracy);
+  return Number(progress?.overall_accuracy_percent ?? 0);
 }
 
 function getRecentResultVisual(item) {
