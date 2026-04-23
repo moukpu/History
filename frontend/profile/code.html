@@ -244,9 +244,11 @@
             </div>
             <div class="pt-8 border-t border-outline/5">
               <label data-i18n="avatar_preview" class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4">Предпросмотр</label>
-              <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg flex items-center justify-center bg-surface">
-                <img alt="Превью" class="w-full h-full object-cover hidden" data-avatar-preview-image="" decoding="async">
-                <span class="material-symbols-outlined text-4xl text-outline-variant" data-avatar-preview-fallback="">person</span>
+              <div class="relative w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-lg bg-surface">
+                <img alt="Превью" class="absolute inset-0 w-full h-full object-cover hidden" data-avatar-preview-image="" decoding="async">
+                <div class="absolute inset-0 flex items-center justify-center" data-avatar-preview-fallback="">
+                  <span class="material-symbols-outlined text-4xl text-outline-variant">person</span>
+                </div>
               </div>
             </div>
           </div>

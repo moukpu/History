@@ -581,6 +581,9 @@ function updateAvatarPreview() {
 
   const canvas = document.createElement("canvas");
   if (!drawAvatarToCanvas(canvas)) {
+    elements.avatarPreviewImage.classList.add("hidden");
+    elements.avatarPreviewImage.removeAttribute("src");
+    elements.avatarPreviewFallback.classList.remove("hidden");
     return;
   }
 
