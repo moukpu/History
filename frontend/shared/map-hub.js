@@ -18,10 +18,11 @@ import {
 import {
   clearActiveFactSession,
   clearActiveQuizState,
+  ensureStoredAuthOrRedirect,
   getActiveFactSession,
   getLastCity,
   getOrCreatePlayerId,
-  reconcileStoredAuthUser,
+  startStoredAuthWatcher,
   setActiveFactSession,
   setLastCity,
   setLastPeriodCode,
@@ -47,6 +48,8 @@ const state = {
   factSession: null,
   factResult: null,
 };
+
+let stopAuthWatcher = null;
 
 const elements = {};
 let currentLanguage = getCurrentLanguage();
@@ -2731,7 +2734,12 @@ async function init() {
   state.factSession = null;
   state.factResult = null;
   mapDebug("auth reconcile start");
-  await reconcileStoredAuthUser();
+  const authUser = await ensureStoredAuthOrRedirect();
+  if (!authUser) {
+    return;
+  }
+  stopAuthWatcher?.();
+  stopAuthWatcher = startStoredAuthWatcher();
   state.playerId = getOrCreatePlayerId();
   mapDebug("auth/player ready", { playerId: state.playerId });
   await loadBootstrap();

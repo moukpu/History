@@ -2,7 +2,11 @@ import { api } from "./api.js?v=20260423e";
 import { translateAchievement } from "./achievements-i18n.js";
 import { getLocalizedCityName } from "./city-visuals.js";
 import { escapeHtml, setHtml, setText, setVisible } from "./helpers.js";
-import { clearStoredPlayerId, reconcileStoredAuthUser } from "./storage.js?v=20260423d";
+import {
+  clearStoredAuthState,
+  ensureStoredAuthOrRedirect,
+  startStoredAuthWatcher,
+} from "./storage.js?v=20260423d";
 import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 
 const USER_KEY = "sapar-user";
@@ -16,6 +20,8 @@ const TEMPLATE_AVATARS = Array.from({ length: 10 }, (_, index) => ({
   src: `../assets/avatars/cartoon-avatar-${String(index + 1).padStart(2, "0")}.svg`,
   number: index + 1,
 }));
+
+let stopAuthWatcher = null;
 
 const translations = {
   ru: {
@@ -1474,8 +1480,7 @@ function renderEntResults(progress) {
 
 function bindEvents() {
   elements.logoutButton.addEventListener("click", () => {
-    localStorage.removeItem(USER_KEY);
-    clearStoredPlayerId();
+    clearStoredAuthState(state.user?.id);
     window.location.href = "../registration/code.html";
   });
   elements.usernameEditToggle.addEventListener("click", () => {
@@ -1560,7 +1565,12 @@ async function init() {
   if (!state.user) {
     return;
   }
-  state.user = (await reconcileStoredAuthUser()) || state.user;
+  state.user = (await ensureStoredAuthOrRedirect()) || state.user;
+  if (!state.user) {
+    return;
+  }
+  stopAuthWatcher?.();
+  stopAuthWatcher = startStoredAuthWatcher();
 
   cacheElements();
   applyStaticTranslations();

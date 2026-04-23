@@ -14,6 +14,7 @@ const KEYS = {
 const AVATAR_STORAGE_KEY = "sapar-avatar-by-user";
 const AUTH_RESOLVE_CACHE_MS = 5 * 60 * 1000;
 const AUTH_RESOLVE_TIMEOUT_MS = 8000;
+const AUTH_MISSING_REASON_KEY = "sapar-auth-missing-reason";
 
 function getStoredAvatarMap(storage) {
   if (!storage) {
@@ -117,6 +118,20 @@ function writeJson(key, value) {
   storage.setItem(key, JSON.stringify(value));
 }
 
+function clearStoredAvatarEntry(storage, userId) {
+  if (!storage || !userId) {
+    return;
+  }
+
+  const current = getStoredAvatarMap(storage);
+  if (!(userId in current)) {
+    return;
+  }
+
+  delete current[userId];
+  storage.setItem(AVATAR_STORAGE_KEY, JSON.stringify(current));
+}
+
 export function getOrCreatePlayerId() {
   const storage = getStorage();
   if (!storage) {
@@ -153,6 +168,23 @@ export function clearStoredPlayerId() {
   if (storage) {
     storage.removeItem(KEYS.playerId);
   }
+}
+
+export function clearStoredAuthState(userId = "") {
+  const storage = getStorage();
+  if (!storage) {
+    return;
+  }
+
+  const normalizedUserId = String(userId || "").trim();
+  storage.removeItem(KEYS.authUser);
+  storage.removeItem(KEYS.authResolvedAt);
+  storage.removeItem(KEYS.playerId);
+  storage.removeItem(KEYS.pendingQuizContext);
+  storage.removeItem(KEYS.activeQuizState);
+  storage.removeItem(KEYS.activeFactSession);
+  storage.removeItem(AUTH_MISSING_REASON_KEY);
+  clearStoredAvatarEntry(storage, normalizedUserId);
 }
 
 export async function reconcileStoredAuthUser() {
@@ -195,6 +227,12 @@ export async function reconcileStoredAuthUser() {
       signal: controller.signal,
     });
 
+    if (response.status === 404) {
+      clearStoredAuthState(current.id);
+      storage.setItem(AUTH_MISSING_REASON_KEY, "deleted");
+      return null;
+    }
+
     if (!response.ok) {
       return current;
     }
@@ -217,6 +255,68 @@ export async function reconcileStoredAuthUser() {
 export function hasStoredAuthUser() {
   const storage = getStorage();
   return Boolean(storage?.getItem(KEYS.authUser));
+}
+
+export function getStoredAuthMissingReason() {
+  const storage = getStorage();
+  return storage ? storage.getItem(AUTH_MISSING_REASON_KEY) : null;
+}
+
+export function clearStoredAuthMissingReason() {
+  const storage = getStorage();
+  if (storage) {
+    storage.removeItem(AUTH_MISSING_REASON_KEY);
+  }
+}
+
+export async function ensureStoredAuthOrRedirect(redirectUrl = "../registration/code.html") {
+  const user = await reconcileStoredAuthUser();
+  if (user && hasStoredAuthUser()) {
+    return user;
+  }
+
+  if (typeof window !== "undefined") {
+    window.location.href = redirectUrl;
+  }
+  return null;
+}
+
+export function startStoredAuthWatcher(
+  redirectUrl = "../registration/code.html",
+  intervalMs = 5000,
+) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const tick = async () => {
+    const user = await reconcileStoredAuthUser();
+    if (!user || !hasStoredAuthUser()) {
+      window.location.href = redirectUrl;
+    }
+  };
+
+  const timerId = window.setInterval(() => {
+    tick().catch(() => {});
+  }, intervalMs);
+
+  const handleVisibility = () => {
+    if (!document.hidden) {
+      tick().catch(() => {});
+    }
+  };
+  const handleFocus = () => {
+    tick().catch(() => {});
+  };
+
+  document.addEventListener("visibilitychange", handleVisibility);
+  window.addEventListener("focus", handleFocus);
+
+  return () => {
+    window.clearInterval(timerId);
+    document.removeEventListener("visibilitychange", handleVisibility);
+    window.removeEventListener("focus", handleFocus);
+  };
 }
 
 export function getLastPeriodCode() {

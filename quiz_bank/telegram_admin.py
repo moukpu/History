@@ -453,6 +453,29 @@ class TelegramAdminBot:
             self._t(chat_id, f"topic_{key}_body"),
         )
 
+    def _support_project_facts(self) -> list[str]:
+        return [
+            "Sapar Quest has exactly 7 timeline periods.",
+            "The map opens on the latest unlocked period for the player.",
+            "A city test uses 5 questions chosen randomly from the pool for the exact city and period.",
+            "A city test is passed at 70 percent or higher, which is 4 correct answers out of 5.",
+            "City-test points depend on time and accuracy. Base speed points are 50 under 30 seconds, 40 under 50 seconds, otherwise 20. Final points are round(base speed points multiplied by correct answers divided by total questions).",
+            "City achievements are tied to the exact city and period and unlock at 4 or more correct answers in that city test.",
+            "Timed city achievements also exist for at least 4 correct answers under 50 seconds, at least 4 correct answers under 30 seconds, and a perfect result under 30 seconds.",
+            "Map markers mean: white is default city, red is capital, yellow is selected city, green is passed city, and a passed capital is also green with a ring.",
+            "UNT has 20 questions and a 10-minute timer.",
+            "UNT attempts are stored separately in the profile with review details and AI analysis.",
+            "UNT does not affect profile accuracy or leaderboard accuracy.",
+            "Profile and leaderboard accuracy use only city tests and are calculated as the arithmetic mean of city-test percentages, then rounded to a whole number.",
+            "Example: 50 percent and 75 percent become 63 percent.",
+            "The leaderboard uses total city score, city-test accuracy, total city attempts, and achievements.",
+            "Registration works with email and password or Google sign-in.",
+            "Duplicate emails are not allowed.",
+            "The player can change nickname and avatar in the profile, and the updated nickname is shown in the leaderboard.",
+            "If an account is deleted from the admin panel, the related profile, progress, attempts, achievements, sessions, and linked data are removed from the database.",
+            "After account deletion, protected pages should no longer work for that deleted account and the player must register again.",
+        ]
+
     def _support_rules(self, chat_id: int) -> list[str]:
         language = self._get_chat_language(chat_id)
         if language == "en":
@@ -642,6 +665,42 @@ class TelegramAdminBot:
                 continue
         return values
 
+    def _project_direct_text(self, chat_id: int, key: str) -> str:
+        language = self._get_chat_language(chat_id)
+        texts = {
+            "ru": {
+                "city_test_rule": "Городской тест берёт 5 случайных вопросов именно для выбранных города и периода. Тест считается пройденным от 70%, то есть от 4 правильных ответов из 5.",
+                "city_score_rule": "Очки за городской тест зависят от времени и точности. База: до 30 секунд — 50 очков, до 50 секунд — 40, дальше — 20. Итог считается как round(база x правильные / 5).",
+                "city_achievement_rule": "Городские достижения выдаются отдельно для каждого города и периода. Обычно нужно набрать минимум 4 правильных ответа из 5. Есть и отдельные достижения за быстрый результат по времени.",
+                "map_colors_rule": "На карте белая точка — обычный город, красная — столица, жёлтая — выбранный город, зелёная — уже пройденный город. Пройденная столица тоже зелёная и остаётся с обручем вокруг точки.",
+                "map_open_rule": "Карта открывается на последнем разблокированном периоде игрока, а не просто на первом или случайном периоде.",
+                "period_count_rule": "На сайте ровно 7 исторических периодов.",
+                "profile_edit_rule": "В профиле можно менять ник и аватар. После изменения ник должен отображаться и в профиле, и в рейтинге.",
+                "delete_rule": "Если админ удаляет аккаунт, его профиль, прогресс, попытки, достижения, сессии и связанные данные удаляются из базы. После этого доступ к защищённым страницам должен пропасть, и пользователю нужно зарегистрироваться заново.",
+            },
+            "en": {
+                "city_test_rule": "A city test uses 5 random questions for the selected city and period. The test is passed from 70 percent, which means at least 4 correct answers out of 5.",
+                "city_score_rule": "City-test points depend on time and accuracy. Base points: under 30 seconds = 50, under 50 seconds = 40, otherwise = 20. Final points are calculated as round(base x correct / 5).",
+                "city_achievement_rule": "City achievements are awarded separately for each city and period. Usually you need at least 4 correct answers out of 5. There are also separate achievements for fast completion.",
+                "map_colors_rule": "On the map, a white marker is a normal city, red is a capital, yellow is the selected city, and green is a passed city. A passed capital also becomes green and keeps the ring around the marker.",
+                "map_open_rule": "The map opens on the player's latest unlocked period, not just the first or a random period.",
+                "period_count_rule": "The site has exactly 7 historical periods.",
+                "profile_edit_rule": "In the profile, the user can change the nickname and avatar. After that, the nickname should appear both in the profile and in the leaderboard.",
+                "delete_rule": "If an admin deletes an account, the profile, progress, attempts, achievements, sessions, and linked data are removed from the database. After that, protected pages should stop working for that account and the user must register again.",
+            },
+            "kk": {
+                "city_test_rule": "Қала тесті дәл таңдалған қала мен кезең үшін 5 кездейсоқ сұрақ алады. Тест 70 пайыздан бастап өтті деп саналады, яғни 5 сұрақтың кемінде 4-еуі дұрыс болуы керек.",
+                "city_score_rule": "Қала тестіндегі ұпай уақыт пен дәлдікке байланысты. База: 30 секундқа дейін — 50 ұпай, 50 секундқа дейін — 40, одан кейін — 20. Соңғы ұпай round(база x дұрыс / 5) формуласымен есептеледі.",
+                "city_achievement_rule": "Қала жетістіктері әр қала мен әр кезең үшін бөлек беріледі. Әдетте кемінде 5 сұрақтың 4-еуіне дұрыс жауап беру керек. Уақытқа байланысты жылдам жетістіктер де бар.",
+                "map_colors_rule": "Картада ақ нүкте — кәдімгі қала, қызыл — астана, сары — таңдалған қала, жасыл — өткен қала. Өткен астана да жасыл болады және оның айналасындағы шығыршық сақталады.",
+                "map_open_rule": "Карта ойыншының соңғы ашылған кезеңінен ашылады, жай бірінші немесе кездейсоқ кезеңнен емес.",
+                "period_count_rule": "Сайтта дәл 7 тарихи кезең бар.",
+                "profile_edit_rule": "Профильде ник пен аватарды өзгертуге болады. Өзгергеннен кейін ник әрі профильде, әрі рейтингте көрінуі керек.",
+                "delete_rule": "Егер админ аккаунтты жойса, профиль, прогресс, талпыныстар, жетістіктер, сессиялар және барлық байланысты деректер базадан өшіріледі. Осыдан кейін қорғалған беттер ашылмауы керек және пайдаланушы қайта тіркелуі тиіс.",
+            },
+        }
+        return texts.get(language, texts["ru"])[key]
+
     def _direct_support_answer(self, chat_id: int, question: str, topic: str = "") -> str | None:
         normalized = str(question or "").strip().lower()
         if not normalized:
@@ -688,6 +747,42 @@ class TelegramAdminBot:
             token in normalized for token in ("вход", "login", "sign", "кіру", "ошиб", "error", "қате")
         ):
             return self._t(chat_id, "direct_google_rule")
+
+        if any(token in normalized for token in ("city test", "город", "қала", "quiz", "тест")) and any(
+            token in normalized for token in ("question", "вопрос", "сұрақ", "random", "случайн", "кездейсоқ", "pass", "пройти", "өту", "5", "70")
+        ):
+            return self._project_direct_text(chat_id, "city_test_rule")
+
+        if any(token in normalized for token in ("очки", "балл", "ұпай", "score", "scores", "point", "points")) and any(
+            token in normalized for token in ("city test", "город", "қала", "quiz", "тест", "сек", "second", "time", "время", "уақыт", "30", "50", "calculate", "счита", "есептел")
+        ):
+            return self._project_direct_text(chat_id, "city_score_rule")
+
+        if any(token in normalized for token in ("ачив", "achievement", "жетіст", "unlock", "получ", "алу")) and any(
+            token in normalized for token in ("город", "қала", "time", "время", "уақыт", "4", "fast", "быстр", "жылдам")
+        ):
+            return self._project_direct_text(chat_id, "city_achievement_rule")
+
+        if any(token in normalized for token in ("цвет", "marker", "mark", "точк", "нүкт", "green", "yellow", "red", "white", "зел", "желт", "крас", "бел", "жасыл", "сары", "қызыл", "ақ", "ring", "обруч", "шығыршық")):
+            return self._project_direct_text(chat_id, "map_colors_rule")
+
+        if any(token in normalized for token in ("карта", "map", "карте", "картада")) and any(
+            token in normalized for token in ("какой период", "which period", "қай кезең", "opens on", "открывается", "ашылады", "last unlocked", "последн", "соңғы")
+        ):
+            return self._project_direct_text(chat_id, "map_open_rule")
+
+        if any(token in normalized for token in ("7 период", "seven period", "7 кезең", "сколько период", "how many period", "неше кезең")):
+            return self._project_direct_text(chat_id, "period_count_rule")
+
+        if any(token in normalized for token in ("ник", "nickname", "username", "аватар", "avatar")) and any(
+            token in normalized for token in ("профил", "profile", "профиль", "рейтинг", "leaderboard", "rank")
+        ):
+            return self._project_direct_text(chat_id, "profile_edit_rule")
+
+        if any(token in normalized for token in ("удал", "delete", "жой", "account", "аккаунт", "профил", "profile")) and any(
+            token in normalized for token in ("admin", "админ", "оператор", "register", "регистра", "қайта тіркел", "заново")
+        ):
+            return self._project_direct_text(chat_id, "delete_rule")
 
         faq_matchers = (
             ("faq_start_answer", ("как начать", "start game", "start the game", "ойынды қалай", "начать игру")),
@@ -997,7 +1092,9 @@ class TelegramAdminBot:
 
         language = self._get_chat_language(chat_id)
         faq_text = "\n".join(f"- {item['title']}: {item['answer']}" for item in self._faq_items(chat_id))
-        support_rules = "\n".join(f"- {item}" for item in self._support_rules(chat_id))
+        support_rules = "\n".join(
+            f"- {item}" for item in [*self._support_rules(chat_id), *self._support_project_facts()]
+        )
         topic_label, _ = self._topic_content(chat_id, topic)
         system_prompt = (
             "You are Sapar Quest support assistant. "
@@ -1008,6 +1105,8 @@ class TelegramAdminBot:
             "Keep answers short, concrete, and specific to the user's message. "
             "If the user asks a direct yes/no question, answer with yes/no in the first sentence. "
             "If the user asks about numbers, calculations, percentages, score, rating, or accuracy, give the exact rule and the final number directly without vague wording. "
+            "If the answer is already stated in the project rules below, use that rule directly and do not hedge. "
+            "Do not answer with broad product fluff. Mention the exact threshold, timer, question count, unlock rule, or scoring formula when relevant. "
             "Prefer one direct answer first, then one short explanation. "
             "Help only with Sapar Quest: account, Google login, map periods, "
             "city quizzes, UNT test, profile, achievements, leaderboard, AI analysis, and technical issues. "

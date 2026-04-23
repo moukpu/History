@@ -9,12 +9,13 @@ import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./lang
 import {
   clearActiveQuizState,
   clearPendingQuizContext,
+  ensureStoredAuthOrRedirect,
   getActiveQuizState,
   getOrCreatePlayerId,
   getPendingQuizContext,
   hasStoredAuthUser,
-  reconcileStoredAuthUser,
   setActiveQuizState,
+  startStoredAuthWatcher,
 } from "./storage.js";
 import {
   createElementFromHtml,
@@ -216,6 +217,8 @@ const state = {
   hintMessage: "",
   timerId: null,
 };
+
+let stopAuthWatcher = null;
 
 const elements = {};
 
@@ -801,7 +804,12 @@ async function init() {
   protectQuizContent("[data-question-section]");
   bindEvents();
   applyTranslations();
-  await reconcileStoredAuthUser();
+  const authUser = await ensureStoredAuthOrRedirect();
+  if (!authUser) {
+    return;
+  }
+  stopAuthWatcher?.();
+  stopAuthWatcher = startStoredAuthWatcher();
   state.playerId = getOrCreatePlayerId();
   hideError();
 

@@ -1,5 +1,5 @@
 import { getApiBaseUrl } from "./config.js";
-import { clearStoredPlayerId, reconcileStoredAuthUser, setStoredPlayerId } from "./storage.js?v=20260423d";
+import { clearStoredAuthState, reconcileStoredAuthUser, setStoredPlayerId } from "./storage.js?v=20260423d";
 import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 
 const USER_KEY = "sapar-user";
@@ -245,8 +245,7 @@ function storeUser(user) {
 }
 
 function clearUser() {
-  localStorage.removeItem(USER_KEY);
-  clearStoredPlayerId();
+  clearStoredAuthState(getStoredUser()?.id);
 }
 
 async function apiPost(path, body) {

@@ -1,9 +1,10 @@
 import { api } from "./api.js";
 import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 import {
+  ensureStoredAuthOrRedirect,
   getOrCreatePlayerId,
   hasStoredAuthUser,
-  reconcileStoredAuthUser,
+  startStoredAuthWatcher,
 } from "./storage.js";
 import {
   createElementFromHtml,
@@ -17,6 +18,7 @@ import {
 const STORAGE_KEY = "sapar-ent-test-state";
 const ENT_QUESTION_COUNT = 20;
 const ENT_DURATION_MS = 10 * 60 * 1000;
+let stopAuthWatcher = null;
 
 const translations = {
   ru: {
@@ -658,7 +660,12 @@ async function init() {
   setVisible(elements.prevButton, false);
   syncTimerDisplay();
 
-  await reconcileStoredAuthUser();
+  const authUser = await ensureStoredAuthOrRedirect();
+  if (!authUser) {
+    return;
+  }
+  stopAuthWatcher?.();
+  stopAuthWatcher = startStoredAuthWatcher();
   state.playerId = getOrCreatePlayerId();
   hideError();
   
