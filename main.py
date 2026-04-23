@@ -13,7 +13,7 @@ from urllib.request import urlopen
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from openai import AsyncOpenAI, OpenAIError
 from pydantic import ValidationError
@@ -931,4 +931,12 @@ async def frontend_index() -> RedirectResponse:
 
 
 if FRONTEND_DIR.exists():
+    @app.get("/favicon.ico", include_in_schema=False)
+    async def favicon_ico() -> FileResponse:
+        return FileResponse(
+            FRONTEND_DIR / "favicon.svg",
+            media_type="image/svg+xml",
+            headers={"Cache-Control": "public, max-age=86400"},
+        )
+
     app.mount("/", CachedStaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
