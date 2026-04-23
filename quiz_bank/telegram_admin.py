@@ -402,6 +402,19 @@ class TelegramAdminBot:
         )
         await self._send(operator_chat_id, summary)
 
+        try:
+            await self._api(
+                "copyMessage",
+                {
+                    "chat_id": operator_chat_id,
+                    "from_chat_id": int(message["chat"]["id"]),
+                    "message_id": int(message["message_id"]),
+                },
+            )
+            return
+        except Exception:
+            self.logger.exception("Telegram support copyMessage failed, falling back to direct media send.")
+
         photos = message.get("photo") or []
         if photos:
             await self._api(
@@ -410,6 +423,28 @@ class TelegramAdminBot:
                     "chat_id": operator_chat_id,
                     "photo": photos[-1]["file_id"],
                     "caption": "Скриншот из обращения пользователя.",
+                },
+            )
+
+        video = message.get("video")
+        if video:
+            await self._api(
+                "sendVideo",
+                {
+                    "chat_id": operator_chat_id,
+                    "video": video["file_id"],
+                    "caption": "Видео из обращения пользователя.",
+                },
+            )
+
+        animation = message.get("animation")
+        if animation:
+            await self._api(
+                "sendAnimation",
+                {
+                    "chat_id": operator_chat_id,
+                    "animation": animation["file_id"],
+                    "caption": "GIF/анимация из обращения пользователя.",
                 },
             )
 
@@ -488,7 +523,7 @@ class TelegramAdminBot:
             "Be concise, practical, and friendly. Help only with Sapar Quest: account, Google login, map periods, "
             "city quizzes, UNT test, profile, achievements, leaderboard, AI analysis, and technical issues. "
             "Do not claim you changed data or accessed private account data. If account-specific action is needed, "
-            "ask for account email, page, exact error, device/browser, and screenshot. "
+            "ask for account email, page, exact error, device/browser, and a screenshot, but say it in Russian as 'скриншот'. "
             "Known FAQ:\n" + faq_text
         )
         payload = {
