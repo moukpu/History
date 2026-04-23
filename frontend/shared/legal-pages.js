@@ -486,7 +486,9 @@ const contactText = {
   },
 };
 
-contactText.ru.quickMessage = "Здравствуйте! Нужна помощь по Sapar Quest.\nПочта аккаунта: \nПроблема: ";
+contactText.ru.quickMessage = `Здравствуйте! Нужна помощь по Sapar Quest.
+Почта аккаунта: 
+Проблема: `;
 
 const supportContacts = {
   leadEmail: "aldiyar220210@gmail.com",
