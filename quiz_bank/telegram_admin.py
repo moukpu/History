@@ -48,6 +48,12 @@ BOT_AI_LANGUAGE_NAMES = {
 BOT_TEXTS = {
     "ru": {
         "screenshot_word": "скриншот",
+        "direct_accuracy_rule": "Точность профиля и рейтинга считается как среднее арифметическое процентов по всем городским тестам, затем округляется до целого. ЕНТ в эту точность не входит.",
+        "direct_accuracy_example": "Да. Если брать только эти городские тесты, средняя точность будет {average_raw}%, а после округления на сайте отобразится {average_rounded}%.",
+        "direct_ent_accuracy_rule": "ЕНТ не влияет на точность профиля и рейтинга. Он хранится отдельно как попытки ЕНТ.",
+        "direct_period_unlock_rule": "Периоды открываются по порядку. Следующий период разблокируется только после прохождения всех городских тестов предыдущего периода.",
+        "direct_progress_rule": "Прогресс хранится в аккаунте. Обычно нужно войти в тот же профиль, с которого проходились тесты, и обновить страницу.",
+        "direct_google_rule": "Чаще всего проблема со входом через Google связана с Google Client ID, разрешённым доменом или redirect/origin настройками. Если ошибка повторяется, лучше прислать точный текст ошибки или скриншот.",
         "language_prompt_title": "🌍 Выбор языка",
         "language_prompt_body": "Выбери язык бота. Потом его можно поменять в меню одной кнопкой.",
         "language_changed": "Язык бота изменён: {language}.",
@@ -105,6 +111,12 @@ BOT_TEXTS = {
     },
     "en": {
         "screenshot_word": "screenshot",
+        "direct_accuracy_rule": "Profile and leaderboard accuracy are calculated as the arithmetic mean of all city-test percentages, then rounded to a whole number. UNT is not included in this accuracy.",
+        "direct_accuracy_example": "Yes. If we use only those city tests, the average accuracy is {average_raw}%, and the site will show {average_rounded}% after rounding.",
+        "direct_ent_accuracy_rule": "UNT does not affect profile or leaderboard accuracy. It is stored separately as UNT attempts.",
+        "direct_period_unlock_rule": "Periods unlock in order. The next period becomes available only after all city tests from the previous period are completed.",
+        "direct_progress_rule": "Progress is stored in the account. Usually you need to sign in to the same profile used for the tests and refresh the page.",
+        "direct_google_rule": "Google sign-in issues are usually related to Google Client ID, allowed domain, or redirect/origin settings. If it repeats, send the exact error text or a screenshot.",
         "language_prompt_title": "🌍 Language",
         "language_prompt_body": "Choose the bot language. You can change it later from the menu with one button.",
         "language_changed": "Bot language updated: {language}.",
@@ -162,6 +174,12 @@ BOT_TEXTS = {
     },
     "kk": {
         "screenshot_word": "скриншот",
+        "direct_accuracy_rule": "Профиль мен рейтинг дәлдігі барлық қала тесттері пайыздарының арифметикалық орташа мәні арқылы есептеледі де, кейін бүтін санға дейін дөңгелектенеді. ҰБТ бұл дәлдікке кірмейді.",
+        "direct_accuracy_example": "Иә. Егер тек осы қала тесттерін алсақ, орташа дәлдік {average_raw}% болады, ал сайтта дөңгелектелгеннен кейін {average_rounded}% көрсетіледі.",
+        "direct_ent_accuracy_rule": "ҰБТ профиль мен рейтинг дәлдігіне әсер етпейді. Ол бөлек ҰБТ талпыныстары ретінде сақталады.",
+        "direct_period_unlock_rule": "Кезеңдер ретімен ашылады. Келесі кезең тек алдыңғы кезеңдегі барлық қала тесттері өткеннен кейін ғана ашылады.",
+        "direct_progress_rule": "Прогресс аккаунтта сақталады. Әдетте тест тапсырған сол профильге кіріп, бетті жаңарту керек.",
+        "direct_google_rule": "Google арқылы кіру мәселесі көбіне Google Client ID, рұқсат етілген домен немесе redirect/origin баптауларына байланысты болады. Қате қайталанса, нақты қате мәтінін не скриншот жібер.",
         "language_prompt_title": "🌍 Тіл таңдау",
         "language_prompt_body": "Бот тілін таңда. Кейін оны мәзірден бір батырмамен өзгертуге болады.",
         "language_changed": "Бот тілі өзгертілді: {language}.",
@@ -606,6 +624,84 @@ class TelegramAdminBot:
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         return cleaned
 
+    def _format_support_percent(self, value: float) -> str:
+        rounded = round(value, 2)
+        if math.isclose(rounded, round(rounded), abs_tol=1e-9):
+            return str(int(round(rounded)))
+        return f"{rounded:.2f}".rstrip("0").rstrip(".")
+
+    def _round_support_percent(self, value: float) -> int:
+        return int(math.floor(float(value) + 0.5))
+
+    def _extract_percent_values(self, question: str) -> list[float]:
+        values: list[float] = []
+        for match in re.findall(r"(\d+(?:[.,]\d+)?)\s*%", str(question or "")):
+            try:
+                values.append(float(match.replace(",", ".")))
+            except ValueError:
+                continue
+        return values
+
+    def _direct_support_answer(self, chat_id: int, question: str, topic: str = "") -> str | None:
+        normalized = str(question or "").strip().lower()
+        if not normalized:
+            return None
+
+        has_accuracy = any(
+            token in normalized
+            for token in ("точност", "accuracy", "дәлд", "рейтинг", "leaderboard", "rating", "процент", "percent")
+        )
+        percentages = self._extract_percent_values(normalized)
+        if has_accuracy and len(percentages) >= 2:
+            average_raw = sum(percentages) / len(percentages)
+            return (
+                self._t(
+                    chat_id,
+                    "direct_accuracy_example",
+                    average_raw=self._format_support_percent(average_raw),
+                    average_rounded=self._round_support_percent(average_raw),
+                )
+                + "\n\n"
+                + self._t(chat_id, "direct_accuracy_rule")
+            )
+
+        if "ент" in normalized or "unt" in normalized or "ұбт" in normalized:
+            if has_accuracy or any(token in normalized for token in ("вли", "affect", "әсер")):
+                return self._t(chat_id, "direct_ent_accuracy_rule")
+            if any(token in normalized for token in ("как работает", "how works", "қалай", "таймер", "10 минут", "10 minute")):
+                return self._t(chat_id, "faq_ent_answer")
+
+        if has_accuracy:
+            return self._t(chat_id, "direct_accuracy_rule")
+
+        if any(token in normalized for token in ("период", "кезең", "period")) and any(
+            token in normalized for token in ("закрыт", "locked", "жабық", "разблок", "unlock", "откро", "ашыл")
+        ):
+            return self._t(chat_id, "direct_period_unlock_rule")
+
+        if any(token in normalized for token in ("прогресс", "profile", "профил", "профиль", "көрін", "missing")) and any(
+            token in normalized for token in ("не вид", "пропал", "missing", "жоқ", "көрінбей", "does not show")
+        ):
+            return self._t(chat_id, "direct_progress_rule")
+
+        if ("google" in normalized or "гугл" in normalized) and any(
+            token in normalized for token in ("вход", "login", "sign", "кіру", "ошиб", "error", "қате")
+        ):
+            return self._t(chat_id, "direct_google_rule")
+
+        faq_matchers = (
+            ("faq_start_answer", ("как начать", "start game", "start the game", "ойынды қалай", "начать игру")),
+            ("faq_locked_answer", ("почему период закрыт", "why is a period locked", "неге кезең жабық")),
+            ("faq_profile_answer", ("почему не виден прогресс", "why is my progress missing", "неге прогресс көрінбейді")),
+            ("faq_ent_answer", ("как работает ент", "how does the unt test work", "ұбт тесті қалай")),
+            ("faq_google_answer", ("не работает вход через google", "google sign-in does not work", "google арқылы кіру жұмыс істемейді")),
+            ("faq_leaderboard_answer", ("как считается рейтинг", "how is the leaderboard calculated", "рейтинг қалай есептеледі")),
+        )
+        for key, variants in faq_matchers:
+            if any(variant in normalized for variant in variants):
+                return self._t(chat_id, key)
+        return None
+
     def _build_support_fallback_answer(self, chat_id: int, question: str, topic: str = "") -> str:
         topic_label, _ = self._topic_content(chat_id, topic)
         question = str(question or "").strip()
@@ -879,6 +975,11 @@ class TelegramAdminBot:
         question = question.strip()
         if not question:
             await self._show_support_main(chat_id)
+            return
+
+        direct_answer = self._direct_support_answer(chat_id, question, topic)
+        if direct_answer:
+            await self._send(chat_id, escape(direct_answer), self._support_feedback_keyboard(chat_id))
             return
 
         session = self._get_support_session(chat_id)
