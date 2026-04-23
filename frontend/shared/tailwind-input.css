@@ -196,7 +196,7 @@
 
     .leaderboard-podium [data-podium-primary] {
       order: 2 !important;
-      transform: none !important;
+      transform: translateY(-0.45rem) !important;
     }
 
     .leaderboard-podium [data-podium-tertiary] {
