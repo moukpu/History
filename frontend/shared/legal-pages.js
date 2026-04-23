@@ -495,8 +495,8 @@ const supportContacts = {
   assistantEmail: "azamatik908@gmail.com",
   phoneDisplay: "+7 747 646 5285",
   phoneLink: "+77476465285",
-  telegramHandle: "@Moukpu",
-  telegramLink: "https://t.me/Moukpu",
+  telegramHandle: "@history_pamelsasa_bot",
+  telegramLink: "https://t.me/history_pamelsasa_bot",
   whatsappNumber: "77476465285",
 };
 

@@ -43,9 +43,9 @@ Notes:
 
 - Add Python to `PATH` during installation if the installer offers that option.
 - The core site works without Node.js because the frontend can also be served by Python.
-- `GROQ_API_KEY` is optional. It is required for AI analysis in ENT attempt reviews.
+- `GROQ_API_KEY` is optional. It is required for AI analysis in ENT attempt reviews and Telegram support replies.
 - `GOOGLE_CLIENT_ID` is optional. It is only required if you want the Google sign-in button to work.
-- `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ADMIN_IDS` are optional. They enable the Telegram admin panel.
+- `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ADMIN_IDS` are optional. They enable the Telegram support/admin bot.
 
 ## Quick start
 
@@ -231,20 +231,29 @@ Add it under **Authorized JavaScript origins** for the same OAuth Web Client ID.
 Important variable notes:
 
 - `GOOGLE_CLIENT_ID` is not secret, but it is environment-specific.
-- `GROQ_API_KEY` is optional and should be set if you want AI analysis in ENT attempt reviews.
+- `GROQ_API_KEY` is optional and should be set if you want AI analysis in ENT attempt reviews and Telegram support replies.
 - `GROQ_MODEL` defaults to `llama-3.3-70b-versatile`.
 - `TELEGRAM_BOT_TOKEN` is secret. Create it with Telegram `@BotFather`.
 - `TELEGRAM_ADMIN_IDS` is a comma-separated list of numeric Telegram user ids allowed to control the site.
 - Do not commit your real `.env`; use Railway service variables.
 
-## Telegram Admin Bot
+## Telegram Support And Admin Bot
 
-The backend can start a Telegram admin bot in the same Railway service. It is disabled unless both variables are set:
+The backend can start one Telegram bot in the same Railway service. It works as public support for users and as an admin panel for trusted Telegram ids. It is disabled unless both variables are set:
 
 ```bash
 TELEGRAM_BOT_TOKEN=1234567890:your_bot_token
 TELEGRAM_ADMIN_IDS=123456789
 ```
+
+What users can do from Telegram:
+
+- open `/start` or `/help` to see the support menu
+- choose a topic: account, progress, tests/ENT, site error, FAQ, or contacts
+- ask an AI support question powered by `GROQ_API_KEY`
+- get the public support link from the Help Center: `https://t.me/history_pamelsasa_bot`
+
+The admin panel opens only through `/admin`, and only for Telegram ids listed in `TELEGRAM_ADMIN_IDS`. Other users are ignored when they send `/admin`.
 
 What the admin can do from Telegram:
 

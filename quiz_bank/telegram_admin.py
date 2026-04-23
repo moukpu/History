@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import math
 import os
@@ -28,6 +29,78 @@ from .admin_tools import (
 
 USER_PAGE_SIZE = 6
 ACHIEVEMENT_PAGE_SIZE = 7
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip() or "llama-3.3-70b-versatile"
+
+SUPPORT_FAQ = [
+    {
+        "key": "start",
+        "title": "Как начать игру?",
+        "answer": (
+            "Создай аккаунт или войди через Google, затем открой карту. "
+            "Квест начинается с первого периода. После прохождения городских тестов периода "
+            "следующий период открывается автоматически."
+        ),
+    },
+    {
+        "key": "locked",
+        "title": "Почему период закрыт?",
+        "answer": (
+            "Периоды открываются по порядку. Нужно пройти все городские тесты предыдущего периода. "
+            "Если период должен быть открыт, обнови страницу и проверь, что ты вошёл в тот же аккаунт."
+        ),
+    },
+    {
+        "key": "profile",
+        "title": "Почему не виден прогресс?",
+        "answer": (
+            "Прогресс хранится в аккаунте. Войди в тот же профиль, с которого проходил тесты. "
+            "Если тест был пройден, но профиль не обновился, перезагрузи страницу и повтори проверку."
+        ),
+    },
+    {
+        "key": "ent",
+        "title": "Как работает ЕНТ-тест?",
+        "answer": (
+            "ЕНТ-тест идёт 10 минут и сохраняется в профиле как отдельная попытка. "
+            "После попытки можно открыть разбор: вопросы, выбранные ответы, правильные ответы и AI-анализ."
+        ),
+    },
+    {
+        "key": "google",
+        "title": "Не работает вход через Google",
+        "answer": (
+            "Обычно проблема связана с настройкой Google Client ID или разрешённым доменом. "
+            "Попробуй обычный вход по почте. Если ошибка повторяется, напиши в поддержку текст ошибки."
+        ),
+    },
+    {
+        "key": "leaderboard",
+        "title": "Как считается рейтинг?",
+        "answer": (
+            "Рейтинг берёт прогресс городских тестов, достижения и точность по городским тестам. "
+            "ЕНТ-попытки в точность рейтинга не входят."
+        ),
+    },
+]
+
+SUPPORT_TOPICS = {
+    "account": (
+        "Аккаунт и вход",
+        "Помогу с регистрацией, Google-входом, почтой, ником, аватаркой и восстановлением доступа.",
+    ),
+    "progress": (
+        "Прогресс и карта",
+        "Помогу понять, почему период или город не открыт, почему не засчитался тест или не видны достижения.",
+    ),
+    "quiz": (
+        "Тесты и ЕНТ",
+        "Помогу с городскими тестами, таймером, результатами ЕНТ и AI-разбором попыток.",
+    ),
+    "bug": (
+        "Ошибка сайта",
+        "Опиши страницу, действие, текст ошибки, устройство и браузер. Если есть скриншот, его тоже можно отправить.",
+    ),
+}
 
 
 def _parse_admin_ids(raw_value: str) -> set[int]:
@@ -81,6 +154,7 @@ class TelegramAdminBot:
         self.offset = 0
         self.actions: dict[str, dict[str, Any]] = {}
         self.waiting: dict[int, dict[str, Any]] = {}
+        self.support_context: dict[int, str] = {}
 
     def _is_admin(self, payload: dict[str, Any]) -> bool:
         from_user = payload.get("from") or {}
@@ -100,6 +174,16 @@ class TelegramAdminBot:
 
     def _keyboard(self, rows: list[list[dict[str, str]]]) -> dict[str, Any]:
         return {"inline_keyboard": rows}
+
+    def _is_support_action(self, action: str) -> bool:
+        return action in {
+            "support_main",
+            "support_faq",
+            "support_faq_item",
+            "support_topic",
+            "support_ai_start",
+            "support_contacts",
+        }
 
     async def _api(self, method: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
         async with httpx.AsyncClient(timeout=35) as client:
@@ -147,6 +231,165 @@ class TelegramAdminBot:
             await self._api("answerCallbackQuery", payload)
         except httpx.HTTPError:
             pass
+
+    def _support_keyboard(self) -> dict[str, Any]:
+        return self._keyboard(
+            [
+                [
+                    self._button("Аккаунт", "support_topic", topic="account"),
+                    self._button("Прогресс", "support_topic", topic="progress"),
+                ],
+                [
+                    self._button("Тесты/ЕНТ", "support_topic", topic="quiz"),
+                    self._button("Ошибка сайта", "support_topic", topic="bug"),
+                ],
+                [
+                    self._button("FAQ", "support_faq"),
+                    self._button("Спросить ИИ", "support_ai_start"),
+                ],
+                [self._button("Контакты", "support_contacts")],
+            ]
+        )
+
+    async def _show_support_main(self, chat_id: int, message_id: int | None = None) -> None:
+        text = (
+            "<b>Sapar Quest support</b>\n\n"
+            "Я помогу с аккаунтом, прогрессом, картой, тестами, ЕНТ и ошибками сайта.\n"
+            "Выбери тему ниже или напиши вопрос обычным сообщением."
+        )
+        if message_id:
+            await self._edit(chat_id, message_id, text, self._support_keyboard())
+        else:
+            await self._send(chat_id, text, self._support_keyboard())
+
+    async def _show_support_faq(self, chat_id: int, message_id: int) -> None:
+        rows = [
+            [self._button(item["title"], "support_faq_item", key=item["key"])]
+            for item in SUPPORT_FAQ
+        ]
+        rows.append([self._button("Назад", "support_main")])
+        await self._edit(
+            chat_id,
+            message_id,
+            "<b>Частые вопросы</b>\nВыбери вопрос, чтобы получить быстрый ответ.",
+            self._keyboard(rows),
+        )
+
+    async def _show_support_faq_item(self, chat_id: int, message_id: int, key: str) -> None:
+        item = next((faq for faq in SUPPORT_FAQ if faq["key"] == key), None)
+        if not item:
+            await self._show_support_faq(chat_id, message_id)
+            return
+        await self._edit(
+            chat_id,
+            message_id,
+            f"<b>{escape(item['title'])}</b>\n\n{escape(item['answer'])}",
+            self._keyboard(
+                [
+                    [self._button("Задать вопрос ИИ", "support_ai_start", topic=key)],
+                    [self._button("Назад к FAQ", "support_faq")],
+                ]
+            ),
+        )
+
+    async def _show_support_topic(self, chat_id: int, message_id: int, topic: str) -> None:
+        title, body = SUPPORT_TOPICS.get(topic, SUPPORT_TOPICS["bug"])
+        self.support_context[chat_id] = topic
+        await self._edit(
+            chat_id,
+            message_id,
+            (
+                f"<b>{escape(title)}</b>\n\n"
+                f"{escape(body)}\n\n"
+                "Напиши вопрос одним сообщением, и ИИ поддержки ответит по Sapar Quest."
+            ),
+            self._keyboard(
+                [
+                    [self._button("Написать вопрос ИИ", "support_ai_start", topic=topic)],
+                    [self._button("FAQ", "support_faq"), self._button("Назад", "support_main")],
+                ]
+            ),
+        )
+
+    async def _show_support_contacts(self, chat_id: int, message_id: int) -> None:
+        text = (
+            "<b>Контакты поддержки</b>\n\n"
+            "Telegram-бот: @history_pamelsasa_bot\n"
+            "Email разработчика: aldiyar220210@gmail.com\n"
+            "Email помощника: azamatik908@gmail.com\n"
+            "Телефон/WhatsApp: +7 747 646 5285\n\n"
+            "Для быстрого ответа укажи почту аккаунта, страницу сайта и что именно произошло."
+        )
+        await self._edit(
+            chat_id,
+            message_id,
+            text,
+            self._keyboard([[self._button("Назад", "support_main")]]),
+        )
+
+    async def _answer_support_with_ai(self, chat_id: int, question: str, topic: str = "") -> None:
+        question = question.strip()
+        if not question:
+            await self._show_support_main(chat_id)
+            return
+
+        api_key = os.getenv("GROQ_API_KEY", "").strip()
+        if not api_key:
+            await self._send(
+                chat_id,
+                (
+                    "AI-поддержка временно недоступна. Напиши вопрос с почтой аккаунта, "
+                    "страницей и описанием проблемы, чтобы команда поддержки могла проверить."
+                ),
+                self._support_keyboard(),
+            )
+            return
+
+        faq_text = "\n".join(f"- {item['title']}: {item['answer']}" for item in SUPPORT_FAQ)
+        topic_label = SUPPORT_TOPICS.get(topic, ("Общий вопрос", ""))[0]
+        system_prompt = (
+            "You are Sapar Quest support assistant. Reply in Russian unless the user clearly uses another language. "
+            "Be concise, practical, and friendly. Help only with Sapar Quest: account, Google login, map periods, "
+            "city quizzes, UNT test, profile, achievements, leaderboard, AI analysis, and technical issues. "
+            "Do not claim you changed data or accessed private account data. If account-specific action is needed, "
+            "ask for account email, page, exact error, device/browser, and screenshot. "
+            "Known FAQ:\n" + faq_text
+        )
+        payload = {
+            "model": GROQ_MODEL,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": f"Topic: {topic_label}\nUser question: {question}",
+                },
+            ],
+            "temperature": 0.35,
+            "max_tokens": 500,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=30) as client:
+                response = await client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    content=json.dumps(payload),
+                )
+                response.raise_for_status()
+                data = response.json()
+                answer = str(data["choices"][0]["message"]["content"]).strip()
+        except Exception:
+            self.logger.exception("Telegram support AI failed.")
+            answer = (
+                "AI-поддержка временно не ответила. Попробуй ещё раз позже или напиши: "
+                "почта аккаунта, страница, что нажал, какая ошибка, устройство/браузер."
+            )
+
+        if len(answer) > 3500:
+            answer = answer[:3490].rstrip() + "..."
+        await self._send(chat_id, escape(answer), self._support_keyboard())
 
     def _main_keyboard(self) -> dict[str, Any]:
         disabled = get_site_disabled(self.db_path)
@@ -390,6 +633,19 @@ class TelegramAdminBot:
 
         action = state.get("action")
         try:
+            if action == "support_ai":
+                self.waiting.pop(admin_id, None)
+                await self._answer_support_with_ai(
+                    chat_id,
+                    text,
+                    str(state.get("topic") or self.support_context.get(chat_id, "")),
+                )
+                return True
+
+            if not self._is_admin(message):
+                self.waiting.pop(admin_id, None)
+                return True
+
             if action == "set_username":
                 user = set_admin_username(self.db_path, state["user_id"], text)
                 self.waiting.pop(admin_id, None)
@@ -428,21 +684,28 @@ class TelegramAdminBot:
 
     async def _handle_message(self, message: dict[str, Any]) -> None:
         chat_id = int(message["chat"]["id"])
-        if not self._is_admin(message):
-            await self._send(chat_id, "Доступ закрыт.")
+        text = str(message.get("text") or "").strip()
+        if text.startswith("/admin"):
+            if self._is_admin(message):
+                await self._show_main(chat_id)
             return
+
         if await self._handle_waiting_text(message):
             return
 
-        text = str(message.get("text") or "").strip()
-        if text.startswith("/find"):
+        if text.startswith("/start") or text.startswith("/help") or text == "":
+            await self._show_support_main(chat_id)
+            return
+
+        if self._is_admin(message) and text.startswith("/find"):
             query = text.replace("/find", "", 1).strip()
             await self._show_users(chat_id, None, page=0, query=query)
             return
-        if text.startswith("/users"):
+        if self._is_admin(message) and text.startswith("/users"):
             await self._show_users(chat_id, None, page=0)
             return
-        await self._show_main(chat_id)
+
+        await self._answer_support_with_ai(chat_id, text, self.support_context.get(chat_id, ""))
 
     async def _handle_callback(self, callback: dict[str, Any]) -> None:
         callback_id = str(callback["id"])
@@ -451,10 +714,6 @@ class TelegramAdminBot:
         message_id = int(message.get("message_id") or 0)
         from_user = callback.get("from") or {}
         admin_id = int(from_user.get("id") or 0)
-
-        if not self._is_admin(callback):
-            await self._answer_callback(callback_id, "Доступ закрыт.")
-            return
 
         data = str(callback.get("data") or "")
         if not data.startswith("x:"):
@@ -467,6 +726,33 @@ class TelegramAdminBot:
 
         action = payload["action"]
         await self._answer_callback(callback_id)
+
+        if self._is_support_action(action):
+            if action == "support_main":
+                await self._show_support_main(chat_id, message_id)
+            elif action == "support_faq":
+                await self._show_support_faq(chat_id, message_id)
+            elif action == "support_faq_item":
+                await self._show_support_faq_item(chat_id, message_id, str(payload.get("key") or ""))
+            elif action == "support_topic":
+                await self._show_support_topic(chat_id, message_id, str(payload.get("topic") or "bug"))
+            elif action == "support_ai_start":
+                self.waiting[admin_id] = {
+                    "action": "support_ai",
+                    "topic": str(payload.get("topic") or self.support_context.get(chat_id, "")),
+                }
+                await self._edit(
+                    chat_id,
+                    message_id,
+                    "Напиши вопрос одним сообщением. Желательно указать почту аккаунта, страницу и что произошло.",
+                    self._keyboard([[self._button("Назад", "support_main")]]),
+                )
+            elif action == "support_contacts":
+                await self._show_support_contacts(chat_id, message_id)
+            return
+
+        if not self._is_admin(callback):
+            return
 
         if action == "main":
             await self._show_main(chat_id, message_id)
