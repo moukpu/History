@@ -155,6 +155,7 @@ class TelegramAdminBot:
         self.actions: dict[str, dict[str, Any]] = {}
         self.waiting: dict[int, dict[str, Any]] = {}
         self.support_context: dict[int, str] = {}
+        self.support_sessions: dict[int, dict[str, int | str]] = {}
 
     def _is_admin(self, payload: dict[str, Any]) -> bool:
         from_user = payload.get("from") or {}
@@ -183,7 +184,54 @@ class TelegramAdminBot:
             "support_topic",
             "support_ai_start",
             "support_contacts",
+            "support_feedback_helped",
+            "support_feedback_retry",
+            "support_operator_start",
         }
+
+    def _get_support_session(self, chat_id: int) -> dict[str, int | str]:
+        session = self.support_sessions.get(chat_id)
+        if session is None:
+            session = {
+                "ai_attempts": 0,
+                "helped_count": 0,
+                "not_helped_count": 0,
+                "operator_tickets": 0,
+                "topic": "",
+            }
+            self.support_sessions[chat_id] = session
+        return session
+
+    def _reset_support_dialog(self, chat_id: int) -> None:
+        session = self._get_support_session(chat_id)
+        session["ai_attempts"] = 0
+        session["topic"] = ""
+
+    def _support_feedback_keyboard(self, chat_id: int) -> dict[str, Any]:
+        session = self._get_support_session(chat_id)
+        ai_attempts = int(session.get("ai_attempts", 0) or 0)
+        if ai_attempts >= 2:
+            return self._keyboard(
+                [
+                    [
+                        self._button("Помог", "support_feedback_helped"),
+                        self._button("Оператор", "support_operator_start"),
+                    ],
+                    [self._button("В меню", "support_main")],
+                ]
+            )
+        return self._keyboard(
+            [
+                [
+                    self._button("Помог", "support_feedback_helped"),
+                    self._button("Не помог", "support_feedback_retry"),
+                ],
+                [self._button("В меню", "support_main")],
+            ]
+        )
+
+    def _support_message_text(self, message: dict[str, Any]) -> str:
+        return str(message.get("text") or message.get("caption") or "").strip()
 
     async def _api(self, method: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
         async with httpx.AsyncClient(timeout=35) as client:
@@ -243,15 +291,13 @@ class TelegramAdminBot:
                     self._button("Тесты/ЕНТ", "support_topic", topic="quiz"),
                     self._button("Ошибка сайта", "support_topic", topic="bug"),
                 ],
-                [
-                    self._button("FAQ", "support_faq"),
-                    self._button("Спросить ИИ", "support_ai_start"),
-                ],
+                [self._button("Спросить ИИ", "support_ai_start")],
                 [self._button("Контакты", "support_contacts")],
             ]
         )
 
     async def _show_support_main(self, chat_id: int, message_id: int | None = None) -> None:
+        self._reset_support_dialog(chat_id)
         text = (
             "<b>Sapar Quest support</b>\n\n"
             "Я помогу с аккаунтом, прогрессом, картой, тестами, ЕНТ и ошибками сайта.\n"
@@ -295,6 +341,7 @@ class TelegramAdminBot:
     async def _show_support_topic(self, chat_id: int, message_id: int, topic: str) -> None:
         title, body = SUPPORT_TOPICS.get(topic, SUPPORT_TOPICS["bug"])
         self.support_context[chat_id] = topic
+        self._get_support_session(chat_id)["topic"] = topic
         await self._edit(
             chat_id,
             message_id,
@@ -306,7 +353,7 @@ class TelegramAdminBot:
             self._keyboard(
                 [
                     [self._button("Написать вопрос ИИ", "support_ai_start", topic=topic)],
-                    [self._button("FAQ", "support_faq"), self._button("Назад", "support_main")],
+                    [self._button("Назад", "support_main")],
                 ]
             ),
         )
@@ -327,11 +374,100 @@ class TelegramAdminBot:
             self._keyboard([[self._button("Назад", "support_main")]]),
         )
 
+    async def _notify_operator(self, message: dict[str, Any], topic: str) -> None:
+        if not self.admin_ids:
+            return
+
+        operator_chat_id = sorted(self.admin_ids)[0]
+        from_user = message.get("from") or {}
+        username = str(from_user.get("username") or "").strip()
+        username_text = f"@{username}" if username else "не указан"
+        full_name = " ".join(
+            chunk for chunk in [str(from_user.get("first_name") or "").strip(), str(from_user.get("last_name") or "").strip()] if chunk
+        ).strip() or "Не указано"
+        user_id = int(from_user.get("id") or 0)
+        body = self._support_message_text(message)
+        topic_label = SUPPORT_TOPICS.get(topic, ("Общий вопрос", ""))[0]
+        session = self._get_support_session(int(message["chat"]["id"]))
+
+        summary = (
+            "<b>Новое обращение к оператору Sapar Quest</b>\n\n"
+            f"<b>Тема:</b> {escape(topic_label)}\n"
+            f"<b>Пользователь:</b> {escape(full_name)}\n"
+            f"<b>Username:</b> {escape(username_text)}\n"
+            f"<b>Telegram ID:</b> <code>{user_id}</code>\n"
+            f"<b>Попыток с ИИ:</b> {int(session.get('ai_attempts', 0) or 0)}\n"
+            f"<b>Ответов 'не помог':</b> {int(session.get('not_helped_count', 0) or 0)}\n"
+            f"<b>Сообщение:</b>\n{escape(body or 'Пользователь отправил вложение без текста.')}"
+        )
+        await self._send(operator_chat_id, summary)
+
+        photos = message.get("photo") or []
+        if photos:
+            await self._api(
+                "sendPhoto",
+                {
+                    "chat_id": operator_chat_id,
+                    "photo": photos[-1]["file_id"],
+                    "caption": "Скриншот из обращения пользователя.",
+                },
+            )
+
+        document = message.get("document")
+        if document:
+            await self._api(
+                "sendDocument",
+                {
+                    "chat_id": operator_chat_id,
+                    "document": document["file_id"],
+                    "caption": "Вложение из обращения пользователя.",
+                },
+            )
+
+    async def _submit_operator_ticket(self, message: dict[str, Any], topic: str = "") -> None:
+        chat_id = int(message["chat"]["id"])
+        body = self._support_message_text(message)
+        has_attachment = bool(message.get("photo") or message.get("document"))
+        if not body:
+            await self._send(
+                chat_id,
+                (
+                    "Нужно одно сообщение для оператора: почта аккаунта, что произошло, на какой странице ошибка, "
+                    "и при необходимости скриншот в этом же сообщении."
+                ),
+            )
+            return
+
+        session = self._get_support_session(chat_id)
+        session["operator_tickets"] = int(session.get("operator_tickets", 0) or 0) + 1
+        self.logger.info(
+            "Telegram support operator ticket created.",
+            extra={
+                "chat_id": chat_id,
+                "topic": topic or session.get("topic", ""),
+                "operator_tickets": int(session["operator_tickets"]),
+            },
+        )
+        await self._notify_operator(message, str(topic or session.get("topic", "")))
+        self._reset_support_dialog(chat_id)
+        await self._send(
+            chat_id,
+            (
+                "Спасибо. Обращение передано оператору. "
+                "Он увидит описание, Telegram пользователя и вложения, если они были отправлены."
+            ),
+            self._support_keyboard(),
+        )
+
     async def _answer_support_with_ai(self, chat_id: int, question: str, topic: str = "") -> None:
         question = question.strip()
         if not question:
             await self._show_support_main(chat_id)
             return
+
+        session = self._get_support_session(chat_id)
+        session["ai_attempts"] = int(session.get("ai_attempts", 0) or 0) + 1
+        session["topic"] = str(topic or session.get("topic", "") or self.support_context.get(chat_id, ""))
 
         api_key = os.getenv("GROQ_API_KEY", "").strip()
         if not api_key:
@@ -341,7 +477,7 @@ class TelegramAdminBot:
                     "AI-поддержка временно недоступна. Напиши вопрос с почтой аккаунта, "
                     "страницей и описанием проблемы, чтобы команда поддержки могла проверить."
                 ),
-                self._support_keyboard(),
+                self._support_feedback_keyboard(chat_id),
             )
             return
 
@@ -389,7 +525,11 @@ class TelegramAdminBot:
 
         if len(answer) > 3500:
             answer = answer[:3490].rstrip() + "..."
-        await self._send(chat_id, escape(answer), self._support_keyboard())
+        if int(session.get("ai_attempts", 0) or 0) >= 2:
+            answer += (
+                "\n\nЕсли это всё ещё не решило проблему, я могу сразу передать обращение оператору."
+            )
+        await self._send(chat_id, escape(answer), self._support_feedback_keyboard(chat_id))
 
     def _main_keyboard(self) -> dict[str, Any]:
         disabled = get_site_disabled(self.db_path)
@@ -625,7 +765,7 @@ class TelegramAdminBot:
             return False
 
         chat_id = int(message["chat"]["id"])
-        text = str(message.get("text") or "").strip()
+        text = self._support_message_text(message)
         if text.lower() in {"/cancel", "cancel", "отмена"}:
             self.waiting.pop(admin_id, None)
             await self._send(chat_id, "Отменено.")
@@ -638,6 +778,14 @@ class TelegramAdminBot:
                 await self._answer_support_with_ai(
                     chat_id,
                     text,
+                    str(state.get("topic") or self.support_context.get(chat_id, "")),
+                )
+                return True
+
+            if action == "support_operator_ticket":
+                self.waiting.pop(admin_id, None)
+                await self._submit_operator_ticket(
+                    message,
                     str(state.get("topic") or self.support_context.get(chat_id, "")),
                 )
                 return True
@@ -737,9 +885,12 @@ class TelegramAdminBot:
             elif action == "support_topic":
                 await self._show_support_topic(chat_id, message_id, str(payload.get("topic") or "bug"))
             elif action == "support_ai_start":
+                session = self._get_support_session(chat_id)
+                session["ai_attempts"] = 0
+                session["topic"] = str(payload.get("topic") or self.support_context.get(chat_id, ""))
                 self.waiting[admin_id] = {
                     "action": "support_ai",
-                    "topic": str(payload.get("topic") or self.support_context.get(chat_id, "")),
+                    "topic": str(session["topic"]),
                 }
                 await self._edit(
                     chat_id,
@@ -749,6 +900,52 @@ class TelegramAdminBot:
                 )
             elif action == "support_contacts":
                 await self._show_support_contacts(chat_id, message_id)
+            elif action == "support_feedback_helped":
+                session = self._get_support_session(chat_id)
+                session["helped_count"] = int(session.get("helped_count", 0) or 0) + 1
+                self.logger.info(
+                    "Telegram support marked as helped.",
+                    extra={"chat_id": chat_id, "helped_count": int(session["helped_count"])},
+                )
+                self._reset_support_dialog(chat_id)
+                await self._edit(
+                    chat_id,
+                    message_id,
+                    "Спасибо за обратную связь. Рад, что ответ помог. Если понадобится ещё помощь, можно сразу выбрать тему ниже.",
+                    self._support_keyboard(),
+                )
+            elif action == "support_feedback_retry":
+                session = self._get_support_session(chat_id)
+                session["not_helped_count"] = int(session.get("not_helped_count", 0) or 0) + 1
+                self.logger.info(
+                    "Telegram support marked as not helped.",
+                    extra={"chat_id": chat_id, "not_helped_count": int(session["not_helped_count"])},
+                )
+                self.waiting[admin_id] = {
+                    "action": "support_ai",
+                    "topic": str(session.get("topic") or self.support_context.get(chat_id, "")),
+                }
+                await self._edit(
+                    chat_id,
+                    message_id,
+                    "Опиши проблему подробнее одним сообщением: что именно нажал, на какой странице, какой текст ошибки видишь, и что уже пробовал.",
+                    self._keyboard([[self._button("Назад", "support_main")]]),
+                )
+            elif action == "support_operator_start":
+                session = self._get_support_session(chat_id)
+                self.waiting[admin_id] = {
+                    "action": "support_operator_ticket",
+                    "topic": str(session.get("topic") or self.support_context.get(chat_id, "")),
+                }
+                await self._edit(
+                    chat_id,
+                    message_id,
+                    (
+                        "Отправь одно сообщение для оператора: почта аккаунта, страница, описание проблемы. "
+                        "Если есть скриншот, приложи его в этом же сообщении."
+                    ),
+                    self._keyboard([[self._button("Назад", "support_main")]]),
+                )
             return
 
         if not self._is_admin(callback):
