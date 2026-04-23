@@ -47,6 +47,7 @@ BOT_AI_LANGUAGE_NAMES = {
 
 BOT_TEXTS = {
     "ru": {
+        "screenshot_word": "скриншот",
         "language_prompt_title": "🌍 Выбор языка",
         "language_prompt_body": "Выбери язык бота. Потом его можно поменять в меню одной кнопкой.",
         "language_changed": "Язык бота изменён: {language}.",
@@ -103,6 +104,7 @@ BOT_TEXTS = {
         "faq_leaderboard_answer": "Рейтинг учитывает городской прогресс, достижения и точность по городским тестам. Попытки ЕНТ в точность рейтинга не входят.",
     },
     "en": {
+        "screenshot_word": "screenshot",
         "language_prompt_title": "🌍 Language",
         "language_prompt_body": "Choose the bot language. You can change it later from the menu with one button.",
         "language_changed": "Bot language updated: {language}.",
@@ -159,6 +161,7 @@ BOT_TEXTS = {
         "faq_leaderboard_answer": "The leaderboard uses city progress, achievements, and city-test accuracy. UNT attempts are not included in leaderboard accuracy.",
     },
     "kk": {
+        "screenshot_word": "скриншот",
         "language_prompt_title": "🌍 Тіл таңдау",
         "language_prompt_body": "Бот тілін таңда. Кейін оны мәзірден бір батырмамен өзгертуге болады.",
         "language_changed": "Бот тілі өзгертілді: {language}.",
@@ -568,9 +571,9 @@ class TelegramAdminBot:
             return True
         return False
 
-    def _clean_support_answer(self, text: str) -> str:
+    def _clean_support_answer(self, chat_id: int, text: str) -> str:
         cleaned = str(text or "").strip()
-        cleaned = LATIN_SCREENSHOT_RE.sub("скриншот", cleaned)
+        cleaned = LATIN_SCREENSHOT_RE.sub(self._t(chat_id, "screenshot_word"), cleaned)
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         return cleaned
 
@@ -902,7 +905,7 @@ class TelegramAdminBot:
                 )
                 response.raise_for_status()
                 data = response.json()
-                answer = self._clean_support_answer(str(data["choices"][0]["message"]["content"]))
+                answer = self._clean_support_answer(chat_id, str(data["choices"][0]["message"]["content"]))
         except Exception:
             self.logger.exception("Telegram support AI failed.")
             answer = self._t(chat_id, "ai_unavailable")
