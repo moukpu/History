@@ -2155,8 +2155,9 @@ function renderMarkers() {
     const isDimmed = Boolean(
       factSession && factSession.candidate_cities && !isFactCandidate
     );
+    const passedCityQuiz = Boolean(cityState.passed_quiz_in_this_period);
     const passed =
-      cityState.passed_quiz_in_this_period ||
+      passedCityQuiz ||
       cityState.has_fact_success_in_this_period ||
       cityState.unlocked_city_achievement;
 
@@ -2171,8 +2172,8 @@ function renderMarkers() {
           <button type="button" class="${
             isActive
               ? "bg-secondary-container text-on-secondary-container p-3 rounded-full shadow-lg hover:scale-105 transition-transform"
-              : passed
-                ? "bg-tertiary-container text-on-tertiary-container p-2 rounded-full shadow-lg hover:scale-105 transition-transform"
+              : passedCityQuiz
+                ? "bg-[#16a34a] text-white p-2 rounded-full shadow-lg hover:scale-105 transition-transform"
                 : "bg-primary text-on-primary p-2 rounded-full shadow-lg hover:scale-105 transition-transform active:scale-90"
           }">
             <span class="material-symbols-outlined text-[18px] ${

@@ -701,6 +701,7 @@ export function updatePeriodSvgMapState(
     const city = cityGroup.dataset.city;
     const cityState = cityStates.get(city);
     const isActive = city === activeCity;
+    const isPassed = Boolean(cityState?.passed_quiz_in_this_period);
     const isDisabled =
       !cityState ||
       (!cityState.has_content &&
@@ -708,6 +709,7 @@ export function updatePeriodSvgMapState(
         !cityState.fact_challenge_available);
 
     cityGroup.classList.toggle("is-active", isActive);
+    cityGroup.classList.toggle("is-passed", isPassed);
     cityGroup.classList.toggle("is-disabled", isDisabled);
     cityGroup.setAttribute("aria-pressed", isActive ? "true" : "false");
     applyCompactActiveCityStyles(cityGroup, isActive, isCompact);
