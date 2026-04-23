@@ -1,7 +1,7 @@
 import { getApiBaseUrl } from "./config.js";
 import { escapeHtml, setHtml, setText } from "./helpers.js";
 import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
-import { getOrCreatePlayerId, reconcileStoredAuthUser } from "./storage.js";
+import { getOrCreatePlayerId, reconcileStoredAuthUser } from "./storage.js?v=20260423d";
 
 const AVATAR_STORAGE_KEY = "sapar-avatar-by-user";
 

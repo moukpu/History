@@ -2,7 +2,7 @@ import { api } from "./api.js";
 import { translateAchievement } from "./achievements-i18n.js";
 import { getLocalizedCityName } from "./city-visuals.js";
 import { escapeHtml, setHtml, setText, setVisible } from "./helpers.js";
-import { clearStoredPlayerId, reconcileStoredAuthUser } from "./storage.js";
+import { clearStoredPlayerId, reconcileStoredAuthUser } from "./storage.js?v=20260423d";
 import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 
 const USER_KEY = "sapar-user";

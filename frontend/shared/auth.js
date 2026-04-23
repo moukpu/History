@@ -1,5 +1,5 @@
 import { getApiBaseUrl } from "./config.js";
-import { clearStoredPlayerId, reconcileStoredAuthUser, setStoredPlayerId } from "./storage.js";
+import { clearStoredPlayerId, reconcileStoredAuthUser, setStoredPlayerId } from "./storage.js?v=20260423d";
 import { getCurrentLanguage, markLanguageReady, mountLanguageMenu } from "./language.js";
 
 const USER_KEY = "sapar-user";

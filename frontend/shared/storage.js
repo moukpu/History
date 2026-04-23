@@ -11,8 +11,71 @@ const KEYS = {
   activeFactSession: "sapar-active-fact-session",
 };
 
+const AVATAR_STORAGE_KEY = "sapar-avatar-by-user";
 const AUTH_RESOLVE_CACHE_MS = 5 * 60 * 1000;
 const AUTH_RESOLVE_TIMEOUT_MS = 8000;
+
+function getStoredAvatarMap(storage) {
+  if (!storage) {
+    return {};
+  }
+
+  try {
+    const raw = storage.getItem(AVATAR_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    storage.removeItem(AVATAR_STORAGE_KEY);
+    return {};
+  }
+}
+
+async function syncStoredAvatarIfNeeded(storage, user) {
+  if (!storage || !user?.id) {
+    return user;
+  }
+
+  const localAvatar = getStoredAvatarMap(storage)?.[user.id];
+  const localAvatarSrc =
+    localAvatar && typeof localAvatar.src === "string" ? localAvatar.src.trim() : "";
+  const serverAvatarSrc =
+    typeof user.avatar_url === "string" ? user.avatar_url.trim() : "";
+
+  if (!localAvatarSrc || localAvatarSrc === serverAvatarSrc) {
+    return user;
+  }
+
+  const controller = new AbortController();
+  const timeoutId = globalThis.setTimeout(
+    () => controller.abort(),
+    AUTH_RESOLVE_TIMEOUT_MS
+  );
+
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/api/auth/avatar`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: user.id,
+        avatar_url: localAvatarSrc,
+      }),
+      cache: "no-store",
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return user;
+    }
+
+    const updated = await response.json();
+    writeJson(KEYS.authUser, updated);
+    storage.setItem(KEYS.authResolvedAt, String(Date.now()));
+    return updated;
+  } catch {
+    return user;
+  } finally {
+    globalThis.clearTimeout(timeoutId);
+  }
+}
 
 function createPlayerId() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -111,7 +174,7 @@ export async function reconcileStoredAuthUser() {
     if (current?.id) {
       storage.setItem(KEYS.playerId, current.id);
     }
-    return current;
+    return syncStoredAvatarIfNeeded(storage, current);
   }
 
   const controller = new AbortController();
@@ -137,14 +200,15 @@ export async function reconcileStoredAuthUser() {
     }
 
     const resolved = await response.json();
-    writeJson(KEYS.authUser, resolved);
+    const synced = await syncStoredAvatarIfNeeded(storage, resolved);
+    writeJson(KEYS.authUser, synced);
     storage.setItem(KEYS.authResolvedAt, String(Date.now()));
-    if (resolved?.id) {
-      storage.setItem(KEYS.playerId, resolved.id);
+    if (synced?.id) {
+      storage.setItem(KEYS.playerId, synced.id);
     }
-    return resolved;
+    return synced;
   } catch {
-    return current;
+    return syncStoredAvatarIfNeeded(storage, current);
   } finally {
     globalThis.clearTimeout(timeoutId);
   }
