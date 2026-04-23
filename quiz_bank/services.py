@@ -46,7 +46,6 @@ from .api_models import (
     UnlockedAchievement,
 )
 from .constants import (
-    CITY_ACHIEVEMENT_CODES,
     CITY_MILESTONE_ACHIEVEMENTS,
     DEFAULT_PERIOD_DATA_PATH,
     DEFAULT_PERIOD_MULTILANG_DATA_PATH,
@@ -57,6 +56,7 @@ from .constants import (
     PERIOD_MASTER_ACHIEVEMENT_CODES,
     QUEST_START_PERIOD_CODE,
     PERIOD_UNLOCK_SEQUENCE,
+    get_city_period_achievement_code,
 )
 from .database import (
     count_player_correct_fact_challenges,
@@ -725,17 +725,27 @@ def _build_unlock_candidates(
     period_code: str,
     correct_answers: int,
     total_questions: int,
+    elapsed_seconds: int,
 ) -> list[str]:
     candidates: list[str] = []
     player_progress = _get_player_progress_from_connection(connection, player_id)
     progression_snapshot = _build_period_progress_snapshot_from_connection(connection, player_id)
-    city_achievement_code = CITY_ACHIEVEMENT_CODES.get(city)
+    city_achievement_code = get_city_period_achievement_code(city, period_code)
 
     if count_player_passed_tests(connection, player_id) == 1:
         candidates.append("first_city_pass")
 
-    if city_achievement_code:
+    if city_achievement_code and correct_answers >= min(4, total_questions):
         candidates.append(city_achievement_code)
+
+    if correct_answers >= min(4, total_questions) and elapsed_seconds < 50:
+        candidates.append("steady_city_test")
+
+    if correct_answers >= min(4, total_questions) and elapsed_seconds < 30:
+        candidates.append("fast_city_test")
+
+    if correct_answers == total_questions and elapsed_seconds < 30:
+        candidates.append("perfect_fast_city_test")
 
     distinct_cities_passed = count_distinct_cities_passed(connection, player_id)
     for threshold in sorted(CITY_MILESTONE_ACHIEVEMENTS):
@@ -936,6 +946,7 @@ def submit_test(db_path: str | Path, payload: SubmitTestRequest) -> SubmitTestRe
                         period_code=session["period_code"],
                         correct_answers=correct_answers,
                         total_questions=total_questions,
+                        elapsed_seconds=elapsed_seconds,
                     ),
                     unlocked_at=completed_at,
                 )
@@ -1271,6 +1282,7 @@ def _build_period_city_frontend_rows(
     rows: list[dict[str, object]] = []
     for city_row in period_cities:
         city = str(city_row["city"])
+        city_achievement_code = get_city_period_achievement_code(city, period_code)
         content = content_summaries.get(city)
         progress = progress_by_city.get(city)
         rows.append(
@@ -1292,8 +1304,8 @@ def _build_period_city_frontend_rows(
                 else 0,
                 "has_fact_success_in_this_period": fact_success_by_city.get(city, 0) > 0,
                 "unlocked_city_achievement": (
-                    CITY_ACHIEVEMENT_CODES.get(city) in player_achievement_codes
-                    if CITY_ACHIEVEMENT_CODES.get(city)
+                    city_achievement_code in player_achievement_codes
+                    if city_achievement_code
                     else False
                 ),
             }

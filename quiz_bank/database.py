@@ -1169,6 +1169,38 @@ def seed_default_achievements(
                     for item in catalog
                 ],
             )
+
+            city_period_achievement_codes = {
+                (str(item["city"]), str(item["period_code"])): str(item["code"])
+                for item in catalog
+                if item["city"] and item["period_code"] and item["threshold"] == 4
+            }
+            progress_rows = connection.execute(
+                """
+                SELECT player_id, city, period_code, best_score, last_completed_at
+                FROM player_city_progress
+                WHERE city != 'ЕНТ' AND best_score >= 80
+                """
+            ).fetchall()
+            connection.executemany(
+                """
+                INSERT OR IGNORE INTO player_achievements (
+                    player_id,
+                    achievement_code,
+                    unlocked_at
+                )
+                VALUES (?, ?, ?)
+                """,
+                [
+                    (
+                        row["player_id"],
+                        city_period_achievement_codes[(row["city"], row["period_code"])],
+                        row["last_completed_at"] or created_at,
+                    )
+                    for row in progress_rows
+                    if (row["city"], row["period_code"]) in city_period_achievement_codes
+                ],
+            )
     finally:
         connection.close()
 

@@ -249,6 +249,33 @@ GLOBAL_ACHIEVEMENTS = [
 
 CITY_MILESTONE_ACHIEVEMENTS = {}
 
+TIMED_CITY_ACHIEVEMENTS = [
+    {
+        "code": "fast_city_test",
+        "name": "Быстрый маршрут",
+        "description": "Городской тест пройден минимум на 4 правильных ответа быстрее чем за 30 секунд.",
+        "city": None,
+        "period_code": None,
+        "threshold": 30,
+    },
+    {
+        "code": "perfect_fast_city_test",
+        "name": "Молниеносный знаток",
+        "description": "Городской тест пройден без ошибок быстрее чем за 30 секунд.",
+        "city": None,
+        "period_code": None,
+        "threshold": 30,
+    },
+    {
+        "code": "steady_city_test",
+        "name": "Уверенный темп",
+        "description": "Городской тест пройден минимум на 4 правильных ответа быстрее чем за 50 секунд.",
+        "city": None,
+        "period_code": None,
+        "threshold": 50,
+    },
+]
+
 FACT_MILESTONE_ACHIEVEMENTS = {
     5: "fact_correct_5",
     10: "fact_correct_10",
@@ -394,6 +421,13 @@ def get_period_cities(period_code: str) -> list[str]:
     return list(PERIOD_CITY_LISTS.get(period_code, APPROVED_CITIES))
 
 
+def get_city_period_achievement_code(city: str, period_code: str) -> str | None:
+    city_code = CITY_ACHIEVEMENT_CODES.get(city)
+    if not city_code:
+        return None
+    return f"{city_code}_{period_code}"
+
+
 def build_city_period_catalog() -> list[dict[str, object | None]]:
     catalog: list[dict[str, object | None]] = []
     for period in TIMELINE_PERIODS:
@@ -413,7 +447,7 @@ def build_city_period_catalog() -> list[dict[str, object | None]]:
 
 
 def build_achievement_catalog() -> list[dict[str, object | None]]:
-    catalog = [*GLOBAL_ACHIEVEMENTS, *FACT_GAME_ACHIEVEMENTS]
+    catalog = [*GLOBAL_ACHIEVEMENTS, *TIMED_CITY_ACHIEVEMENTS, *FACT_GAME_ACHIEVEMENTS]
 
     for period in TIMELINE_PERIODS:
         catalog.append(
@@ -443,18 +477,26 @@ def build_achievement_catalog() -> list[dict[str, object | None]]:
             }
         )
 
-    for city in SUPPORTED_CITIES:
-        if city == "ENT_MODE":
-            continue
-        catalog.append(
-            {
-                "code": CITY_ACHIEVEMENT_CODES[city],
-                "name": f"Знаток города: {city}",
-                "description": f"Успешно пройден тест по городу {city}.",
-                "city": city,
-                "period_code": None,
-                "threshold": None,
-            }
-        )
+    for period in TIMELINE_PERIODS:
+        period_code = period["code"]
+        for city in get_period_cities(period_code):
+            achievement_code = get_city_period_achievement_code(city, period_code)
+            if not achievement_code:
+                continue
+            override = CITY_PERIOD_OVERRIDES.get((city, period_code), {})
+            display_name = override.get("display_name", city)
+            catalog.append(
+                {
+                    "code": achievement_code,
+                    "name": f"Знаток города: {display_name} ({period['year_label']})",
+                    "description": (
+                        f"Набрано минимум 4 правильных ответа в тесте города {display_name} "
+                        f"периода {period['year_label']}."
+                    ),
+                    "city": city,
+                    "period_code": period_code,
+                    "threshold": 4,
+                }
+            )
 
     return catalog

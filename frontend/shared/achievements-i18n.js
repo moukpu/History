@@ -116,6 +116,48 @@ const STATIC_ACHIEVEMENTS = {
       description: "Қала тесті бірде-бір қатесіз өтті.",
     },
   },
+  fast_city_test: {
+    ru: {
+      name: "Быстрый маршрут",
+      description: "Городской тест пройден минимум на 4 правильных ответа быстрее чем за 30 секунд.",
+    },
+    en: {
+      name: "Fast Route",
+      description: "A city test was completed with at least 4 correct answers in under 30 seconds.",
+    },
+    kk: {
+      name: "Жылдам бағыт",
+      description: "Қала тесті кемінде 4 дұрыс жауаппен 30 секундтан аз уақытта өтті.",
+    },
+  },
+  perfect_fast_city_test: {
+    ru: {
+      name: "Молниеносный знаток",
+      description: "Городской тест пройден без ошибок быстрее чем за 30 секунд.",
+    },
+    en: {
+      name: "Lightning Expert",
+      description: "A city test was completed perfectly in under 30 seconds.",
+    },
+    kk: {
+      name: "Шапшаң білгір",
+      description: "Қала тесті 30 секундтан аз уақытта қатесіз өтті.",
+    },
+  },
+  steady_city_test: {
+    ru: {
+      name: "Уверенный темп",
+      description: "Городской тест пройден минимум на 4 правильных ответа быстрее чем за 50 секунд.",
+    },
+    en: {
+      name: "Steady Pace",
+      description: "A city test was completed with at least 4 correct answers in under 50 seconds.",
+    },
+    kk: {
+      name: "Сенімді қарқын",
+      description: "Қала тесті кемінде 4 дұрыс жауаппен 50 секундтан аз уақытта өтті.",
+    },
+  },
   fact_first_correct: {
     ru: {
       name: "Меткий выбор",
@@ -234,24 +276,33 @@ function translatePeriodMaster(periodCode, language) {
 function translateCityAchievement(achievement, language) {
   const city = achievement.city || achievement.name?.replace(/^.*: /, "") || "";
   const localizedCity = getLocalizedCityName(city, language);
+  const period = achievement.period_code ? getPeriodText(achievement.period_code, language) : null;
+  const periodSuffix = period?.year ? ` (${period.year})` : "";
+
+  if (language === "ru" && achievement.period_code && achievement.name && achievement.description) {
+    return {
+      name: achievement.name,
+      description: achievement.description,
+    };
+  }
 
   if (language === "en") {
     return {
-      name: `City Expert: ${localizedCity}`,
-      description: `The city test for ${localizedCity} has been completed successfully.`,
+      name: `City Expert: ${localizedCity}${periodSuffix}`,
+      description: `At least 4 correct answers were earned in the ${localizedCity} city test${period?.year ? ` for ${period.year}` : ""}.`,
     };
   }
 
   if (language === "kk") {
     return {
-      name: `Қала білгірі: ${localizedCity}`,
-      description: `${localizedCity} қаласы бойынша тест сәтті өтті.`,
+      name: `Қала білгірі: ${localizedCity}${periodSuffix}`,
+      description: `${localizedCity} қаласы бойынша тестте кемінде 4 дұрыс жауап алынды${period?.year ? ` (${period.year})` : ""}.`,
     };
   }
 
   return {
-    name: `Знаток города: ${localizedCity}`,
-    description: `Успешно пройден тест по городу ${localizedCity}.`,
+    name: `Знаток города: ${localizedCity}${periodSuffix}`,
+    description: `Набрано минимум 4 правильных ответа в тесте города ${localizedCity}.`,
   };
 }
 
