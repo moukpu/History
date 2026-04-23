@@ -236,6 +236,52 @@ class TelegramAdminBot:
     def _support_message_text(self, message: dict[str, Any]) -> str:
         return str(message.get("text") or message.get("caption") or "").strip()
 
+    def _message_has_attachment(self, message: dict[str, Any]) -> bool:
+        return any(
+            message.get(key)
+            for key in ("photo", "video", "animation", "document", "audio", "voice", "video_note", "sticker")
+        )
+
+    async def _forward_message_attachments(self, operator_chat_id: int, message: dict[str, Any]) -> bool:
+        sent_any = False
+
+        photos = message.get("photo") or []
+        if photos:
+            await self._api(
+                "sendPhoto",
+                {
+                    "chat_id": operator_chat_id,
+                    "photo": photos[-1]["file_id"],
+                    "caption": "Вложение пользователя: фото.",
+                },
+            )
+            sent_any = True
+
+        media_specs = (
+            ("video", "sendVideo", "video", "Вложение пользователя: видео."),
+            ("animation", "sendAnimation", "animation", "Вложение пользователя: GIF или анимация."),
+            ("document", "sendDocument", "document", "Вложение пользователя: файл."),
+            ("audio", "sendAudio", "audio", "Вложение пользователя: аудио."),
+            ("voice", "sendVoice", "voice", "Вложение пользователя: голосовое сообщение."),
+            ("video_note", "sendVideoNote", "video_note", None),
+            ("sticker", "sendSticker", "sticker", None),
+        )
+        for message_key, method, payload_key, caption in media_specs:
+            media = message.get(message_key)
+            if not media:
+                continue
+
+            payload: dict[str, Any] = {
+                "chat_id": operator_chat_id,
+                payload_key: media["file_id"],
+            }
+            if caption:
+                payload["caption"] = caption
+            await self._api(method, payload)
+            sent_any = True
+
+        return sent_any
+
     def _contains_support_artifacts(self, text: str) -> bool:
         normalized = str(text or "").strip().lower()
         if not normalized:
@@ -469,6 +515,14 @@ class TelegramAdminBot:
         except Exception:
             self.logger.exception("Telegram support copyMessage failed, falling back to direct media send.")
 
+        try:
+            sent_any = await self._forward_message_attachments(operator_chat_id, message)
+            if sent_any:
+                return
+            self.logger.warning("Telegram support message had no forwardable attachment payload.")
+        except Exception:
+            self.logger.exception("Telegram support direct attachment forwarding failed.")
+
         photos = message.get("photo") or []
         if photos:
             await self._api(
@@ -516,8 +570,8 @@ class TelegramAdminBot:
     async def _submit_operator_ticket(self, message: dict[str, Any], topic: str = "") -> None:
         chat_id = int(message["chat"]["id"])
         body = self._support_message_text(message)
-        has_attachment = bool(message.get("photo") or message.get("document"))
-        if not body:
+        has_attachment = self._message_has_attachment(message)
+        if not body and not has_attachment:
             await self._send(
                 chat_id,
                 (
