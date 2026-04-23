@@ -50,6 +50,7 @@ from quiz_bank.api_models import (
     TestQuestion,
     TimelineCitiesResponse,
     TimelinePeriodsResponse,
+    UpdateAvatarRequest,
 )
 from quiz_bank.database import (
     authenticate_user,
@@ -72,6 +73,7 @@ from quiz_bank.database import (
     seed_from_json_if_empty,
     seed_timeline_periods,
     save_ent_attempt_ai_analysis,
+    update_user_avatar,
     upsert_player_city_progress,
     upsert_google_user,
     connect_db,
@@ -867,6 +869,14 @@ async def resolve_auth(payload: AuthResolveRequest) -> AuthResponse:
 @app.get("/api/auth/profile/{user_id}", response_model=AuthResponse)
 async def get_profile(user_id: str) -> AuthResponse:
     user = fetch_user_by_id(DB_PATH, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Пользователь не найден.")
+    return AuthResponse(**user)
+
+
+@app.post("/api/auth/avatar", response_model=AuthResponse)
+async def update_avatar(payload: UpdateAvatarRequest) -> AuthResponse:
+    user = update_user_avatar(DB_PATH, payload.user_id, payload.avatar_url)
     if user is None:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
     return AuthResponse(**user)

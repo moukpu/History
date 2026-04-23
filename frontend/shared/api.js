@@ -180,6 +180,13 @@ export const api = {
     return requestJson(`/api/profile/dashboard/${encodeURIComponent(playerId)}`);
   },
 
+  updateAvatar(payload) {
+    return requestJson("/api/auth/avatar", {
+      method: "POST",
+      body: payload,
+    });
+  },
+
   getEntAttemptDetail(playerId, attemptId) {
     return requestJson(
       `/api/ent/attempts/${encodeURIComponent(playerId)}/${encodeURIComponent(attemptId)}`

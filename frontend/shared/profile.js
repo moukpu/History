@@ -313,6 +313,14 @@ function getStoredUser() {
   }
 }
 
+function setStoredUser(user) {
+  if (!user) {
+    localStorage.removeItem(USER_KEY);
+    return;
+  }
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
 function getStoredAvatarMap() {
   try {
     const raw = localStorage.getItem(AVATAR_STORAGE_KEY);
@@ -508,8 +516,9 @@ function renderAvatarSelection() {
 function renderStoredAvatar() {
   const avatarKey = getAvatarOwnerKey(state.user);
   const avatar = avatarKey ? getStoredAvatar(avatarKey) : null;
-  if (avatar?.src) {
-    elements.avatarImage.src = avatar.src;
+  const avatarSrc = avatar?.src || state.user?.avatar_url || "";
+  if (avatarSrc) {
+    elements.avatarImage.src = avatarSrc;
     elements.avatarImage.classList.remove("hidden");
     elements.avatarFallback.classList.add("hidden");
     return;
@@ -673,7 +682,7 @@ function closeAvatarModal() {
   hideAvatarError();
 }
 
-function saveAvatar() {
+async function saveAvatar() {
   const avatarKey = getAvatarOwnerKey(state.user);
   if (!avatarKey) {
     showAvatarError(translate("avatar_owner_error"));
@@ -681,9 +690,23 @@ function saveAvatar() {
   }
 
   if (!state.avatarEditor.image) {
-    clearStoredAvatar(avatarKey);
-    renderStoredAvatar();
-    closeAvatarModal();
+    try {
+      const updatedUser = await api.updateAvatar({
+        user_id: avatarKey,
+        avatar_url: null,
+      });
+      state.user = { ...state.user, ...updatedUser };
+      setStoredUser(state.user);
+      clearStoredAvatar(avatarKey);
+      renderStoredAvatar();
+      closeAvatarModal();
+    } catch (error) {
+      showAvatarError(
+        error instanceof Error && error.message
+          ? error.message
+          : translate("avatar_save_error")
+      );
+    }
     return;
   }
 
@@ -695,12 +718,18 @@ function saveAvatar() {
 
   try {
     const src = canvas.toDataURL("image/webp", 0.92);
+    const updatedUser = await api.updateAvatar({
+      user_id: avatarKey,
+      avatar_url: src,
+    });
     setStoredAvatar(avatarKey, {
       src,
       sourceType: state.avatarEditor.sourceType,
       templateId: state.avatarEditor.templateId,
       updatedAt: new Date().toISOString(),
     });
+    state.user = { ...state.user, ...updatedUser, avatar_url: src };
+    setStoredUser(state.user);
   } catch (error) {
     showAvatarError(
       error instanceof Error && error.message

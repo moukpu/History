@@ -2708,6 +2708,7 @@ def get_leaderboard(db_path: str | Path, limit: int = 50) -> list[dict[str, Any]
             SELECT
                 u.id AS id,
                 u.username AS username,
+                u.avatar_url AS avatar_url,
                 COALESCE(SUM(pcp.best_score), 0) AS total_score,
                 COALESCE(SUM(pcp.total_attempts), 0) AS total_tests,
                 CAST(ROUND(COALESCE(AVG(pcp.best_score), 0)) AS INTEGER) AS accuracy,
@@ -2724,7 +2725,7 @@ def get_leaderboard(db_path: str | Path, limit: int = 50) -> list[dict[str, Any]
                 ON pa.player_id = u.id
             WHERE u.id NOT LIKE '%smoke%'
               AND u.id != 'frontend-smoke-player'
-            GROUP BY u.id, u.username, pa.achievements_count
+            GROUP BY u.id, u.username, u.avatar_url, pa.achievements_count
             HAVING COALESCE(SUM(pcp.total_attempts), 0) > 0
                 OR COALESCE(pa.achievements_count, 0) > 0
             ORDER BY total_score DESC, accuracy DESC, total_tests DESC, username ASC
@@ -2736,3 +2737,39 @@ def get_leaderboard(db_path: str | Path, limit: int = 50) -> list[dict[str, Any]
         connection.close()
 
     return [dict(row) for row in rows]
+
+
+def update_user_avatar(
+    db_path: str | Path,
+    user_id: str,
+    avatar_url: str | None,
+) -> dict[str, Any] | None:
+    ensure_database(db_path)
+    normalized_user_id = str(user_id).strip()
+    normalized_avatar_url = avatar_url.strip() if avatar_url else None
+    if not normalized_user_id:
+        return None
+
+    connection = connect_db(db_path)
+    try:
+        with connection:
+            connection.execute(
+                """
+                UPDATE users
+                SET avatar_url = ?
+                WHERE id = ?
+                """,
+                (normalized_avatar_url, normalized_user_id),
+            )
+            row = connection.execute(
+                """
+                SELECT id, username, email, created_at, avatar_url
+                FROM users
+                WHERE id = ?
+                """,
+                (normalized_user_id,),
+            ).fetchone()
+    finally:
+        connection.close()
+
+    return dict(row) if row is not None else None

@@ -495,6 +495,27 @@ class AuthResolveRequest(BaseModel):
         return value.strip().lower() if value else value
 
 
+class UpdateAvatarRequest(BaseModel):
+    user_id: str = Field(..., min_length=1)
+    avatar_url: str | None = None
+
+    @field_validator("user_id")
+    @classmethod
+    def normalize_user_id(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("User id is required.")
+        return normalized
+
+    @field_validator("avatar_url")
+    @classmethod
+    def normalize_avatar_url(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip()
+        return normalized or None
+
+
 class AuthResponse(BaseModel):
     id: str
     username: str
@@ -515,6 +536,7 @@ class LeaderboardEntry(BaseModel):
     total_tests: int
     accuracy: int
     achievements_count: int
+    avatar_url: str | None = None
 
 
 class LeaderboardResponse(BaseModel):

@@ -133,7 +133,7 @@ function getStoredAvatarMap() {
 }
 
 function getEntryAvatar(entry) {
-  return getStoredAvatarMap()?.[entry.id]?.src ?? null;
+  return entry?.avatar_url || getStoredAvatarMap()?.[entry.id]?.src || null;
 }
 
 function renderAvatarMarkup(entry, fallbackIcon = "person", iconClasses = "text-primary") {
