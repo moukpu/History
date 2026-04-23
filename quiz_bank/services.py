@@ -265,13 +265,24 @@ def _calculate_score_percent(correct_answers: int, total_questions: int) -> int:
     return round((correct_answers / total_questions) * 100)
 
 
-def _calculate_timed_city_points(elapsed_seconds: int | None) -> int:
+def _calculate_timed_city_points(
+    correct_answers: int,
+    total_questions: int,
+    elapsed_seconds: int | None,
+) -> int:
+    if total_questions <= 0 or correct_answers <= 0:
+        return 0
+
     elapsed = max(0, int(elapsed_seconds or 0))
     if elapsed < 30:
-        return 50
-    if elapsed < 40:
-        return 40
-    return 20
+        speed_points = 50
+    elif elapsed < 40:
+        speed_points = 40
+    else:
+        speed_points = 20
+
+    accuracy_ratio = min(1, max(0, correct_answers / total_questions))
+    return round(speed_points * accuracy_ratio)
 
 
 def _require_period(connection, period_code: str) -> None:
@@ -884,7 +895,11 @@ def submit_test(db_path: str | Path, payload: SubmitTestRequest) -> SubmitTestRe
             )
             score_percent = _calculate_score_percent(correct_answers, total_questions)
             elapsed_seconds = max(0, int(payload.elapsed_seconds or 0))
-            earned_points = _calculate_timed_city_points(elapsed_seconds)
+            earned_points = _calculate_timed_city_points(
+                correct_answers,
+                total_questions,
+                elapsed_seconds,
+            )
             passed = correct_answers >= math.ceil(total_questions * PASS_THRESHOLD)
             completed_at = _utc_now_iso()
 
