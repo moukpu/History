@@ -145,7 +145,7 @@ Do not commit real `.env` values. Use `.env.railway.example` as the variable che
 
 ### City quizzes
 
-- City quiz data comes from `data/quizzes_period_ru.json`
+- City quiz data comes from `data/quizzes_period_multilang.json`
 - Current city-question set is intentionally trimmed so overly long city questions do not appear in the UI.
 - The city-question set is standardized to 20 questions per city-period pair.
 
