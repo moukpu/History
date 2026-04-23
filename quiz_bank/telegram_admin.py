@@ -3,6 +3,7 @@ import json
 import logging
 import math
 import os
+import re
 import secrets
 from dataclasses import dataclass
 from html import escape
@@ -30,6 +31,8 @@ from .admin_tools import (
 USER_PAGE_SIZE = 6
 ACHIEVEMENT_PAGE_SIZE = 7
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip() or "llama-3.3-70b-versatile"
+CJK_ARTIFACT_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]")
+LATIN_SCREENSHOT_RE = re.compile(r"\bscreenshot\b", re.IGNORECASE)
 
 SUPPORT_FAQ = [
     {
@@ -232,6 +235,57 @@ class TelegramAdminBot:
 
     def _support_message_text(self, message: dict[str, Any]) -> str:
         return str(message.get("text") or message.get("caption") or "").strip()
+
+    def _contains_support_artifacts(self, text: str) -> bool:
+        normalized = str(text or "").strip().lower()
+        if not normalized:
+            return True
+        if CJK_ARTIFACT_RE.search(normalized):
+            return True
+        for char in normalized:
+            code = ord(char)
+            if char in "\n\r\t":
+                continue
+            if char.isascii():
+                continue
+            if 0x0400 <= code <= 0x052F:
+                continue
+            if char in "ёЁ№«»–—…":
+                continue
+            return True
+        if "не полностью сформулировали вопрос" in normalized:
+            return True
+        if "полностью сформулировали вопрос" in normalized:
+            return True
+        if "это поможет мне лучше понять вашу проблему" in normalized:
+            return True
+        if "опишите подробнее проблему" in normalized and "какая ошибка возникает" in normalized:
+            return True
+        if normalized.count("пожалуйста") >= 2:
+            return True
+        if normalized.startswith("извините, но кажется"):
+            return True
+        return False
+
+    def _clean_support_answer(self, text: str) -> str:
+        cleaned = str(text or "").strip()
+        cleaned = LATIN_SCREENSHOT_RE.sub("скриншот", cleaned)
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        return cleaned
+
+    def _build_support_fallback_answer(self, question: str, topic: str = "") -> str:
+        topic_label = SUPPORT_TOPICS.get(topic, ("Проблема", ""))[0]
+        question = str(question or "").strip()
+        if question:
+            return (
+                f"Понял. По теме «{topic_label}» мне нужны детали: "
+                "какая страница, что именно нажал, какой текст ошибки видишь, какое устройство и браузер используешь. "
+                "Если есть скриншот, тоже отправь."
+            )
+        return (
+            f"Опиши проблему по теме «{topic_label}»: страница, действие, текст ошибки, устройство/браузер. "
+            "Если есть скриншот, тоже отправь."
+        )
 
     async def _api(self, method: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
         async with httpx.AsyncClient(timeout=35) as client:
@@ -520,7 +574,11 @@ class TelegramAdminBot:
         topic_label = SUPPORT_TOPICS.get(topic, ("Общий вопрос", ""))[0]
         system_prompt = (
             "You are Sapar Quest support assistant. Reply in Russian unless the user clearly uses another language. "
-            "Be concise, practical, and friendly. Help only with Sapar Quest: account, Google login, map periods, "
+            "Be concise, practical, and friendly. Use plain natural Russian. "
+            "Never start with apologies like 'Извините' and never say that the user did not fully formulate the question. "
+            "Do not write generic support script phrases. Do not use foreign symbols or mixed-language artifacts. "
+            "Keep answers short, concrete, and specific to the user's message. "
+            "Help only with Sapar Quest: account, Google login, map periods, "
             "city quizzes, UNT test, profile, achievements, leaderboard, AI analysis, and technical issues. "
             "Do not claim you changed data or accessed private account data. If account-specific action is needed, "
             "ask for account email, page, exact error, device/browser, and a screenshot, but say it in Russian as 'скриншот'. "
@@ -550,13 +608,16 @@ class TelegramAdminBot:
                 )
                 response.raise_for_status()
                 data = response.json()
-                answer = str(data["choices"][0]["message"]["content"]).strip()
+                answer = self._clean_support_answer(str(data["choices"][0]["message"]["content"]))
         except Exception:
             self.logger.exception("Telegram support AI failed.")
             answer = (
                 "AI-поддержка временно не ответила. Попробуй ещё раз позже или напиши: "
                 "почта аккаунта, страница, что нажал, какая ошибка, устройство/браузер."
             )
+
+        if self._contains_support_artifacts(answer):
+            answer = self._build_support_fallback_answer(question, topic)
 
         if len(answer) > 3500:
             answer = answer[:3490].rstrip() + "..."
