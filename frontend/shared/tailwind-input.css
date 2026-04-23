@@ -192,6 +192,7 @@
 
     .leaderboard-podium [data-podium-secondary] {
       order: 1 !important;
+      transform: rotate(-2deg) !important;
     }
 
     .leaderboard-podium [data-podium-primary] {
@@ -201,6 +202,7 @@
 
     .leaderboard-podium [data-podium-tertiary] {
       order: 3 !important;
+      transform: rotate(2deg) !important;
     }
 
     .leaderboard-podium [data-podium-secondary] [data-podium-avatar],
