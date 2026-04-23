@@ -2774,3 +2774,50 @@ def update_user_avatar(
         connection.close()
 
     return dict(row) if row is not None else None
+
+
+def update_user_username(
+    db_path: str | Path,
+    user_id: str,
+    username: str,
+) -> dict[str, Any] | None:
+    ensure_database(db_path)
+    normalized_user_id = str(user_id).strip()
+    normalized_username = _normalize_identity_username(username)
+    if not normalized_user_id or len(normalized_username) < 2:
+        return None
+
+    connection = connect_db(db_path)
+    try:
+        with connection:
+            existing = connection.execute(
+                """
+                SELECT id
+                FROM users
+                WHERE LOWER(TRIM(username)) = LOWER(TRIM(?))
+                """,
+                (normalized_username,),
+            ).fetchone()
+            if existing is not None and str(existing["id"]) != normalized_user_id:
+                raise sqlite3.IntegrityError("users_username")
+
+            connection.execute(
+                """
+                UPDATE users
+                SET username = ?
+                WHERE id = ?
+                """,
+                (normalized_username, normalized_user_id),
+            )
+            row = connection.execute(
+                """
+                SELECT id, username, email, created_at, avatar_url
+                FROM users
+                WHERE id = ?
+                """,
+                (normalized_user_id,),
+            ).fetchone()
+    finally:
+        connection.close()
+
+    return dict(row) if row is not None else None

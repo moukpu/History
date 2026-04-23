@@ -1,4 +1,4 @@
-import { api } from "./api.js";
+import { api } from "./api.js?v=20260423e";
 import { translateAchievement } from "./achievements-i18n.js";
 import { getLocalizedCityName } from "./city-visuals.js";
 import { escapeHtml, setHtml, setText, setVisible } from "./helpers.js";
@@ -212,8 +212,19 @@ const translations = {
   },
 };
 
+translations.ru.username_edit_hint = "Имя будет видно в вашем профиле и в рейтинге.";
+translations.ru.username_save_error = "Не удалось сохранить новое имя.";
+translations.ru.username_taken_error = "Это имя уже занято.";
+translations.en.username_edit_hint = "This name will be visible in your profile and on the leaderboard.";
+translations.en.username_save_error = "Could not save the new name.";
+translations.en.username_taken_error = "This name is already taken.";
+translations.kk.username_edit_hint = "Бұл атау профиліңізде және рейтингте көрінеді.";
+translations.kk.username_save_error = "Жаңа атауды сақтау мүмкін болмады.";
+translations.kk.username_taken_error = "Бұл атау бос емес.";
+
 const state = {
   user: null,
+  usernameEditorOpen: false,
   avatarEditor: createEmptyAvatarEditor(),
   entAttemptReviewId: null,
   entAttemptDetail: null,
@@ -242,6 +253,8 @@ function applyStaticTranslations() {
   document.querySelector("[data-profile-avatar-image]")?.setAttribute("alt", translate("avatar_alt"));
   document.querySelector("[data-avatar-crop-image]")?.setAttribute("alt", translate("avatar_edit_alt"));
   document.querySelector("[data-avatar-preview-image]")?.setAttribute("alt", translate("avatar_preview_alt"));
+  document.querySelector("[data-profile-username-hint]") &&
+    setText(document.querySelector("[data-profile-username-hint]"), translate("username_edit_hint"));
 
   markLanguageReady();
 }
@@ -371,9 +384,54 @@ function getProfilePlayerId() {
   return String(state.user?.id ?? state.user?.user_id ?? state.user?.email ?? state.user?.username ?? "");
 }
 
+function setUsernameEditorVisible(visible) {
+  state.usernameEditorOpen = Boolean(visible);
+  setVisible(elements.usernameEditor, state.usernameEditorOpen);
+  if (state.usernameEditorOpen) {
+    elements.usernameInput.value = state.user?.username || "";
+    elements.usernameInput.focus();
+    elements.usernameInput.select();
+  }
+}
+
+async function saveUsername() {
+  const userId = getProfilePlayerId();
+  const nextUsername = String(elements.usernameInput.value || "").trim().replace(/\s+/g, " ");
+  if (!userId || nextUsername.length < 2) {
+    showProfileError(translate("username_save_error"));
+    return;
+  }
+
+  try {
+    const updatedUser = await api.updateUsername({
+      user_id: userId,
+      username: nextUsername,
+    });
+    state.user = { ...state.user, ...updatedUser };
+    setStoredUser(state.user);
+    setText(elements.username, state.user.username);
+    setUsernameEditorVisible(false);
+  } catch (error) {
+    if (error?.status === 409) {
+      showProfileError(translate("username_taken_error"));
+      return;
+    }
+    showProfileError(
+      error instanceof Error && error.message
+        ? error.message
+        : translate("username_save_error")
+    );
+  }
+}
+
 function cacheElements() {
   elements.error = document.querySelector("[data-profile-error]");
   elements.username = queryRequired("[data-profile-username]");
+  elements.usernameEditToggle = queryRequired("[data-profile-username-edit-toggle]");
+  elements.usernameEditor = queryRequired("[data-profile-username-editor]");
+  elements.usernameInput = queryRequired("[data-profile-username-input]");
+  elements.usernameSave = queryRequired("[data-profile-username-save]");
+  elements.usernameCancel = queryRequired("[data-profile-username-cancel]");
   elements.email = queryRequired("[data-profile-email]");
   elements.score = queryRequired("[data-profile-score]");
   elements.tests = queryRequired("[data-profile-tests]");
@@ -1411,6 +1469,24 @@ function bindEvents() {
     clearStoredPlayerId();
     window.location.href = "../registration/code.html";
   });
+  elements.usernameEditToggle.addEventListener("click", () => {
+    setUsernameEditorVisible(!state.usernameEditorOpen);
+  });
+  elements.usernameCancel.addEventListener("click", () => {
+    setUsernameEditorVisible(false);
+  });
+  elements.usernameSave.addEventListener("click", () => {
+    saveUsername();
+  });
+  elements.usernameInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      saveUsername();
+    }
+    if (event.key === "Escape") {
+      setUsernameEditorVisible(false);
+    }
+  });
   elements.entResults.addEventListener("click", (event) => {
     const reviewButton = event.target.closest("[data-ent-attempt-review]");
     if (!reviewButton) return;
@@ -1481,6 +1557,7 @@ async function init() {
   applyStaticTranslations();
   bindEvents();
   renderStoredAvatar();
+  setUsernameEditorVisible(false);
   renderAvatarSelection();
   renderAvatarEditor();
 

@@ -201,6 +201,13 @@ export const api = {
     });
   },
 
+  updateUsername(payload) {
+    return requestJson("/api/auth/username", {
+      method: "POST",
+      body: payload,
+    });
+  },
+
   getEntAttemptDetail(playerId, attemptId) {
     return requestJson(
       `/api/ent/attempts/${encodeURIComponent(playerId)}/${encodeURIComponent(attemptId)}`

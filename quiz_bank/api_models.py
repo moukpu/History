@@ -516,6 +516,27 @@ class UpdateAvatarRequest(BaseModel):
         return normalized or None
 
 
+class UpdateUsernameRequest(BaseModel):
+    user_id: str = Field(..., min_length=1)
+    username: str = Field(..., min_length=2, max_length=30)
+
+    @field_validator("user_id")
+    @classmethod
+    def normalize_user_id(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("User id is required.")
+        return normalized
+
+    @field_validator("username")
+    @classmethod
+    def normalize_username(cls, value: str) -> str:
+        normalized = " ".join(value.strip().split())
+        if len(normalized) < 2:
+            raise ValueError("Username must contain at least 2 characters.")
+        return normalized
+
+
 class AuthResponse(BaseModel):
     id: str
     username: str

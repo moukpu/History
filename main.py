@@ -51,6 +51,7 @@ from quiz_bank.api_models import (
     TimelineCitiesResponse,
     TimelinePeriodsResponse,
     UpdateAvatarRequest,
+    UpdateUsernameRequest,
 )
 from quiz_bank.database import (
     authenticate_user,
@@ -74,6 +75,7 @@ from quiz_bank.database import (
     seed_timeline_periods,
     save_ent_attempt_ai_analysis,
     update_user_avatar,
+    update_user_username,
     upsert_player_city_progress,
     upsert_google_user,
     connect_db,
@@ -877,6 +879,18 @@ async def get_profile(user_id: str) -> AuthResponse:
 @app.post("/api/auth/avatar", response_model=AuthResponse)
 async def update_avatar(payload: UpdateAvatarRequest) -> AuthResponse:
     user = update_user_avatar(DB_PATH, payload.user_id, payload.avatar_url)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Пользователь не найден.")
+    return AuthResponse(**user)
+
+
+@app.post("/api/auth/username", response_model=AuthResponse)
+async def update_username(payload: UpdateUsernameRequest) -> AuthResponse:
+    try:
+        user = update_user_username(DB_PATH, payload.user_id, payload.username)
+    except sqlite3.IntegrityError as error:
+        raise HTTPException(status_code=409, detail="Имя пользователя уже занято.") from error
+
     if user is None:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
     return AuthResponse(**user)
