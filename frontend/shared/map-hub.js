@@ -14,7 +14,7 @@ import {
   mountPeriodSvgMap,
   updatePeriodSvgMapLabels,
   updatePeriodSvgMapState,
-} from "./period-svg-map.js";
+} from "./period-svg-map.js?v=20260423a";
 import {
   clearActiveFactSession,
   clearActiveQuizState,

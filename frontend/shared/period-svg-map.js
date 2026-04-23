@@ -132,6 +132,32 @@ function prepareVisualCityGroup(cityGroup) {
   });
 }
 
+function ensureCapitalRing(cityGroup) {
+  if (cityGroup.querySelector("circle.map-city-ring")) {
+    return;
+  }
+
+  const core = cityGroup.querySelector("circle.map-city-core");
+  if (!core) {
+    return;
+  }
+
+  const radius = Number.parseFloat(core.getAttribute("r") || "0");
+  const ring = core.cloneNode(false);
+  ring.classList.remove("map-city-core");
+  ring.classList.add("map-city-ring");
+  ring.dataset.generatedCapitalRing = "true";
+  ring.setAttribute("fill", "none");
+  ring.setAttribute("pointer-events", "none");
+
+  if (Number.isFinite(radius) && radius > 0) {
+    ring.setAttribute("r", String(Math.round((radius + Math.max(2.2, radius * 0.75)) * 10) / 10));
+    ring.setAttribute("stroke-width", String(Math.round(Math.max(1.2, radius * 0.35) * 10) / 10));
+  }
+
+  core.parentNode?.insertBefore(ring, core);
+}
+
 function isCompactMapViewport() {
   return (
     typeof window !== "undefined" &&
@@ -160,7 +186,7 @@ function applyCompactActiveCityStyles(cityGroup, isActive, isCompact) {
     shape.style.setProperty("vector-effect", "non-scaling-stroke");
   });
 
-  if (!isActive) {
+  if (!isActive || cityGroup.classList.contains("is-capital")) {
     return;
   }
 
@@ -222,18 +248,23 @@ function matchesCapitalMarker(periodCode, cityGroup, city) {
 
 function prepareInteractiveCityGroup(cityGroup, city, periodCode) {
   prepareVisualCityGroup(cityGroup);
+  const isCapital = matchesCapitalMarker(periodCode, cityGroup, city);
+  if (isCapital) {
+    ensureCapitalRing(cityGroup);
+  }
 
   cityGroup.dataset.city = city;
   cityGroup.setAttribute("tabindex", cityGroup.getAttribute("tabindex") || "0");
   cityGroup.setAttribute("role", cityGroup.getAttribute("role") || "button");
   cityGroup.setAttribute("aria-pressed", "false");
   cityGroup.setAttribute("focusable", "true");
-  cityGroup.classList.toggle("is-capital", matchesCapitalMarker(periodCode, cityGroup, city));
+  cityGroup.classList.toggle("is-capital", isCapital);
   updateCityGroupLabel(cityGroup, "ru");
 }
 
 function prepareCapitalOnlyGroup(cityGroup) {
   prepareVisualCityGroup(cityGroup);
+  ensureCapitalRing(cityGroup);
   cityGroup.classList.add("is-capital", "is-static");
 }
 

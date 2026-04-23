@@ -111,6 +111,11 @@
       [data-map-backdrop].is-svg-mode .map-city .map-city-label {
         transition: fill 0.18s ease, stroke 0.18s ease, opacity 0.18s ease;
       }
+      [data-map-backdrop].is-svg-mode .map-city .map-city-ring {
+        fill: transparent;
+        stroke-width: 2;
+        pointer-events: none;
+      }
       [data-map-backdrop].is-svg-mode .map-city:hover:not(.is-disabled):not(.is-static),
       [data-map-backdrop].is-svg-mode .map-city.is-active {
         transform: scale(1.04);
@@ -147,6 +152,10 @@
       [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-ring {
         opacity: 0;
         stroke: transparent;
+      }
+      [data-map-backdrop].is-svg-mode .map-city.is-capital.is-active .map-city-ring {
+        opacity: 0.55;
+        stroke: #ffd709;
       }
       @media (max-width: 1023px) {
         .map-page-shell {
@@ -187,6 +196,10 @@
         [data-map-backdrop].is-svg-mode .map-city.is-active .map-city-ring {
           stroke-width: 0 !important;
           opacity: 0 !important;
+        }
+        [data-map-backdrop].is-svg-mode .map-city.is-capital.is-active .map-city-ring {
+          stroke-width: 2 !important;
+          opacity: 0.55 !important;
         }
         [data-map-markers] button {
           border-width: 0 !important;
@@ -459,6 +472,6 @@
       <a href="../profile/code.html" aria-label="Профиль"><span class="material-symbols-outlined">person</span></a>
     </div>
 
-    <script type="module" src="../shared/map-hub.js?v=20260423j"></script>
+    <script type="module" src="../shared/map-hub.js?v=20260423k"></script>
   </body>
 </html>
