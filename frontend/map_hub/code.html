@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../shared/tailwind.css">
+    <link rel="stylesheet" href="../shared/tailwind.css?v=20260423j">
     <style>
       .material-symbols-outlined {
         font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
@@ -328,8 +328,9 @@
               <span data-i18n="active_period" class="text-secondary font-bold px-3 py-1 bg-secondary-container rounded-full text-sm" data-active-era-label>Активный период</span>
             </div>
             <div class="relative flex min-h-[4.5rem] items-center justify-between px-3 pb-2">
-              <div class="absolute h-1.5 w-full bg-surface-container-highest rounded-full top-1/2 -translate-y-1/2"></div>
-              <div class="absolute h-1.5 bg-primary rounded-full top-1/2 -translate-y-1/2 transition-all duration-300" data-timeline-fill style="width:0%"></div>
+              <div class="absolute left-3 right-3 h-1.5 bg-surface-container-highest rounded-full top-1/2 -translate-y-1/2 overflow-hidden">
+                <div class="h-full bg-primary rounded-full transition-all duration-300" data-timeline-fill style="width:0%"></div>
+              </div>
               <div class="relative w-full flex items-center justify-between" data-timeline-points></div>
             </div>
           </div>
@@ -458,6 +459,6 @@
       <a href="../profile/code.html" aria-label="Профиль"><span class="material-symbols-outlined">person</span></a>
     </div>
 
-    <script type="module" src="../shared/map-hub.js"></script>
+    <script type="module" src="../shared/map-hub.js?v=20260423j"></script>
   </body>
 </html>
