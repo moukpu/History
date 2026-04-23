@@ -1,10 +1,16 @@
-import urllib.request, json
+from fastapi.testclient import TestClient
 
-body = json.dumps({"question_count": 3}).encode()
-req = urllib.request.Request("http://127.0.0.1:8000/api/ent/start", data=body, headers={"Content-Type": "application/json"})
-resp = urllib.request.urlopen(req)
-data = json.loads(resp.read())
-print(f"Session: {data['test_session_id']}")
-print(f"Questions: {data['total_questions']}")
-for q in data["questions"]:
-    print(f"  [{q['id']}] {q['question']}")
+import main
+
+
+def test_ent_start_returns_requested_question_count() -> None:
+    client = TestClient(main.app)
+
+    response = client.post("/api/ent/start", json={"question_count": 3})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["total_questions"] == 3
+    assert len(payload["questions"]) == 3
+    assert payload["test_session_id"].startswith("ent-")
+    assert all("correct_index" not in question for question in payload["questions"])
