@@ -151,6 +151,15 @@ function renderAvatarMarkup(entry, fallbackIcon = "person", iconClasses = "text-
   return `<span class="material-symbols-outlined ${iconClasses}">${fallbackIcon}</span>`;
 }
 
+function formatPodiumName(username) {
+  const parts = String(username || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length < 2) return parts[0] || "---";
+
+  const [firstName, secondName] = parts;
+  const initial = secondName.charAt(0).toLocaleUpperCase(currentLanguage || "ru");
+  return `${firstName} ${initial}.`;
+}
+
 function translate(key, params) {
   const value = translations[currentLanguage]?.[key] ?? translations.ru[key] ?? key;
   return typeof value === "function" ? value(params || {}) : value;
@@ -216,7 +225,7 @@ function renderPodium(entries) {
       setHtml(avatarShell, renderAvatarMarkup(entry, fallbackIcon, iconClasses));
     }
 
-    setText(container.querySelector("[data-podium-name]"), entry.username);
+    setText(container.querySelector("[data-podium-name]"), formatPodiumName(entry.username));
     setText(container.querySelector("[data-podium-score]"), `${entry.total_score} XP`);
     setText(
       container.querySelector("[data-podium-detail]"),
