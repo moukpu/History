@@ -183,6 +183,13 @@
       box-shadow: 0 8px 18px rgba(255, 215, 9, 0.28);
     }
 
+    [data-close-quiz] {
+      position: fixed !important;
+      top: 1rem !important;
+      left: 1rem !important;
+      z-index: 80 !important;
+    }
+
     .leaderboard-podium {
       grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
       gap: 0.55rem !important;
