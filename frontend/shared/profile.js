@@ -235,6 +235,7 @@ const state = {
 
 const elements = {};
 let currentLanguage = getCurrentLanguage();
+let profileErrorTimer = null;
 
 function translate(key, params = {}) {
   const value = translations[currentLanguage]?.[key] ?? translations.ru[key] ?? key;
@@ -470,8 +471,16 @@ function showProfileError(message) {
   if (!elements.error) {
     return;
   }
+  if (profileErrorTimer) {
+    clearTimeout(profileErrorTimer);
+  }
   elements.error.textContent = message;
   elements.error.classList.remove("hidden");
+  profileErrorTimer = setTimeout(() => {
+    elements.error.classList.add("hidden");
+    elements.error.textContent = "";
+    profileErrorTimer = null;
+  }, 4500);
 }
 
 function hideAvatarError() {
