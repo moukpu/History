@@ -66,6 +66,7 @@ const translations = {
     result_fail_secondary_quiz:
       "Прогресс попытки сохранён. Можно вернуться на карту и пройти тест заново.",
     no_new_achievements: "Новых достижений в этой попытке нет.",
+    finish_test_before_achievements: "Завершите тест, чтобы посмотреть достижения.",
     error_select_answer: "Выберите вариант ответа перед продолжением.",
     error_test_unavailable: "Тест пока недоступен",
     error_test_unavailable_hint_quiz:
@@ -112,6 +113,7 @@ const translations = {
     result_fail_secondary_quiz:
       "Your attempt progress was saved. You can return to the map and retake the test.",
     no_new_achievements: "No new achievements in this attempt.",
+    finish_test_before_achievements: "Finish the test to view your achievements.",
     error_select_answer: "Choose an answer before continuing.",
     error_test_unavailable: "The test is not available yet",
     error_test_unavailable_hint_quiz:
@@ -158,6 +160,7 @@ const translations = {
     result_fail_secondary_quiz:
       "Талпыныс прогресі сақталды. Картаға оралып, тестті қайта тапсыруға болады.",
     no_new_achievements: "Бұл талпыныста жаңа жетістік жоқ.",
+    finish_test_before_achievements: "Жетістіктерді көру үшін тестті аяқтаңыз.",
     error_select_answer: "Жалғастыру үшін жауап нұсқасын таңдаңыз.",
     error_test_unavailable: "Тест әзірге қолжетімді емес",
     error_test_unavailable_hint_quiz:
@@ -368,6 +371,15 @@ function getSelectedAnswerIndex() {
 }
 
 function showError(message) {
+  elements.errorState.className =
+    "rounded-xl border border-error/20 bg-error-container/10 px-5 py-4 text-sm text-error";
+  setVisible(elements.errorState, true);
+  setText(elements.errorMessage, message);
+}
+
+function showNotice(message) {
+  elements.errorState.className =
+    "rounded-xl border border-secondary-container bg-secondary-container/30 px-5 py-4 text-sm font-bold text-on-secondary-container";
   setVisible(elements.errorState, true);
   setText(elements.errorMessage, message);
 }
@@ -707,6 +719,13 @@ function bindEvents() {
   elements.closeButton.addEventListener("click", () => {
     window.location.href = "../map_hub/code.html";
   });
+  elements.achievementsButton.addEventListener("click", () => {
+    if (state.result) {
+      window.location.href = "../profile/code.html";
+      return;
+    }
+    showNotice(translate("finish_test_before_achievements"));
+  });
   elements.submitButton.addEventListener("click", handleContinue);
   elements.prevButton.addEventListener("click", handlePrev);
   elements.startConfirmButton.addEventListener("click", beginTimedQuiz);
@@ -730,6 +749,7 @@ function cacheElements() {
   elements.progressBar = queryRequired("[data-progress-bar]");
   elements.progressCounter = queryRequired("[data-progress-counter]");
   elements.xpCounter = queryRequired("[data-xp-counter]");
+  elements.achievementsButton = queryRequired("[data-achievements-button]");
   elements.questionSection = queryRequired("[data-question-section]");
   elements.questionTag = queryRequired("[data-question-tag]");
   elements.questionTitle = queryRequired("[data-question-title]");
