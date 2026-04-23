@@ -162,6 +162,20 @@ export const api = {
     });
   },
 
+  startEntTest(payload) {
+    return requestJson("/api/ent/start", {
+      method: "POST",
+      body: payload,
+    });
+  },
+
+  submitEntTest(payload) {
+    return requestJson("/api/ent/submit", {
+      method: "POST",
+      body: payload,
+    });
+  },
+
   getAchievements(playerId) {
     return requestJson(`/api/achievements/${encodeURIComponent(playerId)}`);
   },

@@ -1347,39 +1347,16 @@ def fetch_random_quizzes(
         SELECT id, city, period_code, difficulty, question, options, correct_index, fact
         FROM quizzes
         WHERE city = ? AND period_code = ?
-        ORDER BY id
         """,
         (city, period_code),
     ).fetchall()
     if len(rows) <= limit:
-        return [_quiz_row_to_dict(row) for row in rows]
+        all_rows = [_quiz_row_to_dict(row) for row in rows]
+        secrets.SystemRandom().shuffle(all_rows)
+        return all_rows
 
     rng = secrets.SystemRandom()
-    bucketed_rows: dict[str, list[sqlite3.Row]] = {}
-    for index, row in enumerate(rows):
-        bucket = _QUIZ_QUESTION_BUCKETS[index % len(_QUIZ_QUESTION_BUCKETS)]
-        bucketed_rows.setdefault(bucket, []).append(row)
-
-    for bucket_rows in bucketed_rows.values():
-        rng.shuffle(bucket_rows)
-
-    bucket_names = list(bucketed_rows)
-    rng.shuffle(bucket_names)
-
-    selected_rows: list[sqlite3.Row] = []
-    while len(selected_rows) < limit:
-        progressed = False
-        for bucket in bucket_names:
-            bucket_rows = bucketed_rows[bucket]
-            if not bucket_rows:
-                continue
-            selected_rows.append(bucket_rows.pop())
-            progressed = True
-            if len(selected_rows) == limit:
-                break
-        if not progressed:
-            break
-
+    selected_rows = rng.sample(list(rows), limit)
     rng.shuffle(selected_rows)
     return [_quiz_row_to_dict(row) for row in selected_rows]
 

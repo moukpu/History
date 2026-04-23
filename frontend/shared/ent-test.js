@@ -514,7 +514,7 @@ async function submitQuiz({ allowIncomplete = false, timedOut = false } = {}) {
   };
 
   try {
-    const response = await api.submitTest(payload);
+    const response = await api.submitEntTest(payload);
     state.result = response;
     state.resultTimedOut = timedOut;
     clearState();
@@ -578,10 +578,8 @@ async function startEntTest() {
   // made the page skip the modal and left a stale 10:00 timer on screen.
   clearState();
 
-  const response = await api.startTest({
+  const response = await api.startEntTest({
     player_id: state.playerId,
-    city: "ENT_MODE",
-    period_code: "ENT",
     question_count: ENT_QUESTION_COUNT,
   });
 
