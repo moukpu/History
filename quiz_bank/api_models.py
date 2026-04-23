@@ -134,6 +134,7 @@ class SubmitTestRequest(BaseModel):
     player_id: PlayerId
     test_session_id: SessionId
     answers: list[SubmittedAnswer] = Field(default_factory=list)
+    elapsed_seconds: int | None = Field(default=None, ge=0)
 
 
 class AchievementCatalogItem(BaseModel):
@@ -162,6 +163,8 @@ class SubmitTestResponse(BaseModel):
     total_questions: int
     correct_answers: int
     score_percent: int
+    elapsed_seconds: int = 0
+    earned_points: int = 0
     passed: bool
     unlocked_achievements: list[UnlockedAchievement]
     all_player_achievements_count: int

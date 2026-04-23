@@ -61,6 +61,10 @@
         </div>
 
         <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3 bg-white text-on-surface px-5 py-2.5 rounded-full shadow-lg border border-outline/10">
+            <span class="material-symbols-outlined text-lg text-primary" style="font-variation-settings: 'FILL' 1">timer</span>
+            <span class="font-black text-lg leading-none min-w-[56px] text-right" data-elapsed-timer="">00:00</span>
+          </div>
           <div class="flex items-center gap-3 bg-secondary-container text-on-secondary-container px-6 py-2.5 rounded-full shadow-lg">
             <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1">stars</span>
             <span class="font-black text-lg leading-none" data-xp-counter="">0 достиж.</span>
@@ -170,7 +174,22 @@
       <a href="../profile/code.html" aria-label="Профиль"><span class="material-symbols-outlined">person</span></a>
     </div>
 
-    <script type="module" src="../shared/quiz-challenge.js"></script>
+    <div class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4" data-city-start-modal="">
+      <div class="w-full max-w-lg rounded-[2rem] bg-surface-container-lowest shadow-2xl border border-outline/10 p-8 text-center">
+        <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <span class="material-symbols-outlined text-[32px]">history_edu</span>
+        </div>
+        <h3 class="text-2xl font-black text-on-surface tracking-tight" data-i18n="start_modal_title">Городской тест</h3>
+        <p class="mt-4 text-sm md:text-base font-medium leading-relaxed text-on-surface-variant" data-i18n="start_modal_body">
+          После нажатия на OK начнётся тест и запустится таймер. Чем быстрее вы завершите тест, тем больше очков получите.
+        </p>
+        <button type="button" class="mt-8 inline-flex min-w-[180px] items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-black text-on-primary shadow-lg transition-all hover:scale-[1.02] active:scale-95" data-city-start-confirm="" data-i18n="start_modal_confirm">
+          OK
+        </button>
+      </div>
+    </div>
+
+    <script type="module" src="../shared/quiz-challenge.js?v=20260423f"></script>
   
 
 </body></html>

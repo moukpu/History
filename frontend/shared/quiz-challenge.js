@@ -166,6 +166,22 @@ const translations = {
   },
 };
 
+translations.ru.result_time_points = "Время: {time} • Очки: {points}.";
+translations.ru.start_modal_title = "Городской тест";
+translations.ru.start_modal_body =
+  "После нажатия на OK начнётся тест и запустится таймер. Чем быстрее вы завершите тест, тем больше очков получите.";
+translations.ru.start_modal_confirm = "OK";
+translations.en.result_time_points = "Time: {time} • Points: {points}.";
+translations.en.start_modal_title = "City test";
+translations.en.start_modal_body =
+  "After you press OK, the test will begin and the timer will start. The faster you finish, the more points you will earn.";
+translations.en.start_modal_confirm = "OK";
+translations.kk.result_time_points = "Уақыт: {time} • Ұпай: {points}.";
+translations.kk.start_modal_title = "Қала тесті";
+translations.kk.start_modal_body =
+  "OK батырмасын басқаннан кейін тест басталып, таймер іске қосылады. Неғұрлым тез аяқтасаңыз, соғұрлым көп ұпай аласыз.";
+translations.kk.start_modal_confirm = "OK";
+
 const periodTitleTranslations = {
   en: {
     khanate_1465: "Kazakh Khanate",
@@ -195,6 +211,7 @@ const state = {
   quiz: null,
   result: null,
   hintMessage: "",
+  timerId: null,
 };
 
 const elements = {};
@@ -221,6 +238,57 @@ function applyTranslations() {
   }
 
   markLanguageReady();
+}
+
+function formatElapsedSeconds(totalSeconds = 0) {
+  const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function getElapsedSeconds() {
+  if (!state.quiz?.startedAt) {
+    return 0;
+  }
+  return Math.max(0, Math.round((Date.now() - Number(state.quiz.startedAt)) / 1000));
+}
+
+function syncTimerDisplay() {
+  if (!elements.elapsedTimer) return;
+  setText(elements.elapsedTimer, formatElapsedSeconds(getElapsedSeconds()));
+}
+
+function stopTimer() {
+  if (state.timerId) {
+    window.clearInterval(state.timerId);
+    state.timerId = null;
+  }
+}
+
+function startTimer() {
+  stopTimer();
+  syncTimerDisplay();
+  state.timerId = window.setInterval(() => {
+    syncTimerDisplay();
+  }, 250);
+}
+
+function setStartModalVisible(visible) {
+  setVisible(elements.startModal, visible);
+  elements.startModal.classList.toggle("flex", Boolean(visible));
+}
+
+function beginTimedQuiz() {
+  if (!state.quiz) return;
+  if (!state.quiz.startedAt) {
+    state.quiz.startedAt = Date.now();
+  }
+  state.quiz.awaitingStart = false;
+  saveQuizState();
+  setStartModalVisible(false);
+  startTimer();
+  render();
 }
 
 function getLocalizedPeriodTitle(period) {
@@ -382,11 +450,12 @@ function renderQuestion() {
   if (!question) {
     return;
   }
+  const quizStarted = Boolean(state.quiz?.startedAt) && !state.quiz?.awaitingStart;
   const visibleQuestion = getVisibleQuestion(question);
 
   setVisible(elements.questionSection, true);
   setVisible(elements.resultSection, false);
-  setVisible(elements.prevButton, state.quiz.currentIndex > 0);
+  setVisible(elements.prevButton, quizStarted && state.quiz.currentIndex > 0);
   setText(
     elements.questionTag,
     `${getLocalizedCityName(state.quiz.city, getCurrentLanguage())} • ${state.period?.year_label || state.quiz.periodCode}`
@@ -430,6 +499,10 @@ function renderQuestion() {
     `);
 
     optionButton.addEventListener("click", () => {
+      if (!quizStarted) {
+        setStartModalVisible(true);
+        return;
+      }
       state.quiz.answers[question.id] = optionIndex;
       saveQuizState();
       renderQuestion();
@@ -452,6 +525,7 @@ function renderResult() {
     return;
   }
 
+  stopTimer();
   setVisible(elements.questionSection, false);
   setVisible(elements.resultSection, true);
   setVisible(elements.submitButton, false);
@@ -470,7 +544,12 @@ function renderResult() {
   setText(elements.resultBody, bodyText);
 
   const secondaryKey = state.result.passed ? "result_success_secondary_quiz" : "result_fail_secondary_quiz";
-  setText(elements.resultSecondary, translate(secondaryKey));
+  setText(
+    elements.resultSecondary,
+    `${translate("result_time_points")
+      .replace("{time}", formatElapsedSeconds(state.result.elapsed_seconds))
+      .replace("{points}", state.result.earned_points)} ${translate(secondaryKey)}`
+  );
 
   if (state.result.unlocked_achievements.length === 0) {
     setHtml(
@@ -499,6 +578,7 @@ function renderResult() {
 
 function render() {
   applyTranslations();
+  syncTimerDisplay();
   renderHeader();
   renderSidebar();
   renderQuestion();
@@ -508,6 +588,7 @@ async function submitQuiz() {
   const payload = {
     player_id: state.playerId,
     test_session_id: state.quiz.testSessionId,
+    elapsed_seconds: getElapsedSeconds(),
     answers: state.quiz.questions.map((question) => ({
       question_id: question.id,
       selected_index: state.quiz.answers[question.id],
@@ -516,6 +597,7 @@ async function submitQuiz() {
 
   const response = await api.submitTest(payload);
   state.result = response;
+  stopTimer();
   clearActiveQuizState();
   clearPendingQuizContext();
   render();
@@ -531,6 +613,11 @@ async function handleContinue() {
 
   const question = getCurrentQuestion();
   if (!question) {
+    return;
+  }
+
+  if (state.quiz.awaitingStart || !state.quiz.startedAt) {
+    setStartModalVisible(true);
     return;
   }
 
@@ -596,6 +683,8 @@ async function restoreOrStartQuiz() {
     questions: response.questions,
     answers: {},
     currentIndex: 0,
+    startedAt: null,
+    awaitingStart: true,
   };
   saveQuizState();
 }
@@ -620,6 +709,7 @@ function bindEvents() {
   });
   elements.submitButton.addEventListener("click", handleContinue);
   elements.prevButton.addEventListener("click", handlePrev);
+  elements.startConfirmButton.addEventListener("click", beginTimedQuiz);
   elements.primaryHintButton.addEventListener("click", () => {
     state.hintMessage = getLocalizedCityContentValue(
       "history_summary",
@@ -664,6 +754,9 @@ function cacheElements() {
   elements.resultBody = queryRequired("[data-result-body]");
   elements.resultSecondary = queryRequired("[data-result-secondary]");
   elements.resultAchievements = queryRequired("[data-result-achievements]");
+  elements.elapsedTimer = queryRequired("[data-elapsed-timer]");
+  elements.startModal = queryRequired("[data-city-start-modal]");
+  elements.startConfirmButton = queryRequired("[data-city-start-confirm]");
 }
 
 async function init() {
@@ -694,6 +787,13 @@ async function init() {
 
   await restoreOrStartQuiz();
   await loadSupportingData();
+  if (state.quiz?.startedAt && !state.quiz?.awaitingStart) {
+    startTimer();
+    setStartModalVisible(false);
+  } else {
+    syncTimerDisplay();
+    setStartModalVisible(true);
+  }
   render();
 }
 

@@ -265,6 +265,15 @@ def _calculate_score_percent(correct_answers: int, total_questions: int) -> int:
     return round((correct_answers / total_questions) * 100)
 
 
+def _calculate_timed_city_points(elapsed_seconds: int | None) -> int:
+    elapsed = max(0, int(elapsed_seconds or 0))
+    if elapsed < 30:
+        return 50
+    if elapsed < 40:
+        return 40
+    return 20
+
+
 def _require_period(connection, period_code: str) -> None:
     if not timeline_period_exists(connection, period_code):
         raise HTTPException(
@@ -874,6 +883,8 @@ def submit_test(db_path: str | Path, payload: SubmitTestRequest) -> SubmitTestRe
                 if str(answers_by_question_id[str(question["id"])]) == str(question["correct_index"])
             )
             score_percent = _calculate_score_percent(correct_answers, total_questions)
+            elapsed_seconds = max(0, int(payload.elapsed_seconds or 0))
+            earned_points = _calculate_timed_city_points(elapsed_seconds)
             passed = correct_answers >= math.ceil(total_questions * PASS_THRESHOLD)
             completed_at = _utc_now_iso()
 
@@ -925,6 +936,8 @@ def submit_test(db_path: str | Path, payload: SubmitTestRequest) -> SubmitTestRe
         total_questions=total_questions,
         correct_answers=correct_answers,
         score_percent=score_percent,
+        elapsed_seconds=elapsed_seconds,
+        earned_points=earned_points,
         passed=passed,
         unlocked_achievements=unlocked_achievements,
         all_player_achievements_count=all_player_achievements_count,
