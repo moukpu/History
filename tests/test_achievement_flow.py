@@ -218,6 +218,25 @@ class AchievementFlowApiTests(unittest.TestCase):
             )
             self.assertEqual(400, response.status_code)
 
+    def test_unavailable_city_periods_do_not_create_impossible_achievements(self) -> None:
+        with self._client_with_temp_db() as (_client, db_path):
+            connection = sqlite3.connect(db_path)
+            try:
+                rows = connection.execute(
+                    """
+                    SELECT city_periods.city, city_periods.period_code, achievements.code
+                    FROM city_periods
+                    JOIN achievements
+                      ON achievements.city = city_periods.city
+                     AND achievements.period_code = city_periods.period_code
+                    WHERE city_periods.is_available = 0
+                    """
+                ).fetchall()
+            finally:
+                connection.close()
+
+            self.assertEqual([], rows)
+
     @staticmethod
     def _build_correct_answers(db_path: Path, question_ids: list[int]) -> list[dict[str, int]]:
         return [

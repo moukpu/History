@@ -480,10 +480,12 @@ def build_achievement_catalog() -> list[dict[str, object | None]]:
     for period in TIMELINE_PERIODS:
         period_code = period["code"]
         for city in get_period_cities(period_code):
+            override = CITY_PERIOD_OVERRIDES.get((city, period_code), {})
+            if int(override.get("is_available", 1)) != 1:
+                continue
             achievement_code = get_city_period_achievement_code(city, period_code)
             if not achievement_code:
                 continue
-            override = CITY_PERIOD_OVERRIDES.get((city, period_code), {})
             display_name = override.get("display_name", city)
             catalog.append(
                 {
