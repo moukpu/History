@@ -45,6 +45,7 @@ Notes:
 - The core site works without Node.js because the frontend can also be served by Python.
 - `GROQ_API_KEY` is optional. It is required for AI analysis in ENT attempt reviews.
 - `GOOGLE_CLIENT_ID` is optional. It is only required if you want the Google sign-in button to work.
+- `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ADMIN_IDS` are optional. They enable the Telegram admin panel.
 
 ## Quick start
 
@@ -232,7 +233,36 @@ Important variable notes:
 - `GOOGLE_CLIENT_ID` is not secret, but it is environment-specific.
 - `GROQ_API_KEY` is optional and should be set if you want AI analysis in ENT attempt reviews.
 - `GROQ_MODEL` defaults to `llama-3.3-70b-versatile`.
+- `TELEGRAM_BOT_TOKEN` is secret. Create it with Telegram `@BotFather`.
+- `TELEGRAM_ADMIN_IDS` is a comma-separated list of numeric Telegram user ids allowed to control the site.
 - Do not commit your real `.env`; use Railway service variables.
+
+## Telegram Admin Bot
+
+The backend can start a Telegram admin bot in the same Railway service. It is disabled unless both variables are set:
+
+```bash
+TELEGRAM_BOT_TOKEN=1234567890:your_bot_token
+TELEGRAM_ADMIN_IDS=123456789
+```
+
+What the admin can do from Telegram:
+
+- view users and search with `/find text`
+- change a user's nickname
+- grant or revoke achievements through paginated inline buttons
+- mark city tests as passed, set a city score from 0 to 100, or reset city progress
+- manually unlock a period for a selected user
+- disable or enable the site
+- delete an account after confirmation
+
+When the admin changes data, the website reads the same database, so the user's profile, map, achievements, and leaderboard update on the next reload/API refresh.
+
+To find your numeric Telegram user id, message a helper bot such as `@userinfobot`, then put that number into `TELEGRAM_ADMIN_IDS`. For multiple admins, use commas:
+
+```bash
+TELEGRAM_ADMIN_IDS=123456789,987654321
+```
 
 ## Gameplay rules
 

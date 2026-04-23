@@ -254,6 +254,37 @@ def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
+def _list_unlocked_period_overrides(db_path: str | Path, player_id: str) -> set[str]:
+    connection = connect_db(db_path)
+    try:
+        rows = connection.execute(
+            """
+            SELECT period_code
+            FROM player_period_overrides
+            WHERE player_id = ? AND is_unlocked = 1
+            """,
+            (player_id,),
+        ).fetchall()
+        return {str(row["period_code"]) for row in rows}
+    finally:
+        connection.close()
+
+
+def _list_unlocked_period_overrides_from_connection(
+    connection: sqlite3.Connection,
+    player_id: str,
+) -> set[str]:
+    rows = connection.execute(
+        """
+        SELECT period_code
+        FROM player_period_overrides
+        WHERE player_id = ? AND is_unlocked = 1
+        """,
+        (player_id,),
+    ).fetchall()
+    return {str(row["period_code"]) for row in rows}
+
+
 def _normalize_player_id(player_id: str) -> str:
     normalized = player_id.strip()
     if not normalized:
@@ -322,6 +353,7 @@ def _build_period_progress_snapshot(
         (str(item["period_code"]), str(item["city"])): item
         for item in player_progress["city_progress"]
     }
+    manual_unlocked_periods = _list_unlocked_period_overrides(db_path, player_id)
 
     states: list[dict[str, object]] = []
     for index, period in enumerate(periods):
@@ -339,6 +371,7 @@ def _build_period_progress_snapshot(
         completed = total_cities > 0 and passed_cities >= total_cities
         is_unlocked = (
             TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW
+            or period_code in manual_unlocked_periods
             or index == 0
             or bool(states[index - 1]["is_completed"])
         )
@@ -481,6 +514,10 @@ def _build_period_progress_snapshot_from_connection(
         (str(item["period_code"]), str(item["city"])): item
         for item in player_progress["city_progress"]
     }
+    manual_unlocked_periods = _list_unlocked_period_overrides_from_connection(
+        connection,
+        player_id,
+    )
 
     states: list[dict[str, object]] = []
     for index, period in enumerate(periods):
@@ -509,6 +546,7 @@ def _build_period_progress_snapshot_from_connection(
         completed = total_cities > 0 and passed_cities >= total_cities
         is_unlocked = (
             TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW
+            or period_code in manual_unlocked_periods
             or index == 0
             or bool(states[index - 1]["is_completed"])
         )

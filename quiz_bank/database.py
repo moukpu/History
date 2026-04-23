@@ -308,6 +308,14 @@ def _create_target_tables(connection: sqlite3.Connection) -> None:
             created_at TEXT NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS player_period_overrides (
+            player_id TEXT NOT NULL,
+            period_code TEXT NOT NULL,
+            is_unlocked INTEGER NOT NULL DEFAULT 1,
+            updated_at TEXT NOT NULL,
+            PRIMARY KEY(player_id, period_code)
+        );
+
         CREATE TABLE IF NOT EXISTS app_metadata (
             key TEXT PRIMARY KEY,
             value TEXT NOT NULL,
@@ -816,6 +824,9 @@ def _ensure_indexes(connection: sqlite3.Connection) -> None:
         CREATE UNIQUE INDEX IF NOT EXISTS users_google_sub_uq
         ON users(google_sub)
         WHERE google_sub IS NOT NULL AND TRIM(google_sub) != '';
+
+        CREATE INDEX IF NOT EXISTS player_period_overrides_player_id_idx
+        ON player_period_overrides(player_id);
         """
     )
 

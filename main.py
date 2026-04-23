@@ -13,7 +13,7 @@ from urllib.request import urlopen
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from openai import AsyncOpenAI, OpenAIError
 from pydantic import ValidationError
@@ -80,6 +80,7 @@ from quiz_bank.database import (
     upsert_google_user,
     connect_db,
 )
+from quiz_bank.admin_tools import get_site_disabled
 from quiz_bank.constants import DEFAULT_PERIOD_DATA_PATH
 from quiz_bank.services import (
     _utc_now_iso,
@@ -100,6 +101,7 @@ from quiz_bank.services import (
     submit_fact_challenge,
     submit_test,
 )
+from quiz_bank.telegram_admin import start_telegram_admin_bot
 
 
 def _load_dotenv_file(path: str = ".env") -> None:
@@ -214,7 +216,12 @@ def init_db() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
-    yield
+    telegram_admin_runtime = start_telegram_admin_bot(db_path=DB_PATH, logger=logger)
+    try:
+        yield
+    finally:
+        if telegram_admin_runtime is not None:
+            await telegram_admin_runtime.stop()
 
 
 app = FastAPI(
@@ -241,6 +248,22 @@ STATIC_API_CACHE_PREFIXES = (
     "/api/timeline/cities/",
     "/api/city-content/",
 )
+
+
+@app.middleware("http")
+async def enforce_site_mode(request: Request, call_next):
+    path = request.url.path
+    if path != "/api/health" and get_site_disabled(DB_PATH):
+        if path.startswith("/api/"):
+            return JSONResponse(
+                status_code=503,
+                content={"detail": "Sapar Quest is temporarily disabled by an administrator."},
+            )
+        return PlainTextResponse(
+            "Sapar Quest is temporarily disabled by an administrator.",
+            status_code=503,
+        )
+    return await call_next(request)
 
 
 @app.middleware("http")
