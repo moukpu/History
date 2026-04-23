@@ -33,6 +33,188 @@ ACHIEVEMENT_PAGE_SIZE = 7
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip() or "llama-3.3-70b-versatile"
 CJK_ARTIFACT_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]")
 LATIN_SCREENSHOT_RE = re.compile(r"\bscreenshot\b", re.IGNORECASE)
+SUPPORTED_BOT_LANGUAGES = ("ru", "en", "kk")
+BOT_LANGUAGE_NAMES = {
+    "ru": "Русский",
+    "en": "English",
+    "kk": "Қазақша",
+}
+BOT_AI_LANGUAGE_NAMES = {
+    "ru": "Russian",
+    "en": "English",
+    "kk": "Kazakh",
+}
+
+BOT_TEXTS = {
+    "ru": {
+        "language_prompt_title": "🌍 Выбор языка",
+        "language_prompt_body": "Выбери язык бота. Потом его можно поменять в меню одной кнопкой.",
+        "language_changed": "Язык бота изменён: {language}.",
+        "menu_title": "🪐 Поддержка Sapar Quest",
+        "menu_body": "Помогу с аккаунтом, картой, прогрессом, тестами, ЕНТ и ошибками сайта.\n\nВыбери тему ниже или напиши вопрос сообщением.",
+        "faq_title": "📚 Частые вопросы",
+        "faq_body": "Выбери вопрос и получи быстрый ответ.",
+        "contacts_title": "📞 Контакты поддержки",
+        "contacts_body": "Telegram-бот: @history_pamelsasa_bot\nEmail разработчика: aldiyar220210@gmail.com\nEmail помощника: azamatik908@gmail.com\nТелефон/WhatsApp: +7 747 646 5285\n\nДля быстрого ответа укажи почту аккаунта, страницу сайта и что именно произошло.",
+        "ask_ai_prompt": "✍️ Напиши вопрос одним сообщением.\nЖелательно сразу указать почту аккаунта, страницу и что произошло.",
+        "ask_more_prompt": "🔎 Опиши проблему подробнее одним сообщением: что нажал, на какой странице, какой текст ошибки видишь и что уже пробовал.",
+        "operator_prompt": "🧾 Отправь одно сообщение для оператора: почта аккаунта, страница, описание проблемы. Если есть скриншот или видео, приложи их в этом же сообщении.",
+        "operator_need_details": "Нужно одно сообщение для оператора: почта аккаунта, что произошло, на какой странице ошибка. При необходимости приложи файл, фото или видео в этом же сообщении.",
+        "operator_sent": "✅ Обращение передано оператору. Он увидит описание, Telegram пользователя и все вложения, если они были отправлены.",
+        "ai_unavailable": "AI-поддержка временно недоступна. Напиши почту аккаунта, страницу и описание проблемы, чтобы оператор мог проверить её вручную.",
+        "ai_second_try_offer": "Если проблема всё ещё не решена, я могу сразу передать обращение оператору.",
+        "feedback_thanks": "✅ Спасибо за обратную связь. Если понадобится ещё помощь, можно сразу выбрать тему ниже.",
+        "stale_button": "Кнопка устарела. Открой меню заново.",
+        "cancelled": "Отменено.",
+        "button_account": "👤 Аккаунт",
+        "button_progress": "🗺️ Прогресс",
+        "button_quiz": "🧠 Тесты/ЕНТ",
+        "button_bug": "🛠 Ошибка сайта",
+        "button_ai": "✨ Спросить ИИ",
+        "button_faq": "📚 FAQ",
+        "button_contacts": "📞 Контакты",
+        "button_language": "🌍 Язык",
+        "button_back": "⬅️ Назад",
+        "button_back_faq": "⬅️ К FAQ",
+        "button_menu": "🏠 В меню",
+        "button_helped": "✅ Помог",
+        "button_not_helped": "❌ Не помог",
+        "button_operator": "👨‍💻 Оператор",
+        "button_ask_ai": "✨ Задать вопрос ИИ",
+        "topic_account_title": "👤 Аккаунт и вход",
+        "topic_account_body": "Помогу с регистрацией, входом через Google, почтой, ником, аватаркой и восстановлением доступа.",
+        "topic_progress_title": "🗺️ Прогресс и карта",
+        "topic_progress_body": "Помогу понять, почему период или город не открыт, почему не засчитался тест и где пропали достижения.",
+        "topic_quiz_title": "🧠 Тесты и ЕНТ",
+        "topic_quiz_body": "Помогу с городскими тестами, таймером, результатами ЕНТ и разбором попыток.",
+        "topic_bug_title": "🛠 Ошибка сайта",
+        "topic_bug_body": "Опиши страницу, действие, текст ошибки, устройство и браузер. Если есть скриншот или видео, тоже отправь.",
+        "faq_start_title": "Как начать игру?",
+        "faq_start_answer": "Создай аккаунт или войди через Google, затем открой карту. Квест начинается с первого периода. После прохождения тестов периода следующий период откроется автоматически.",
+        "faq_locked_title": "Почему период закрыт?",
+        "faq_locked_answer": "Периоды открываются по порядку. Нужно пройти все городские тесты предыдущего периода. Если период уже должен быть открыт, обнови страницу и проверь, что ты вошёл в тот же аккаунт.",
+        "faq_profile_title": "Почему не виден прогресс?",
+        "faq_profile_answer": "Прогресс хранится в аккаунте. Войди в тот же профиль, с которого проходил тесты. Если профиль не обновился, перезагрузи страницу и проверь ещё раз.",
+        "faq_ent_title": "Как работает ЕНТ-тест?",
+        "faq_ent_answer": "ЕНТ-тест идёт 10 минут и сохраняется в профиле как отдельная попытка. После попытки можно открыть разбор с вопросами, ответами и AI-анализом.",
+        "faq_google_title": "Не работает вход через Google",
+        "faq_google_answer": "Чаще всего проблема связана с Google Client ID или разрешённым доменом. Попробуй обычный вход по почте. Если ошибка повторяется, пришли текст ошибки или скриншот.",
+        "faq_leaderboard_title": "Как считается рейтинг?",
+        "faq_leaderboard_answer": "Рейтинг учитывает городской прогресс, достижения и точность по городским тестам. Попытки ЕНТ в точность рейтинга не входят.",
+    },
+    "en": {
+        "language_prompt_title": "🌍 Language",
+        "language_prompt_body": "Choose the bot language. You can change it later from the menu with one button.",
+        "language_changed": "Bot language updated: {language}.",
+        "menu_title": "🪐 Sapar Quest Support",
+        "menu_body": "I can help with your account, map, progress, quizzes, UNT, and site errors.\n\nChoose a topic below or send your question as a message.",
+        "faq_title": "📚 FAQ",
+        "faq_body": "Choose a question to get a quick answer.",
+        "contacts_title": "📞 Support Contacts",
+        "contacts_body": "Telegram bot: @history_pamelsasa_bot\nLead developer email: aldiyar220210@gmail.com\nAssistant email: azamatik908@gmail.com\nPhone/WhatsApp: +7 747 646 5285\n\nFor a faster reply, include your account email, the page, and what exactly happened.",
+        "ask_ai_prompt": "✍️ Send your question in one message.\nIt is better to include your account email, the page, and what happened.",
+        "ask_more_prompt": "🔎 Please describe the issue in more detail in one message: what you clicked, which page, what error text you see, and what you already tried.",
+        "operator_prompt": "🧾 Send one message for the operator: account email, page, and issue description. If you have a screenshot or video, attach it to the same message.",
+        "operator_need_details": "The operator needs one message: account email, what happened, and on which page the error appeared. You can also attach a file, photo, or video.",
+        "operator_sent": "✅ Your request has been sent to the operator. They will see your description, Telegram account, and all attachments if you sent them.",
+        "ai_unavailable": "AI support is temporarily unavailable. Send your account email, the page, and the issue description so the operator can review it manually.",
+        "ai_second_try_offer": "If this still does not solve the issue, I can send your request directly to the operator.",
+        "feedback_thanks": "✅ Thanks for the feedback. If you need more help, just choose another topic below.",
+        "stale_button": "This button is outdated. Open the menu again.",
+        "cancelled": "Cancelled.",
+        "button_account": "👤 Account",
+        "button_progress": "🗺️ Progress",
+        "button_quiz": "🧠 Quizzes/UNT",
+        "button_bug": "🛠 Site Error",
+        "button_ai": "✨ Ask AI",
+        "button_faq": "📚 FAQ",
+        "button_contacts": "📞 Contacts",
+        "button_language": "🌍 Language",
+        "button_back": "⬅️ Back",
+        "button_back_faq": "⬅️ Back to FAQ",
+        "button_menu": "🏠 Menu",
+        "button_helped": "✅ Helped",
+        "button_not_helped": "❌ Not Helped",
+        "button_operator": "👨‍💻 Operator",
+        "button_ask_ai": "✨ Ask AI",
+        "topic_account_title": "👤 Account and Sign In",
+        "topic_account_body": "I can help with registration, Google sign-in, email, nickname, avatar, and access recovery.",
+        "topic_progress_title": "🗺️ Progress and Map",
+        "topic_progress_body": "I can help you understand why a period or city is locked, why a test was not counted, or why achievements are missing.",
+        "topic_quiz_title": "🧠 Quizzes and UNT",
+        "topic_quiz_body": "I can help with city quizzes, timers, UNT results, and attempt review.",
+        "topic_bug_title": "🛠 Site Error",
+        "topic_bug_body": "Describe the page, action, error text, device, and browser. If you have a screenshot or video, send it too.",
+        "faq_start_title": "How do I start the game?",
+        "faq_start_answer": "Create an account or sign in with Google, then open the map. The quest starts from the first period. After you complete that period, the next one unlocks automatically.",
+        "faq_locked_title": "Why is a period locked?",
+        "faq_locked_answer": "Periods unlock in order. You need to complete all city tests from the previous period. If it should already be open, refresh the page and make sure you are in the same account.",
+        "faq_profile_title": "Why is my progress missing?",
+        "faq_profile_answer": "Progress is stored in your account. Sign in with the same profile you used for the tests. If the profile did not update, refresh the page and check again.",
+        "faq_ent_title": "How does the UNT test work?",
+        "faq_ent_answer": "The UNT test lasts 10 minutes and is saved in your profile as a separate attempt. After that, you can open a review with questions, answers, and AI analysis.",
+        "faq_google_title": "Google sign-in does not work",
+        "faq_google_answer": "This is usually related to Google Client ID or an allowed domain. Try regular email login. If the error repeats, send the exact error text or a screenshot.",
+        "faq_leaderboard_title": "How is the leaderboard calculated?",
+        "faq_leaderboard_answer": "The leaderboard uses city progress, achievements, and city-test accuracy. UNT attempts are not included in leaderboard accuracy.",
+    },
+    "kk": {
+        "language_prompt_title": "🌍 Тіл таңдау",
+        "language_prompt_body": "Бот тілін таңда. Кейін оны мәзірден бір батырмамен өзгертуге болады.",
+        "language_changed": "Бот тілі өзгертілді: {language}.",
+        "menu_title": "🪐 Sapar Quest қолдауы",
+        "menu_body": "Аккаунт, карта, прогресс, тесттер, ҰБТ және сайт қателері бойынша көмектесемін.\n\nТөменнен тақырыпты таңда немесе сұрағыңды хабарламамен жібер.",
+        "faq_title": "📚 Жиі сұрақтар",
+        "faq_body": "Жылдам жауап алу үшін сұрақты таңда.",
+        "contacts_title": "📞 Қолдау байланыстары",
+        "contacts_body": "Telegram-бот: @history_pamelsasa_bot\nБас әзірлеуші email: aldiyar220210@gmail.com\nКөмекші email: azamatik908@gmail.com\nТелефон/WhatsApp: +7 747 646 5285\n\nЖылдам жауап үшін аккаунт поштасын, бетті және не болғанын жаз.",
+        "ask_ai_prompt": "✍️ Сұрағыңды бір хабарламамен жібер.\nМүмкін болса, аккаунт поштасын, бетті және не болғанын қоса жаз.",
+        "ask_more_prompt": "🔎 Мәселені толығырақ бір хабарламамен жаз: не бастың, қай бетте болды, қандай қате шықты және не жасап көрдің.",
+        "operator_prompt": "🧾 Операторға бір хабарлама жібер: аккаунт поштасы, бет және мәселе сипаттамасы. Скриншот не видео болса, сол хабарламаға тірке.",
+        "operator_need_details": "Операторға бір хабарлама керек: аккаунт поштасы, не болғаны және қате шыққан бет. Қажет болса файл, фото немесе видеоны да тірке.",
+        "operator_sent": "✅ Өтініш операторға жіберілді. Ол сенің сипаттамаңды, Telegram аккаунтыңды және барлық тіркемелерді көреді.",
+        "ai_unavailable": "AI қолдауы уақытша қолжетімсіз. Оператор тексеруі үшін аккаунт поштасын, бетті және мәселе сипаттамасын жібер.",
+        "ai_second_try_offer": "Егер мәселе әлі шешілмесе, өтінішті операторға бірден жібере аламын.",
+        "feedback_thanks": "✅ Кері байланысқа рахмет. Қажет болса, төменнен басқа тақырыпты таңда.",
+        "stale_button": "Бұл батырма ескірген. Мәзірді қайта аш.",
+        "cancelled": "Бас тартылды.",
+        "button_account": "👤 Аккаунт",
+        "button_progress": "🗺️ Прогресс",
+        "button_quiz": "🧠 Тесттер/ҰБТ",
+        "button_bug": "🛠 Сайт қатесі",
+        "button_ai": "✨ AI-дан сұрау",
+        "button_faq": "📚 FAQ",
+        "button_contacts": "📞 Байланыс",
+        "button_language": "🌍 Тіл",
+        "button_back": "⬅️ Артқа",
+        "button_back_faq": "⬅️ FAQ-қа қайту",
+        "button_menu": "🏠 Мәзір",
+        "button_helped": "✅ Көмектесті",
+        "button_not_helped": "❌ Көмектеспеді",
+        "button_operator": "👨‍💻 Оператор",
+        "button_ask_ai": "✨ AI-ға сұрақ",
+        "topic_account_title": "👤 Аккаунт және кіру",
+        "topic_account_body": "Тіркелу, Google арқылы кіру, пошта, ник, аватар және қолжетімділікті қалпына келтіру бойынша көмектесемін.",
+        "topic_progress_title": "🗺️ Прогресс және карта",
+        "topic_progress_body": "Неге кезең не қала ашылмай тұр, неге тест есептелмеді немесе жетістіктер неге көрінбейді - соны түсінуге көмектесемін.",
+        "topic_quiz_title": "🧠 Тесттер және ҰБТ",
+        "topic_quiz_body": "Қала тесттері, таймер, ҰБТ нәтижелері және талдау бойынша көмектесемін.",
+        "topic_bug_title": "🛠 Сайт қатесі",
+        "topic_bug_body": "Бетті, әрекетті, қате мәтінін, құрылғы мен браузерді жаз. Скриншот не видео болса, оны да жібер.",
+        "faq_start_title": "Ойынды қалай бастаймын?",
+        "faq_start_answer": "Аккаунт жаса немесе Google арқылы кір, содан кейін картаны аш. Квест бірінші кезеңнен басталады. Кезең біткен соң келесі кезең автоматты түрде ашылады.",
+        "faq_locked_title": "Неге кезең жабық?",
+        "faq_locked_answer": "Кезеңдер ретімен ашылады. Алдыңғы кезеңдегі барлық қала тесттерін өту керек. Егер ол ашық болуы тиіс болса, бетті жаңартып, сол аккаунтпен кіргеніңді тексер.",
+        "faq_profile_title": "Неге прогресс көрінбейді?",
+        "faq_profile_answer": "Прогресс аккаунтта сақталады. Тест тапсырған сол профильге кір. Егер профиль жаңармаса, бетті қайта жүктеп, тағы тексер.",
+        "faq_ent_title": "ҰБТ тесті қалай жұмыс істейді?",
+        "faq_ent_answer": "ҰБТ тесті 10 минутқа созылады және профильде жеке талпыныс ретінде сақталады. Кейін сұрақтар, жауаптар және AI талдауы бар шолуды ашуға болады.",
+        "faq_google_title": "Google арқылы кіру жұмыс істемейді",
+        "faq_google_answer": "Көбіне мәселе Google Client ID немесе рұқсат етілген доменге байланысты болады. Әдеттегі email кіруін қолданып көр. Қате қайталанса, нақты қате мәтінін не скриншот жібер.",
+        "faq_leaderboard_title": "Рейтинг қалай есептеледі?",
+        "faq_leaderboard_answer": "Рейтинг қала прогресін, жетістіктерді және қала тесттерінің дәлдігін есептейді. ҰБТ талпыныстары рейтинг дәлдігіне кірмейді.",
+    },
+}
 
 SUPPORT_FAQ = [
     {
@@ -159,6 +341,7 @@ class TelegramAdminBot:
         self.waiting: dict[int, dict[str, Any]] = {}
         self.support_context: dict[int, str] = {}
         self.support_sessions: dict[int, dict[str, int | str]] = {}
+        self.user_languages: dict[int, str] = {}
 
     def _is_admin(self, payload: dict[str, Any]) -> bool:
         from_user = payload.get("from") or {}
@@ -182,6 +365,8 @@ class TelegramAdminBot:
     def _is_support_action(self, action: str) -> bool:
         return action in {
             "support_main",
+            "support_language",
+            "support_set_language",
             "support_faq",
             "support_faq_item",
             "support_topic",
@@ -191,6 +376,70 @@ class TelegramAdminBot:
             "support_feedback_retry",
             "support_operator_start",
         }
+
+    def _get_chat_language(self, chat_id: int) -> str:
+        language = str(self.user_languages.get(chat_id, "ru"))
+        return language if language in SUPPORTED_BOT_LANGUAGES else "ru"
+
+    def _set_chat_language(self, chat_id: int, language: str) -> str:
+        normalized = language if language in SUPPORTED_BOT_LANGUAGES else "ru"
+        self.user_languages[chat_id] = normalized
+        return normalized
+
+    def _t(self, chat_id: int, key: str, **params: Any) -> str:
+        language = self._get_chat_language(chat_id)
+        template = BOT_TEXTS.get(language, BOT_TEXTS["ru"]).get(key, BOT_TEXTS["ru"].get(key, key))
+        return template.format(**params) if params else template
+
+    def _faq_items(self, chat_id: int) -> list[dict[str, str]]:
+        return [
+            {
+                "key": "start",
+                "title": self._t(chat_id, "faq_start_title"),
+                "answer": self._t(chat_id, "faq_start_answer"),
+            },
+            {
+                "key": "locked",
+                "title": self._t(chat_id, "faq_locked_title"),
+                "answer": self._t(chat_id, "faq_locked_answer"),
+            },
+            {
+                "key": "profile",
+                "title": self._t(chat_id, "faq_profile_title"),
+                "answer": self._t(chat_id, "faq_profile_answer"),
+            },
+            {
+                "key": "ent",
+                "title": self._t(chat_id, "faq_ent_title"),
+                "answer": self._t(chat_id, "faq_ent_answer"),
+            },
+            {
+                "key": "google",
+                "title": self._t(chat_id, "faq_google_title"),
+                "answer": self._t(chat_id, "faq_google_answer"),
+            },
+            {
+                "key": "leaderboard",
+                "title": self._t(chat_id, "faq_leaderboard_title"),
+                "answer": self._t(chat_id, "faq_leaderboard_answer"),
+            },
+        ]
+
+    def _topic_content(self, chat_id: int, topic: str) -> tuple[str, str]:
+        key = topic if topic in {"account", "progress", "quiz", "bug"} else "bug"
+        return (
+            self._t(chat_id, f"topic_{key}_title"),
+            self._t(chat_id, f"topic_{key}_body"),
+        )
+
+    def _language_keyboard(self) -> dict[str, Any]:
+        return self._keyboard(
+            [[
+                self._button("🇷🇺 Русский", "support_set_language", language="ru"),
+                self._button("🇬🇧 English", "support_set_language", language="en"),
+                self._button("🇰🇿 Қазақша", "support_set_language", language="kk"),
+            ]]
+        )
 
     def _get_support_session(self, chat_id: int) -> dict[str, int | str]:
         session = self.support_sessions.get(chat_id)
@@ -217,19 +466,25 @@ class TelegramAdminBot:
             return self._keyboard(
                 [
                     [
-                        self._button("Помог", "support_feedback_helped"),
-                        self._button("Оператор", "support_operator_start"),
+                        self._button(self._t(chat_id, "button_helped"), "support_feedback_helped"),
+                        self._button(self._t(chat_id, "button_operator"), "support_operator_start"),
                     ],
-                    [self._button("В меню", "support_main")],
+                    [
+                        self._button(self._t(chat_id, "button_language"), "support_language"),
+                        self._button(self._t(chat_id, "button_menu"), "support_main"),
+                    ],
                 ]
             )
         return self._keyboard(
             [
                 [
-                    self._button("Помог", "support_feedback_helped"),
-                    self._button("Не помог", "support_feedback_retry"),
+                    self._button(self._t(chat_id, "button_helped"), "support_feedback_helped"),
+                    self._button(self._t(chat_id, "button_not_helped"), "support_feedback_retry"),
                 ],
-                [self._button("В меню", "support_main")],
+                [
+                    self._button(self._t(chat_id, "button_language"), "support_language"),
+                    self._button(self._t(chat_id, "button_menu"), "support_main"),
+                ],
             ]
         )
 
@@ -319,19 +574,12 @@ class TelegramAdminBot:
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         return cleaned
 
-    def _build_support_fallback_answer(self, question: str, topic: str = "") -> str:
-        topic_label = SUPPORT_TOPICS.get(topic, ("Проблема", ""))[0]
+    def _build_support_fallback_answer(self, chat_id: int, question: str, topic: str = "") -> str:
+        topic_label, _ = self._topic_content(chat_id, topic)
         question = str(question or "").strip()
         if question:
-            return (
-                f"Понял. По теме «{topic_label}» мне нужны детали: "
-                "какая страница, что именно нажал, какой текст ошибки видишь, какое устройство и браузер используешь. "
-                "Если есть скриншот, тоже отправь."
-            )
-        return (
-            f"Опиши проблему по теме «{topic_label}»: страница, действие, текст ошибки, устройство/браузер. "
-            "Если есть скриншот, тоже отправь."
-        )
+            return f"{topic_label}\n\n{self._t(chat_id, 'ask_more_prompt')}"
+        return self._t(chat_id, "ask_ai_prompt")
 
     async def _api(self, method: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
         async with httpx.AsyncClient(timeout=35) as client:
@@ -380,49 +628,49 @@ class TelegramAdminBot:
         except httpx.HTTPError:
             pass
 
-    def _support_keyboard(self) -> dict[str, Any]:
+    def _support_keyboard(self, chat_id: int) -> dict[str, Any]:
         return self._keyboard(
             [
                 [
-                    self._button("Аккаунт", "support_topic", topic="account"),
-                    self._button("Прогресс", "support_topic", topic="progress"),
+                    self._button(self._t(chat_id, "button_account"), "support_topic", topic="account"),
+                    self._button(self._t(chat_id, "button_progress"), "support_topic", topic="progress"),
                 ],
                 [
-                    self._button("Тесты/ЕНТ", "support_topic", topic="quiz"),
-                    self._button("Ошибка сайта", "support_topic", topic="bug"),
+                    self._button(self._t(chat_id, "button_quiz"), "support_topic", topic="quiz"),
+                    self._button(self._t(chat_id, "button_bug"), "support_topic", topic="bug"),
                 ],
-                [self._button("Спросить ИИ", "support_ai_start")],
-                [self._button("Контакты", "support_contacts")],
+                [self._button(self._t(chat_id, "button_ai"), "support_ai_start")],
+                [
+                    self._button(self._t(chat_id, "button_faq"), "support_faq"),
+                    self._button(self._t(chat_id, "button_contacts"), "support_contacts"),
+                ],
+                [self._button(self._t(chat_id, "button_language"), "support_language")],
             ]
         )
 
     async def _show_support_main(self, chat_id: int, message_id: int | None = None) -> None:
         self._reset_support_dialog(chat_id)
-        text = (
-            "<b>Sapar Quest support</b>\n\n"
-            "Я помогу с аккаунтом, прогрессом, картой, тестами, ЕНТ и ошибками сайта.\n"
-            "Выбери тему ниже или напиши вопрос обычным сообщением."
-        )
+        text = f"<b>{escape(self._t(chat_id, 'menu_title'))}</b>\n\n{escape(self._t(chat_id, 'menu_body'))}"
         if message_id:
-            await self._edit(chat_id, message_id, text, self._support_keyboard())
+            await self._edit(chat_id, message_id, text, self._support_keyboard(chat_id))
         else:
-            await self._send(chat_id, text, self._support_keyboard())
+            await self._send(chat_id, text, self._support_keyboard(chat_id))
 
     async def _show_support_faq(self, chat_id: int, message_id: int) -> None:
-        rows = [
-            [self._button(item["title"], "support_faq_item", key=item["key"])]
-            for item in SUPPORT_FAQ
-        ]
-        rows.append([self._button("Назад", "support_main")])
+        rows = [[self._button(item["title"], "support_faq_item", key=item["key"])] for item in self._faq_items(chat_id)]
+        rows.append([
+            self._button(self._t(chat_id, "button_back"), "support_main"),
+            self._button(self._t(chat_id, "button_language"), "support_language"),
+        ])
         await self._edit(
             chat_id,
             message_id,
-            "<b>Частые вопросы</b>\nВыбери вопрос, чтобы получить быстрый ответ.",
+            f"<b>{escape(self._t(chat_id, 'faq_title'))}</b>\n{escape(self._t(chat_id, 'faq_body'))}",
             self._keyboard(rows),
         )
 
     async def _show_support_faq_item(self, chat_id: int, message_id: int, key: str) -> None:
-        item = next((faq for faq in SUPPORT_FAQ if faq["key"] == key), None)
+        item = next((faq for faq in self._faq_items(chat_id) if faq["key"] == key), None)
         if not item:
             await self._show_support_faq(chat_id, message_id)
             return
@@ -432,14 +680,14 @@ class TelegramAdminBot:
             f"<b>{escape(item['title'])}</b>\n\n{escape(item['answer'])}",
             self._keyboard(
                 [
-                    [self._button("Задать вопрос ИИ", "support_ai_start", topic=key)],
-                    [self._button("Назад к FAQ", "support_faq")],
+                    [self._button(self._t(chat_id, "button_ask_ai"), "support_ai_start", topic=key)],
+                    [self._button(self._t(chat_id, "button_back_faq"), "support_faq")],
                 ]
             ),
         )
 
     async def _show_support_topic(self, chat_id: int, message_id: int, topic: str) -> None:
-        title, body = SUPPORT_TOPICS.get(topic, SUPPORT_TOPICS["bug"])
+        title, body = self._topic_content(chat_id, topic)
         self.support_context[chat_id] = topic
         self._get_support_session(chat_id)["topic"] = topic
         await self._edit(
@@ -448,30 +696,29 @@ class TelegramAdminBot:
             (
                 f"<b>{escape(title)}</b>\n\n"
                 f"{escape(body)}\n\n"
-                "Напиши вопрос одним сообщением, и ИИ поддержки ответит по Sapar Quest."
+                f"{escape(self._t(chat_id, 'ask_ai_prompt'))}"
             ),
             self._keyboard(
                 [
-                    [self._button("Написать вопрос ИИ", "support_ai_start", topic=topic)],
-                    [self._button("Назад", "support_main")],
+                    [self._button(self._t(chat_id, "button_ask_ai"), "support_ai_start", topic=topic)],
+                    [
+                        self._button(self._t(chat_id, "button_back"), "support_main"),
+                        self._button(self._t(chat_id, "button_language"), "support_language"),
+                    ],
                 ]
             ),
         )
 
     async def _show_support_contacts(self, chat_id: int, message_id: int) -> None:
-        text = (
-            "<b>Контакты поддержки</b>\n\n"
-            "Telegram-бот: @history_pamelsasa_bot\n"
-            "Email разработчика: aldiyar220210@gmail.com\n"
-            "Email помощника: azamatik908@gmail.com\n"
-            "Телефон/WhatsApp: +7 747 646 5285\n\n"
-            "Для быстрого ответа укажи почту аккаунта, страницу сайта и что именно произошло."
-        )
+        text = f"<b>{escape(self._t(chat_id, 'contacts_title'))}</b>\n\n{escape(self._t(chat_id, 'contacts_body'))}"
         await self._edit(
             chat_id,
             message_id,
             text,
-            self._keyboard([[self._button("Назад", "support_main")]]),
+            self._keyboard([[
+                self._button(self._t(chat_id, "button_back"), "support_main"),
+                self._button(self._t(chat_id, "button_language"), "support_language"),
+            ]]),
         )
 
     async def _notify_operator(self, message: dict[str, Any], topic: str) -> None:
@@ -574,10 +821,7 @@ class TelegramAdminBot:
         if not body and not has_attachment:
             await self._send(
                 chat_id,
-                (
-                    "Нужно одно сообщение для оператора: почта аккаунта, что произошло, на какой странице ошибка, "
-                    "и при необходимости скриншот в этом же сообщении."
-                ),
+                escape(self._t(chat_id, "operator_need_details")),
             )
             return
 
@@ -595,11 +839,8 @@ class TelegramAdminBot:
         self._reset_support_dialog(chat_id)
         await self._send(
             chat_id,
-            (
-                "Спасибо. Обращение передано оператору. "
-                "Он увидит описание, Telegram пользователя и вложения, если они были отправлены."
-            ),
-            self._support_keyboard(),
+            escape(self._t(chat_id, "operator_sent")),
+            self._support_keyboard(chat_id),
         )
 
     async def _answer_support_with_ai(self, chat_id: int, question: str, topic: str = "") -> None:
@@ -616,26 +857,25 @@ class TelegramAdminBot:
         if not api_key:
             await self._send(
                 chat_id,
-                (
-                    "AI-поддержка временно недоступна. Напиши вопрос с почтой аккаунта, "
-                    "страницей и описанием проблемы, чтобы команда поддержки могла проверить."
-                ),
+                escape(self._t(chat_id, "ai_unavailable")),
                 self._support_feedback_keyboard(chat_id),
             )
             return
 
-        faq_text = "\n".join(f"- {item['title']}: {item['answer']}" for item in SUPPORT_FAQ)
-        topic_label = SUPPORT_TOPICS.get(topic, ("Общий вопрос", ""))[0]
+        language = self._get_chat_language(chat_id)
+        faq_text = "\n".join(f"- {item['title']}: {item['answer']}" for item in self._faq_items(chat_id))
+        topic_label, _ = self._topic_content(chat_id, topic)
         system_prompt = (
-            "You are Sapar Quest support assistant. Reply in Russian unless the user clearly uses another language. "
-            "Be concise, practical, and friendly. Use plain natural Russian. "
-            "Never start with apologies like 'Извините' and never say that the user did not fully formulate the question. "
+            "You are Sapar Quest support assistant. "
+            f"Reply only in {BOT_AI_LANGUAGE_NAMES.get(language, 'Russian')}. "
+            "Be concise, practical, and friendly. Use plain natural language. "
+            "Never start with apologies and never say that the user did not fully formulate the question. "
             "Do not write generic support script phrases. Do not use foreign symbols or mixed-language artifacts. "
             "Keep answers short, concrete, and specific to the user's message. "
             "Help only with Sapar Quest: account, Google login, map periods, "
             "city quizzes, UNT test, profile, achievements, leaderboard, AI analysis, and technical issues. "
             "Do not claim you changed data or accessed private account data. If account-specific action is needed, "
-            "ask for account email, page, exact error, device/browser, and a screenshot, but say it in Russian as 'скриншот'. "
+            "ask for account email, page, exact error, device/browser, and a screenshot. "
             "Known FAQ:\n" + faq_text
         )
         payload = {
@@ -665,20 +905,15 @@ class TelegramAdminBot:
                 answer = self._clean_support_answer(str(data["choices"][0]["message"]["content"]))
         except Exception:
             self.logger.exception("Telegram support AI failed.")
-            answer = (
-                "AI-поддержка временно не ответила. Попробуй ещё раз позже или напиши: "
-                "почта аккаунта, страница, что нажал, какая ошибка, устройство/браузер."
-            )
+            answer = self._t(chat_id, "ai_unavailable")
 
         if self._contains_support_artifacts(answer):
-            answer = self._build_support_fallback_answer(question, topic)
+            answer = self._build_support_fallback_answer(chat_id, question, topic)
 
         if len(answer) > 3500:
             answer = answer[:3490].rstrip() + "..."
         if int(session.get("ai_attempts", 0) or 0) >= 2:
-            answer += (
-                "\n\nЕсли это всё ещё не решило проблему, я могу сразу передать обращение оператору."
-            )
+            answer += "\n\n" + self._t(chat_id, "ai_second_try_offer")
         await self._send(chat_id, escape(answer), self._support_feedback_keyboard(chat_id))
 
     def _main_keyboard(self) -> dict[str, Any]:
@@ -918,7 +1153,7 @@ class TelegramAdminBot:
         text = self._support_message_text(message)
         if text.lower() in {"/cancel", "cancel", "отмена"}:
             self.waiting.pop(admin_id, None)
-            await self._send(chat_id, "Отменено.")
+            await self._send(chat_id, escape(self._t(chat_id, "cancelled")))
             return True
 
         action = state.get("action")
@@ -991,7 +1226,26 @@ class TelegramAdminBot:
         if await self._handle_waiting_text(message):
             return
 
-        if text.startswith("/start") or text.startswith("/help") or text == "":
+        if text.startswith("/start"):
+            await self._send(
+                chat_id,
+                f"<b>{escape(BOT_TEXTS['ru']['language_prompt_title'])}</b>\n\n{escape(BOT_TEXTS['ru']['language_prompt_body'])}",
+                self._language_keyboard(),
+            )
+            return
+
+        if text.startswith("/help") or text.startswith("/language"):
+            if chat_id not in self.user_languages:
+                await self._send(
+                    chat_id,
+                    f"<b>{escape(BOT_TEXTS['ru']['language_prompt_title'])}</b>\n\n{escape(BOT_TEXTS['ru']['language_prompt_body'])}",
+                    self._language_keyboard(),
+                )
+            else:
+                await self._show_support_main(chat_id)
+            return
+
+        if text == "":
             await self._show_support_main(chat_id)
             return
 
@@ -1015,11 +1269,11 @@ class TelegramAdminBot:
 
         data = str(callback.get("data") or "")
         if not data.startswith("x:"):
-            await self._answer_callback(callback_id, "Кнопка устарела.")
+            await self._answer_callback(callback_id, self._t(chat_id, "stale_button"))
             return
         payload = self.actions.get(data[2:])
         if not payload:
-            await self._answer_callback(callback_id, "Кнопка устарела, открой меню заново.")
+            await self._answer_callback(callback_id, self._t(chat_id, "stale_button"))
             return
 
         action = payload["action"]
@@ -1028,6 +1282,21 @@ class TelegramAdminBot:
         if self._is_support_action(action):
             if action == "support_main":
                 await self._show_support_main(chat_id, message_id)
+            elif action == "support_language":
+                await self._edit(
+                    chat_id,
+                    message_id,
+                    f"<b>{escape(BOT_TEXTS['ru']['language_prompt_title'])}</b>\n\n{escape(BOT_TEXTS['ru']['language_prompt_body'])}",
+                    self._language_keyboard(),
+                )
+            elif action == "support_set_language":
+                language = self._set_chat_language(chat_id, str(payload.get("language") or "ru"))
+                await self._edit(
+                    chat_id,
+                    message_id,
+                    escape(self._t(chat_id, "language_changed", language=BOT_LANGUAGE_NAMES[language])),
+                    self._support_keyboard(chat_id),
+                )
             elif action == "support_faq":
                 await self._show_support_faq(chat_id, message_id)
             elif action == "support_faq_item":
@@ -1045,8 +1314,8 @@ class TelegramAdminBot:
                 await self._edit(
                     chat_id,
                     message_id,
-                    "Напиши вопрос одним сообщением. Желательно указать почту аккаунта, страницу и что произошло.",
-                    self._keyboard([[self._button("Назад", "support_main")]]),
+                    escape(self._t(chat_id, "ask_ai_prompt")),
+                    self._keyboard([[self._button(self._t(chat_id, "button_back"), "support_main")]]),
                 )
             elif action == "support_contacts":
                 await self._show_support_contacts(chat_id, message_id)
@@ -1061,8 +1330,8 @@ class TelegramAdminBot:
                 await self._edit(
                     chat_id,
                     message_id,
-                    "Спасибо за обратную связь. Рад, что ответ помог. Если понадобится ещё помощь, можно сразу выбрать тему ниже.",
-                    self._support_keyboard(),
+                    escape(self._t(chat_id, "feedback_thanks")),
+                    self._support_keyboard(chat_id),
                 )
             elif action == "support_feedback_retry":
                 session = self._get_support_session(chat_id)
@@ -1078,8 +1347,8 @@ class TelegramAdminBot:
                 await self._edit(
                     chat_id,
                     message_id,
-                    "Опиши проблему подробнее одним сообщением: что именно нажал, на какой странице, какой текст ошибки видишь, и что уже пробовал.",
-                    self._keyboard([[self._button("Назад", "support_main")]]),
+                    escape(self._t(chat_id, "ask_more_prompt")),
+                    self._keyboard([[self._button(self._t(chat_id, "button_back"), "support_main")]]),
                 )
             elif action == "support_operator_start":
                 session = self._get_support_session(chat_id)
@@ -1090,11 +1359,8 @@ class TelegramAdminBot:
                 await self._edit(
                     chat_id,
                     message_id,
-                    (
-                        "Отправь одно сообщение для оператора: почта аккаунта, страница, описание проблемы. "
-                        "Если есть скриншот, приложи его в этом же сообщении."
-                    ),
-                    self._keyboard([[self._button("Назад", "support_main")]]),
+                    escape(self._t(chat_id, "operator_prompt")),
+                    self._keyboard([[self._button(self._t(chat_id, "button_back"), "support_main")]]),
                 )
             return
 
@@ -1229,3 +1495,4 @@ def start_telegram_admin_bot(
         task=asyncio.create_task(bot.run(), name="telegram-admin-bot"),
         stop_event=stop_event,
     )
+
