@@ -101,7 +101,7 @@ BOT_TEXTS = {
         "faq_google_title": "Не работает вход через Google",
         "faq_google_answer": "Чаще всего проблема связана с Google Client ID или разрешённым доменом. Попробуй обычный вход по почте. Если ошибка повторяется, пришли текст ошибки или скриншот.",
         "faq_leaderboard_title": "Как считается рейтинг?",
-        "faq_leaderboard_answer": "Рейтинг учитывает городской прогресс, достижения и точность по городским тестам. Попытки ЕНТ в точность рейтинга не входят.",
+        "faq_leaderboard_answer": "Рейтинг учитывает городской прогресс, достижения и точность по городским тестам. Попытки ЕНТ в точность рейтинга не входят. Точность в профиле и рейтинге считается как среднее арифметическое процентов по всем городским тестам, затем округляется до целого. Пример: 50% и 75% дадут 63%.",
     },
     "en": {
         "screenshot_word": "screenshot",
@@ -158,7 +158,7 @@ BOT_TEXTS = {
         "faq_google_title": "Google sign-in does not work",
         "faq_google_answer": "This is usually related to Google Client ID or an allowed domain. Try regular email login. If the error repeats, send the exact error text or a screenshot.",
         "faq_leaderboard_title": "How is the leaderboard calculated?",
-        "faq_leaderboard_answer": "The leaderboard uses city progress, achievements, and city-test accuracy. UNT attempts are not included in leaderboard accuracy.",
+        "faq_leaderboard_answer": "The leaderboard uses city progress, achievements, and city-test accuracy. UNT attempts are not included in leaderboard accuracy. Profile and leaderboard accuracy are calculated as the arithmetic mean of all city-test percentages, then rounded to a whole number. Example: 50% and 75% become 63%.",
     },
     "kk": {
         "screenshot_word": "скриншот",
@@ -215,7 +215,7 @@ BOT_TEXTS = {
         "faq_google_title": "Google арқылы кіру жұмыс істемейді",
         "faq_google_answer": "Көбіне мәселе Google Client ID немесе рұқсат етілген доменге байланысты болады. Әдеттегі email кіруін қолданып көр. Қате қайталанса, нақты қате мәтінін не скриншот жібер.",
         "faq_leaderboard_title": "Рейтинг қалай есептеледі?",
-        "faq_leaderboard_answer": "Рейтинг қала прогресін, жетістіктерді және қала тесттерінің дәлдігін есептейді. ҰБТ талпыныстары рейтинг дәлдігіне кірмейді.",
+        "faq_leaderboard_answer": "Рейтинг қала прогресін, жетістіктерді және қала тесттерінің дәлдігін есептейді. ҰБТ талпыныстары рейтинг дәлдігіне кірмейді. Профиль мен рейтингтегі дәлдік барлық қала тесттері пайыздарының арифметикалық орташа мәні арқылы есептеледі де, кейін бүтін санға дейін дөңгелектенеді. Мысал: 50% және 75% болса, нәтиже 63% болады.",
     },
 }
 
@@ -434,6 +434,35 @@ class TelegramAdminBot:
             self._t(chat_id, f"topic_{key}_title"),
             self._t(chat_id, f"topic_{key}_body"),
         )
+
+    def _support_rules(self, chat_id: int) -> list[str]:
+        language = self._get_chat_language(chat_id)
+        if language == "en":
+            return [
+                "Profile accuracy uses only city tests. UNT does not affect it.",
+                "Leaderboard accuracy uses only city tests. UNT does not affect it.",
+                "Profile and leaderboard accuracy are calculated as the arithmetic mean of all city-test percentages and then rounded to a whole number.",
+                "Example: 50% and 75% become 63%.",
+                "Periods unlock in sequence. The next period opens only after all city tests of the previous period are completed.",
+                "The map should open on the latest unlocked period.",
+            ]
+        if language == "kk":
+            return [
+                "Профиль дәлдігіне тек қала тесттері кіреді. ҰБТ әсер етпейді.",
+                "Рейтинг дәлдігіне де тек қала тесттері кіреді. ҰБТ әсер етпейді.",
+                "Профиль мен рейтинг дәлдігі барлық қала тесттері пайыздарының арифметикалық орташа мәні арқылы есептеліп, кейін бүтін санға дейін дөңгелектенеді.",
+                "Мысал: 50% және 75% болса, нәтиже 63% болады.",
+                "Кезеңдер ретімен ашылады. Келесі кезең алдыңғы кезеңнің барлық қала тесттері аяқталғаннан кейін ғана ашылады.",
+                "Карта соңғы ашылған кезеңде ашылуы керек.",
+            ]
+        return [
+            "Точность профиля считается только по городским тестам. ЕНТ не влияет.",
+            "Точность рейтинга тоже считается только по городским тестам. ЕНТ не влияет.",
+            "Точность профиля и рейтинга считается как среднее арифметическое процентов по всем городским тестам, затем округляется до целого.",
+            "Пример: 50% и 75% дадут 63%.",
+            "Периоды открываются по порядку. Следующий период открывается только после прохождения всех городских тестов предыдущего периода.",
+            "Карта должна открываться на последнем разблокированном периоде.",
+        ]
 
     def _language_keyboard(self) -> dict[str, Any]:
         return self._keyboard(
@@ -867,6 +896,7 @@ class TelegramAdminBot:
 
         language = self._get_chat_language(chat_id)
         faq_text = "\n".join(f"- {item['title']}: {item['answer']}" for item in self._faq_items(chat_id))
+        support_rules = "\n".join(f"- {item}" for item in self._support_rules(chat_id))
         topic_label, _ = self._topic_content(chat_id, topic)
         system_prompt = (
             "You are Sapar Quest support assistant. "
@@ -875,10 +905,14 @@ class TelegramAdminBot:
             "Never start with apologies and never say that the user did not fully formulate the question. "
             "Do not write generic support script phrases. Do not use foreign symbols or mixed-language artifacts. "
             "Keep answers short, concrete, and specific to the user's message. "
+            "If the user asks a direct yes/no question, answer with yes/no in the first sentence. "
+            "If the user asks about numbers, calculations, percentages, score, rating, or accuracy, give the exact rule and the final number directly without vague wording. "
+            "Prefer one direct answer first, then one short explanation. "
             "Help only with Sapar Quest: account, Google login, map periods, "
             "city quizzes, UNT test, profile, achievements, leaderboard, AI analysis, and technical issues. "
             "Do not claim you changed data or accessed private account data. If account-specific action is needed, "
             "ask for account email, page, exact error, device/browser, and a screenshot. "
+            "Project rules:\n" + support_rules + "\n\n"
             "Known FAQ:\n" + faq_text
         )
         payload = {
@@ -890,7 +924,7 @@ class TelegramAdminBot:
                     "content": f"Topic: {topic_label}\nUser question: {question}",
                 },
             ],
-            "temperature": 0.35,
+            "temperature": 0.2,
             "max_tokens": 500,
         }
         try:
