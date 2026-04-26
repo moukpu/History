@@ -1390,18 +1390,12 @@ def fetch_random_quizzes(
         SELECT id, city, period_code, difficulty, question, options, correct_index, fact
         FROM quizzes
         WHERE city = ? AND period_code = ?
+        ORDER BY RANDOM()
+        LIMIT ?
         """,
-        (city, period_code),
+        (city, period_code, limit),
     ).fetchall()
-    if len(rows) <= limit:
-        all_rows = [_quiz_row_to_dict(row) for row in rows]
-        secrets.SystemRandom().shuffle(all_rows)
-        return all_rows
-
-    rng = secrets.SystemRandom()
-    selected_rows = rng.sample(list(rows), limit)
-    rng.shuffle(selected_rows)
-    return [_quiz_row_to_dict(row) for row in selected_rows]
+    return [_quiz_row_to_dict(row) for row in rows]
 
 
 def fetch_city_period(
