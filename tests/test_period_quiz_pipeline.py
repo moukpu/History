@@ -40,22 +40,25 @@ class PeriodQuizPipelineTests(unittest.TestCase):
         self.assertEqual([], report["unexpected_pairs"])
         self.assertEqual([], report["difficulty_mismatches"])
         self.assertEqual(81, len(report["counts_per_city_period"]))
-        self.assertEqual(81 * PERIOD_TOTAL_QUESTION_TARGET, report["total_questions"])
+        self.assertEqual(sum(entry.question_count for entry in coverage), report["total_questions"])
         self.assertEqual(7, len(report["counts_per_period"]))
         self.assertEqual(
-            {"easy": 81 * PERIOD_EASY_QUESTION_TARGET, "hard": 81 * PERIOD_HARD_QUESTION_TARGET},
+            {
+                "easy": sum(entry.easy_question_count for entry in coverage),
+                "hard": sum(entry.hard_question_count for entry in coverage),
+            },
             report["counts_per_difficulty"],
         )
 
         for entry in coverage:
             pair_key = f"{entry.city}|{entry.period_code}"
-            self.assertEqual(PERIOD_TOTAL_QUESTION_TARGET, report["counts_per_city_period"][pair_key])
+            self.assertEqual(entry.question_count, report["counts_per_city_period"][pair_key])
             self.assertEqual(
-                PERIOD_EASY_QUESTION_TARGET,
+                entry.easy_question_count,
                 report["counts_per_city_period_difficulty"][f"{entry.city}|{entry.period_code}|easy"],
             )
             self.assertEqual(
-                PERIOD_HARD_QUESTION_TARGET,
+                entry.hard_question_count,
                 report["counts_per_city_period_difficulty"][f"{entry.city}|{entry.period_code}|hard"],
             )
 

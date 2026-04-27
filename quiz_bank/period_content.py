@@ -22,16 +22,33 @@ class CoverageEntry:
 
 
 def build_period_quiz_coverage_matrix() -> list[CoverageEntry]:
-    return [
-        CoverageEntry(
-            city=str(item["city"]),
-            period_code=str(item["period_code"]),
-            question_count=PERIOD_TOTAL_QUESTION_TARGET,
-            source="external_json",
-            note="SaparQuest committed quiz bank.",
-            easy_question_count=PERIOD_EASY_QUESTION_TARGET,
-            hard_question_count=PERIOD_HARD_QUESTION_TARGET,
+    entries: list[CoverageEntry] = []
+    for item in build_city_period_catalog():
+        if int(item.get("is_available", 1)) != 1:
+            continue
+        period_code = str(item["period_code"])
+        if period_code == "khanate_1465":
+            entries.append(
+                CoverageEntry(
+                    city=str(item["city"]),
+                    period_code=period_code,
+                    question_count=30,
+                    source="external_json",
+                    note="SaparQuest committed quiz bank.",
+                    easy_question_count=15,
+                    hard_question_count=15,
+                )
+            )
+            continue
+        entries.append(
+            CoverageEntry(
+                city=str(item["city"]),
+                period_code=period_code,
+                question_count=PERIOD_TOTAL_QUESTION_TARGET,
+                source="external_json",
+                note="SaparQuest committed quiz bank.",
+                easy_question_count=PERIOD_EASY_QUESTION_TARGET,
+                hard_question_count=PERIOD_HARD_QUESTION_TARGET,
+            )
         )
-        for item in build_city_period_catalog()
-        if int(item.get("is_available", 1)) == 1
-    ]
+    return entries

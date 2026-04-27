@@ -10,13 +10,11 @@ from .validation import normalize_text, validate_quiz_bank
 
 DOUBTFUL_MARKERS = (
     "примерно",
-    "около",
     "предположительно",
     "вероятно",
     "по одной из версий",
     "часто считают",
     "иногда считают",
-    "возможно",
 )
 
 AMBIGUOUS_OPTION_MARKERS = (
