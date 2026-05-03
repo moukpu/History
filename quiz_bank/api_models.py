@@ -137,6 +137,27 @@ class SubmitTestRequest(BaseModel):
     elapsed_seconds: int | None = Field(default=None, ge=0)
 
 
+class MinigameGateInfo(BaseModel):
+    game_id: str
+    from_period_code: str
+    to_period_code: str
+    to_period_title: str
+
+
+class CompleteMinigameRequest(BaseModel):
+    player_id: PlayerId
+    game_id: str = Field(..., min_length=2, max_length=80)
+    score: int = Field(default=0, ge=0)
+    elapsed_seconds: int = Field(default=0, ge=0)
+
+
+class CompleteMinigameResponse(BaseModel):
+    game_id: str
+    completed: bool
+    unlocked_period_code: str | None = None
+    unlocked_period_title: str | None = None
+
+
 class AchievementCatalogItem(BaseModel):
     code: str
     name: str
@@ -168,6 +189,7 @@ class SubmitTestResponse(BaseModel):
     passed: bool
     unlocked_achievements: list[UnlockedAchievement]
     all_player_achievements_count: int
+    minigame_gate: MinigameGateInfo | None = None
 
 
 class PlayerAchievementsResponse(BaseModel):
@@ -546,6 +568,7 @@ class AuthResponse(BaseModel):
     email: str
     created_at: str
     avatar_url: str | None = None
+    token: str | None = None
 
 
 class GoogleAuthConfigResponse(BaseModel):

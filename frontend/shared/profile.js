@@ -38,6 +38,11 @@ const translations = {
     recent_title: "Последняя активность",
     ent_title: "История ЕНТ",
     logout: "Выйти",
+    delete_account: "Удалить аккаунт навсегда",
+    delete_account_confirm: "Точно удалить аккаунт навсегда? Прогресс восстановить нельзя. Введите DELETE для подтверждения.",
+    delete_account_token: "DELETE",
+    delete_account_success: "Аккаунт удалён.",
+    delete_account_error: "Не удалось удалить аккаунт. Попробуй ещё раз.",
     profile_load_error: "Ошибка загрузки данных.",
     achievements_empty: "Достижения ещё не открыты. Пройдите тест на карте!",
     recent_empty: "Пока нет результатов. Начните тест на карте!",
@@ -102,6 +107,11 @@ const translations = {
     recent_title: "Recent activity",
     ent_title: "UNT history",
     logout: "Log out",
+    delete_account: "Delete account permanently",
+    delete_account_confirm: "Permanently delete this account? Progress cannot be restored. Type DELETE to confirm.",
+    delete_account_token: "DELETE",
+    delete_account_success: "Account deleted.",
+    delete_account_error: "Failed to delete account. Please try again.",
     profile_load_error: "Failed to load profile data.",
     achievements_empty: "No achievements unlocked yet. Complete a map test!",
     recent_empty: "No city test results yet. Start a test on the map!",
@@ -166,6 +176,11 @@ const translations = {
     recent_title: "Соңғы белсенділік",
     ent_title: "ҰБТ тарихы",
     logout: "Шығу",
+    delete_account: "Аккаунтты біржола өшіру",
+    delete_account_confirm: "Аккаунтты біржола өшіресіз бе? Прогресс қалпына келмейді. Растау үшін DELETE деп жазыңыз.",
+    delete_account_token: "DELETE",
+    delete_account_success: "Аккаунт өшірілді.",
+    delete_account_error: "Аккаунтты өшіру мүмкін болмады. Қайталап көріңіз.",
     profile_load_error: "Профиль деректерін жүктеу қатесі.",
     achievements_empty: "Жетістіктер әлі ашылған жоқ. Картадан тест өтіңіз!",
     recent_empty: "Әзірге қала тесттерінің нәтижелері жоқ. Картадан тест бастаңыз!",
@@ -448,6 +463,7 @@ function cacheElements() {
   elements.recentResults = queryRequired("[data-recent-results]");
   elements.entResults = queryRequired("[data-ent-results]");
   elements.logoutButton = queryRequired("[data-logout-button]");
+  elements.deleteAccountButton = document.querySelector("[data-delete-account-button]");
   elements.avatarButton = queryRequired("[data-profile-avatar-button]");
   elements.avatarImage = queryRequired("[data-profile-avatar-image]");
   elements.avatarFallback = queryRequired("[data-profile-avatar-fallback]");
@@ -1482,6 +1498,29 @@ function bindEvents() {
   elements.logoutButton.addEventListener("click", () => {
     clearStoredAuthState(state.user?.id);
     window.location.href = "../registration/code.html";
+  });
+
+  elements.deleteAccountButton?.addEventListener("click", async () => {
+    const userId = state.user?.id;
+    if (!userId) return;
+    const expected = translate("delete_account_token");
+    const message = translate("delete_account_confirm");
+    const input = window.prompt(message, "");
+    if (input === null) return;
+    if (input.trim().toUpperCase() !== String(expected).toUpperCase()) {
+      return;
+    }
+    elements.deleteAccountButton.disabled = true;
+    try {
+      await api.deleteAccount(userId);
+      clearStoredAuthState(userId);
+      window.alert(translate("delete_account_success"));
+      window.location.href = "../registration/code.html";
+    } catch (error) {
+      console.error("deleteAccount failed", error);
+      window.alert(translate("delete_account_error"));
+      elements.deleteAccountButton.disabled = false;
+    }
   });
   elements.usernameEditToggle.addEventListener("click", () => {
     setUsernameEditorVisible(!state.usernameEditorOpen);

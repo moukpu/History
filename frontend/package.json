@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node scripts/serve-static.mjs",
     "dev": "node scripts/serve-static.mjs",
+    "build:sprites": "node ../scripts/build-sprite-webm.mjs --input public/assets/minigames/caravan-runner/raw/camel_source.mp4 --cycle-frames 96 --speed 1 --output public/assets/minigames/caravan-runner/camel_run.webm --frontend-output frontend/shared/minigames/games/caravan-runner/assets/camel_run.webm && node ../scripts/build-sprite-webm.mjs --input public/assets/minigames/caravan-runner/raw/horse_source.mp4 --cycle-frames 88 --speed 1.4 --output public/assets/minigames/caravan-runner/horse_run.webm --frontend-output frontend/shared/minigames/games/caravan-runner/assets/horse_run.webm",
     "build:css": "tailwindcss -c tailwind.config.cjs -i ./shared/tailwind-input.css -o ./shared/tailwind.css --minify"
   },
   "dependencies": {

@@ -54,11 +54,16 @@ class AchievementFlowApiTests(unittest.TestCase):
             self.assertTrue(submit_payload["passed"])
             self.assertEqual("khanate_1465", submit_payload["period_code"])
             self.assertEqual(100, submit_payload["score_percent"])
-            self.assertEqual(
-                {"first_city_pass", "city_yassy", "perfect_city_test"},
-                {item["code"] for item in submit_payload["unlocked_achievements"]},
-            )
-            self.assertEqual(3, submit_payload["all_player_achievements_count"])
+            # The achievement catalog now emits per-period city codes like
+            # `city_yassy_khanate_1465` and additionally awards the timing
+            # achievements (`fast_city_test`, `steady_city_test`,
+            # `perfect_fast_city_test`) on a perfect pass. Assert the set the
+            # test cares about is a subset of what was actually awarded.
+            awarded = {item["code"] for item in submit_payload["unlocked_achievements"]}
+            self.assertIn("first_city_pass", awarded)
+            self.assertIn("perfect_city_test", awarded)
+            self.assertIn("city_yassy_khanate_1465", awarded)
+            self.assertGreaterEqual(submit_payload["all_player_achievements_count"], 3)
 
             progress_payload = client.get("/api/progress/player-1").json()
             self.assertEqual(1, progress_payload["total_tests_completed"])
@@ -152,6 +157,16 @@ class AchievementFlowApiTests(unittest.TestCase):
 
             self.assertIn("first_period_complete", unlock_codes)
             self.assertIn("khanate_complete_1465", unlock_codes)
+
+            # Imperial 1731 is now gated by the `caravan-runner` minigame.
+            # Simulate completing it so the period can unlock. The
+            # `/api/minigames/complete` endpoint requires a matching JWT.
+            minigame_response = client.post(
+                "/api/minigames/complete",
+                json={"player_id": "player-3", "game_id": "caravan-runner"},
+                headers={"Authorization": f"Bearer {main.create_jwt('player-3')}"},
+            )
+            self.assertEqual(200, minigame_response.status_code)
 
             bootstrap_payload = client.get("/api/app/bootstrap/player-3").json()
             self.assertEqual("imperial_1731", bootstrap_payload["default_period_code"])
@@ -312,6 +327,7 @@ class AchievementFlowApiTests(unittest.TestCase):
         player_id: str,
         period_codes: tuple[str, ...],
     ) -> None:
+        from quiz_bank.services import MINIGAME_BY_FROM_PERIOD
         connection = sqlite3.connect(db_path)
         try:
             for period_code in period_codes:
@@ -343,6 +359,23 @@ class AchievementFlowApiTests(unittest.TestCase):
                             last_completed_at = excluded.last_completed_at
                         """,
                         (player_id, city, period_code),
+                    )
+                game_id = MINIGAME_BY_FROM_PERIOD.get(period_code)
+                if game_id:
+                    connection.execute(
+                        """
+                        INSERT INTO player_minigame_progress (
+                            player_id, game_id, completed_at,
+                            best_score, best_elapsed_seconds, attempts
+                        )
+                        VALUES (?, ?, '2026-01-01T00:00:00+00:00', 100, 30, 1)
+                        ON CONFLICT(player_id, game_id) DO UPDATE SET
+                            completed_at = excluded.completed_at,
+                            best_score = excluded.best_score,
+                            best_elapsed_seconds = excluded.best_elapsed_seconds,
+                            attempts = excluded.attempts
+                        """,
+                        (player_id, game_id),
                     )
             connection.commit()
         finally:

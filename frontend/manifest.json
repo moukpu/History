@@ -1,0 +1,21 @@
+{
+  "name": "Sapar Quest",
+  "short_name": "Sapar Quest",
+  "description": "Интерактивная карта Казахстана: 7 исторических периодов, города, тесты, мини-игры и подготовка к ЕНТ.",
+  "lang": "ru",
+  "start_url": "/home_page/code.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f7f6f2",
+  "theme_color": "#006668",
+  "categories": ["education", "games", "kids"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 .venv/
 __pycache__/
 *.pyc
+.pytest_cache/
 *.db
 !quizzes.db
 .env
@@ -11,3 +12,7 @@ frontend/node_modules/
 *.log
 *.err
 timeline_*.txt
+.tmp-camel-sprite/
+.tmp-sprite-webm/
+public/assets/minigames/caravan-runner/raw/
+public/assets/minigames/caravan-runner/**/*.mp4

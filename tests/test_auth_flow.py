@@ -18,6 +18,13 @@ from quiz_bank.database import (
 
 
 class AuthFlowTests(unittest.TestCase):
+    def setUp(self) -> None:
+        # The auth rate limiter keeps an in-memory bucket keyed by client IP
+        # at module scope, so test order can otherwise blow the per-IP cap
+        # and turn legitimate 422 (validation) failures into spurious 429s.
+        # Clear the buckets between tests to keep each test isolated.
+        main._rate_limit_buckets.clear()
+
     def test_register_rejects_duplicate_email_case_insensitive(self) -> None:
         with self._client_with_temp_db() as client:
             first = client.post(

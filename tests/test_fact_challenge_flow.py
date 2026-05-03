@@ -219,6 +219,11 @@ class FactChallengePipelineAndApiTests(unittest.TestCase):
         player_id: str,
         period_codes: tuple[str, ...],
     ) -> None:
+        # Period N is considered "unlocked for the next period" only if the
+        # minigame gate associated with period N has also been completed.
+        # Simulate that here so these helpers keep working after the
+        # minigame-gate feature was introduced.
+        from quiz_bank.services import MINIGAME_BY_FROM_PERIOD
         connection = sqlite3.connect(db_path)
         try:
             for period_code in period_codes:
@@ -250,6 +255,23 @@ class FactChallengePipelineAndApiTests(unittest.TestCase):
                             last_completed_at = excluded.last_completed_at
                         """,
                         (player_id, city, period_code),
+                    )
+                game_id = MINIGAME_BY_FROM_PERIOD.get(period_code)
+                if game_id:
+                    connection.execute(
+                        """
+                        INSERT INTO player_minigame_progress (
+                            player_id, game_id, completed_at,
+                            best_score, best_elapsed_seconds, attempts
+                        )
+                        VALUES (?, ?, '2026-01-01T00:00:00+00:00', 100, 30, 1)
+                        ON CONFLICT(player_id, game_id) DO UPDATE SET
+                            completed_at = excluded.completed_at,
+                            best_score = excluded.best_score,
+                            best_elapsed_seconds = excluded.best_elapsed_seconds,
+                            attempts = excluded.attempts
+                        """,
+                        (player_id, game_id),
                     )
             connection.commit()
         finally:

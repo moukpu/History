@@ -83,6 +83,25 @@
         border-radius: 10px;
       }
     </style>
+    <!-- sapar-meta-injected -->
+    <meta name="description" content="Прогресс по периодам, достижения, история ЕНТ и настройки аккаунта." />
+    <meta name="theme-color" content="#006668" />
+    <meta name="application-name" content="Sapar Quest" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="../favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sapar Quest" />
+    <meta property="og:title" content="Мой профиль | Sapar Quest" />
+    <meta property="og:description" content="Прогресс по периодам, достижения, история ЕНТ и настройки аккаунта." />
+    <meta property="og:image" content="/favicon.svg" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="kk_KZ" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Мой профиль | Sapar Quest" />
+    <meta name="twitter:description" content="Прогресс по периодам, достижения, история ЕНТ и настройки аккаунта." />
+    <meta name="twitter:image" content="/favicon.svg" />
+
   </head>
   <body class="profile-page has-bottom-nav antialiased min-h-screen pb-28 md:pb-0 pt-20 md:pt-24 relative overflow-x-hidden flex flex-col">
     <nav class="site-nav fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-[0px_8px_24px_rgba(46,47,45,0.06)] flex items-center px-8 h-20">
@@ -208,6 +227,11 @@
           <button class="w-full bg-white border border-outline/10 text-error font-black py-5 rounded-2xl shadow-sm hover:bg-error-container/5 active:scale-95 transition-all flex items-center justify-center gap-2" data-logout-button="">
             <span class="material-symbols-outlined">logout</span>
             <span data-i18n="logout">Выйти</span>
+          </button>
+
+          <button class="w-full mt-3 bg-transparent border border-error/30 text-error/80 hover:text-error font-bold py-4 rounded-2xl hover:bg-error/5 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm" data-delete-account-button="">
+            <span class="material-symbols-outlined text-base">delete_forever</span>
+            <span data-i18n="delete_account">Удалить аккаунт навсегда</span>
           </button>
         </div>
       </div>

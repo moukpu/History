@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 — Страница не найдена | Sapar Quest</title>
+    <meta name="description" content="Страница не найдена. Вернись на главную и продолжи путешествие по истории Казахстана." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#006668" />
+    <link rel="stylesheet" href="/shared/tailwind.css" />
+    <style>
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background:
+          radial-gradient(circle at top right, rgba(255, 215, 9, 0.18), transparent 40%),
+          linear-gradient(135deg, #f7f6f2 0%, #ece8df 50%, #d8e7e5 100%);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #006668, #52f2f5);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center p-6">
+    <main class="w-full max-w-xl text-center">
+      <p class="text-9xl font-black gradient-text leading-none">404</p>
+      <h1 class="mt-4 text-3xl md:text-4xl font-black text-[#2e2f2d]">Страница потерялась в степи</h1>
+      <p class="mt-4 text-base md:text-lg text-[#2e2f2d]/70 leading-relaxed">
+        Похоже, караван свернул не туда. Этой страницы здесь нет — но карта Казахстана всё ещё ждёт тебя.
+      </p>
+      <div class="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+        <a
+          href="/home_page/code.html"
+          class="inline-flex h-14 items-center justify-center rounded-full bg-[#006668] px-8 text-base font-black text-white shadow-lg hover:brightness-110 active:scale-95 transition-all"
+        >
+          На главную
+        </a>
+        <a
+          href="/map_hub/code.html"
+          class="inline-flex h-14 items-center justify-center rounded-full border-2 border-[#006668] px-8 text-base font-black text-[#006668] hover:bg-[#006668]/5 active:scale-95 transition-all"
+        >
+          К карте Казахстана
+        </a>
+      </div>
+      <p class="mt-12 text-xs font-bold uppercase tracking-[0.2em] text-[#2e2f2d]/40">
+        Sapar Quest · Твоя живая история
+      </p>
+    </main>
+  </body>
+</html>

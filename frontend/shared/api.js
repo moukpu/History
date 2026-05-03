@@ -1,7 +1,48 @@
 import { getApiBaseUrl } from "./config.js";
+// Side-effect imports: every page that uses the API gets baseline a11y
+// (focus-visible, reduced-motion) and a global toast for 5xx/network errors.
+import "./a11y.js";
+import { TOAST_ERROR_EVENT } from "./error-toast.js";
 
 const SESSION_CACHE_PREFIX = "sapar-api-cache:";
 const REQUEST_TIMEOUT_MS = 20000;
+
+// Auth token is stored as a field on the cached user object in localStorage.
+// We read it lazily on each request so a fresh login is picked up without
+// needing to reload the page or re-import storage.js (which would create a
+// circular dependency between api.js and storage.js).
+const AUTH_USER_KEY = "sapar-user";
+
+function readStoredAuthToken() {
+  try {
+    const raw =
+      typeof window !== "undefined" && window.localStorage
+        ? window.localStorage.getItem(AUTH_USER_KEY)
+        : null;
+    if (!raw) return "";
+    const parsed = JSON.parse(raw);
+    const token =
+      parsed && typeof parsed.token === "string" ? parsed.token.trim() : "";
+    return token;
+  } catch {
+    return "";
+  }
+}
+
+function emitGlobalApiError(status, message) {
+  try {
+    if (typeof window === "undefined" || typeof CustomEvent !== "function") {
+      return;
+    }
+    window.dispatchEvent(
+      new CustomEvent(TOAST_ERROR_EVENT, {
+        detail: { status, message },
+      }),
+    );
+  } catch {
+    // Never let toast plumbing break the actual API call.
+  }
+}
 
 export class ApiError extends Error {
   constructor(status, message) {
@@ -71,6 +112,16 @@ async function requestJson(path, options = {}) {
     headers.set("Content-Type", "application/json; charset=utf-8");
   }
 
+  // Auto-attach the JWT bearer token whenever the user is signed in. Backend
+  // endpoints that require ownership (avatar / username / account / minigame
+  // completion) verify it; everywhere else it is simply ignored.
+  if (!headers.has("Authorization")) {
+    const token = readStoredAuthToken();
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+  }
+
   const controller = new AbortController();
   const timeoutId = globalThis.setTimeout(
     () => controller.abort(),
@@ -91,8 +142,13 @@ async function requestJson(path, options = {}) {
     });
   } catch (error) {
     if (error?.name === "AbortError") {
-      throw new ApiError(408, "Слишком долгий ответ. Нажмите «Повторить».");
+      const message = "Слишком долгий ответ. Нажмите «Повторить».";
+      emitGlobalApiError(408, message);
+      throw new ApiError(408, message);
     }
+    // TypeError from fetch() typically means network failure (offline / DNS /
+    // CORS preflight). Surface it as a global toast so users notice.
+    emitGlobalApiError(0, "Нет связи с сервером. Проверьте интернет.");
     throw error;
   } finally {
     globalThis.clearTimeout(timeoutId);
@@ -110,6 +166,12 @@ async function requestJson(path, options = {}) {
       }
     } catch {
       // Ignore parse failures for non-JSON errors.
+    }
+
+    // 5xx are server crashes; surface globally. 4xx (validation, auth) stay
+    // local — pages handle their own UX for those.
+    if (response.status >= 500) {
+      emitGlobalApiError(response.status, message);
     }
 
     throw new ApiError(response.status, message);
@@ -238,5 +300,22 @@ export const api = {
     return requestJson(
       `/api/fact-challenge/progress/${encodeURIComponent(playerId)}`
     );
+  },
+
+  completeMinigame(payload) {
+    return requestJson("/api/minigames/complete", {
+      method: "POST",
+      body: payload,
+    });
+  },
+
+  deleteAccount(userId) {
+    return requestJson(`/api/auth/account/${encodeURIComponent(userId)}`, {
+      method: "DELETE",
+    });
+  },
+
+  getVersion() {
+    return requestJson("/api/version");
   },
 };

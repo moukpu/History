@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dev: Launching minigame…</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        background: #1a1d21;
+        color: #eee;
+      }
+      .box {
+        padding: 2rem;
+        text-align: center;
+      }
+      .err {
+        color: #fca5a5;
+        font-size: 12px;
+        max-width: 380px;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <p>Запуск мини-игры…</p>
+      <p id="err" class="err"></p>
+    </div>
+    <script type="module">
+      import { getApiBaseUrl } from "../shared/config.js";
+
+      const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", ""]);
+      if (!LOCAL_HOSTS.has(window.location.hostname)) {
+        document.body.innerHTML = "<div class='box'><p>DEV-ONLY: только localhost.</p></div>";
+        throw new Error("non-local");
+      }
+
+      const TRANSITIONS = {
+        "caravan-runner":   { from: "khanate_1465",      to: "imperial_1731",     title: "Имперский период 1731" },
+        "fortress-defense": { from: "imperial_1731",     to: "imperial_1868",     title: "Имперский период 1868" },
+        "monument-puzzle":  { from: "imperial_1868",     to: "soviet_1925",       title: "Советский период 1925" },
+        "figures-memory":   { from: "soviet_1925",       to: "independence_1991", title: "Независимость 1991" },
+        "tenge-catch":      { from: "independence_1991", to: "transition_1998",   title: "Переходный период 1998" },
+        "timeline-sort":    { from: "transition_1998",   to: "modern_2025",       title: "Современный Казахстан 2025" },
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const gameId = params.get("game") || "caravan-runner";
+      const tr = TRANSITIONS[gameId];
+      if (!tr) {
+        document.getElementById("err").textContent =
+          `Unknown game: ${gameId}. Available: ${Object.keys(TRANSITIONS).join(", ")}`;
+        throw new Error("bad game");
+      }
+
+      (async () => {
+        try {
+          const res = await fetch(`${getApiBaseUrl()}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: "dev.mobile.test@gmail.com",
+              password: "test1234",
+            }),
+          });
+          if (!res.ok) throw new Error(`login ${res.status}`);
+          const user = await res.json();
+          localStorage.setItem("sapar-user", JSON.stringify(user));
+          localStorage.setItem("sapar-user-resolved-at", String(Date.now()));
+          localStorage.setItem("kazakhstan-timeline-player-id", user.id);
+
+          // Unlock all periods so ANY game can be completed.
+          // Dev endpoint now requires the JWT issued by /api/auth/login.
+          await fetch(
+            `${getApiBaseUrl()}/api/dev/unlock-all-periods/${encodeURIComponent(user.id)}`,
+            {
+              method: "POST",
+              headers: user.token
+                ? { Authorization: `Bearer ${user.token}` }
+                : {},
+            },
+          );
+
+          localStorage.setItem(
+            "sapar-pending-minigame-gate",
+            JSON.stringify({
+              game_id: gameId,
+              from_period_code: tr.from,
+              to_period_code: tr.to,
+              unlocked_period_title: tr.title,
+            }),
+          );
+
+          window.location.replace("../minigames/code.html");
+        } catch (error) {
+          document.getElementById("err").textContent = String(error);
+        }
+      })();
+    </script>
+  </body>
+</html>

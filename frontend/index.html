@@ -2,15 +2,83 @@
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0; url=./registration/code.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sapar Quest</title>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <!-- sapar-meta-injected -->
+    <meta name="description" content="Интерактивная карта 7 периодов, тесты по 15 городам, мини-игры и подготовка к ЕНТ." />
+    <meta name="theme-color" content="#006668" />
+    <meta name="application-name" content="Sapar Quest" />
+    <meta name="robots" content="noindex,follow" />
+    <link rel="canonical" href="/registration/code.html" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="./favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sapar Quest" />
+    <meta property="og:title" content="Sapar Quest — живая история Казахстана" />
+    <meta property="og:description" content="Интерактивная карта 7 периодов, тесты по 15 городам, мини-игры и подготовка к ЕНТ." />
+    <meta property="og:image" content="/favicon.svg" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="kk_KZ" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Sapar Quest — живая история Казахстана" />
+    <meta name="twitter:description" content="Интерактивная карта 7 периодов, тесты по 15 городам, мини-игры и подготовка к ЕНТ." />
+    <meta name="twitter:image" content="/favicon.svg" />
+
+    <!-- JS-driven redirect (replace() so we don't pollute back/forward history). -->
+    <script>
+      (function () {
+        try {
+          window.location.replace("./registration/code.html");
+        } catch (_err) {
+          /* fall through to <noscript> meta refresh below */
+        }
+      })();
+    </script>
+
+    <!-- Fallback for users with JavaScript disabled. -->
+    <noscript>
+      <meta http-equiv="refresh" content="0; url=./registration/code.html" />
+    </noscript>
+
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: #006668;
+        color: #f8fafc;
+        padding: 1rem;
+      }
+      .card { max-width: 28rem; text-align: center; }
+      .spinner {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin: 0 auto 1rem;
+        border: 3px solid rgba(255, 255, 255, 0.25);
+        border-top-color: #f8fafc;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      a { color: #fde68a; }
+      @media (prefers-reduced-motion: reduce) {
+        .spinner { animation: none; }
+      }
+    </style>
   </head>
   <body>
-    <p>
-      Перенаправление на сайт...
-      <a href="./registration/code.html">Открыть страницу регистрации</a>
-    </p>
+    <main class="card" role="status" aria-live="polite">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Открываем Sapar Quest…</p>
+      <p>
+        Если страница не загрузилась автоматически,
+        <a href="./registration/code.html">нажмите сюда</a>.
+      </p>
+    </main>
   </body>
 </html>

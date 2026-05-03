@@ -9,12 +9,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 import main
-from quiz_bank.constants import (
-    DEFAULT_PERIOD_DATA_PATH,
-    PERIOD_EASY_QUESTION_TARGET,
-    PERIOD_HARD_QUESTION_TARGET,
-    PERIOD_TOTAL_QUESTION_TARGET,
-)
+from quiz_bank.constants import DEFAULT_PERIOD_DATA_PATH
 from quiz_bank.database import replace_quiz_bank
 from quiz_bank.period_content import build_period_quiz_coverage_matrix
 from quiz_bank.period_validation import build_period_quiz_report, validate_period_quiz_bank
@@ -99,8 +94,9 @@ class PeriodQuizPipelineTests(unittest.TestCase):
                     submit_payload = submit_response.json()
                     self.assertTrue(submit_payload["passed"])
                     self.assertEqual("khanate_1465", submit_payload["period_code"])
+                    # City achievements are now period-scoped: `city_yassy_khanate_1465`.
                     self.assertIn(
-                        "city_yassy",
+                        "city_yassy_khanate_1465",
                         {item["code"] for item in submit_payload["unlocked_achievements"]},
                     )
             finally:
@@ -185,16 +181,24 @@ class PeriodQuizPipelineTests(unittest.TestCase):
         counts = Counter(
             (item["city"], item["period_code"], item["difficulty"]) for item in items
         )
+        # Assert the shipped Верный/imperial_1868 bank matches the coverage
+        # matrix entry for that exact pair rather than the period-wide 10/10
+        # default, since the authored bank is intentionally uneven per pair.
+        coverage_by_pair = {
+            (entry.city, entry.period_code): entry
+            for entry in build_period_quiz_coverage_matrix()
+        }
+        entry = coverage_by_pair[(VERNY, "imperial_1868")]
         self.assertEqual(
-            PERIOD_EASY_QUESTION_TARGET,
+            entry.easy_question_count,
             counts[(VERNY, "imperial_1868", "easy")],
         )
         self.assertEqual(
-            PERIOD_HARD_QUESTION_TARGET,
+            entry.hard_question_count,
             counts[(VERNY, "imperial_1868", "hard")],
         )
         self.assertEqual(
-            PERIOD_TOTAL_QUESTION_TARGET,
+            entry.question_count,
             counts[(VERNY, "imperial_1868", "easy")] + counts[(VERNY, "imperial_1868", "hard")],
         )
 
@@ -226,6 +230,7 @@ class PeriodQuizPipelineTests(unittest.TestCase):
         player_id: str,
         period_codes: tuple[str, ...],
     ) -> None:
+        from quiz_bank.services import MINIGAME_BY_FROM_PERIOD
         connection = sqlite3.connect(db_path)
         try:
             for period_code in period_codes:
@@ -257,6 +262,23 @@ class PeriodQuizPipelineTests(unittest.TestCase):
                             last_completed_at = excluded.last_completed_at
                         """,
                         (player_id, city, period_code),
+                    )
+                game_id = MINIGAME_BY_FROM_PERIOD.get(period_code)
+                if game_id:
+                    connection.execute(
+                        """
+                        INSERT INTO player_minigame_progress (
+                            player_id, game_id, completed_at,
+                            best_score, best_elapsed_seconds, attempts
+                        )
+                        VALUES (?, ?, '2026-01-01T00:00:00+00:00', 100, 30, 1)
+                        ON CONFLICT(player_id, game_id) DO UPDATE SET
+                            completed_at = excluded.completed_at,
+                            best_score = excluded.best_score,
+                            best_elapsed_seconds = excluded.best_elapsed_seconds,
+                            attempts = excluded.attempts
+                        """,
+                        (player_id, game_id),
                     )
             connection.commit()
         finally:

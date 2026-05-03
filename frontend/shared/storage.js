@@ -9,6 +9,7 @@ const KEYS = {
   pendingQuizContext: "sapar-pending-quiz-context",
   activeQuizState: "sapar-active-quiz-state",
   activeFactSession: "sapar-active-fact-session",
+  pendingMinigameGate: "sapar-pending-minigame-gate",
 };
 
 const AVATAR_STORAGE_KEY = "sapar-avatar-by-user";
@@ -52,9 +53,15 @@ async function syncStoredAvatarIfNeeded(storage, user) {
   );
 
   try {
+    const headers = { "Content-Type": "application/json" };
+    const token =
+      user && typeof user.token === "string" ? user.token.trim() : "";
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
     const response = await fetch(`${getApiBaseUrl()}/api/auth/avatar`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({
         user_id: user.id,
         avatar_url: localAvatarSrc,
@@ -257,6 +264,12 @@ export function hasStoredAuthUser() {
   return Boolean(storage?.getItem(KEYS.authUser));
 }
 
+export function getStoredAuthToken() {
+  const user = readJson(KEYS.authUser);
+  const token = user && typeof user.token === "string" ? user.token.trim() : "";
+  return token || null;
+}
+
 export function getStoredAuthMissingReason() {
   const storage = getStorage();
   return storage ? storage.getItem(AUTH_MISSING_REASON_KEY) : null;
@@ -377,6 +390,21 @@ export function clearActiveQuizState() {
   const storage = getStorage();
   if (storage) {
     storage.removeItem(KEYS.activeQuizState);
+  }
+}
+
+export function getPendingMinigameGate() {
+  return readJson(KEYS.pendingMinigameGate);
+}
+
+export function setPendingMinigameGate(value) {
+  writeJson(KEYS.pendingMinigameGate, value);
+}
+
+export function clearPendingMinigameGate() {
+  const storage = getStorage();
+  if (storage) {
+    storage.removeItem(KEYS.pendingMinigameGate);
   }
 }
 

@@ -20,8 +20,11 @@ from .api_models import (
     CityContentResponse,
     CityContentSummariesResponse,
     CityContentSummaryItem,
+    CompleteMinigameRequest,
+    CompleteMinigameResponse,
     FactChallengeProgressResponse,
     FactChallengePeriodProgressItem,
+    MinigameGateInfo,
     MapInitialResponse,
     MapStateCityItem,
     MapStatePeriodSummary,
@@ -82,6 +85,7 @@ from .database import (
     insert_player_achievement,
     insert_fact_challenge_result,
     insert_test_result,
+    list_completed_minigames,
     list_achievement_catalog,
     list_city_period_content_summaries,
     list_period_cities,
@@ -91,12 +95,44 @@ from .database import (
     mark_fact_challenge_session_completed,
     timeline_period_exists,
     upsert_player_city_progress,
+    upsert_player_minigame_progress,
 )
 
 
 # Temporary review mode: all timeline periods are open without passing earlier tests.
-# Set this back to False when progression locks should be restored.
-TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW = True
+TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW = False
+
+MINIGAME_TRANSITIONS = {
+    "caravan-runner": {
+        "from_period_code": "khanate_1465",
+        "to_period_code": "imperial_1731",
+    },
+    "fortress-defense": {
+        "from_period_code": "imperial_1731",
+        "to_period_code": "imperial_1868",
+    },
+    "monument-puzzle": {
+        "from_period_code": "imperial_1868",
+        "to_period_code": "soviet_1925",
+    },
+    "figures-memory": {
+        "from_period_code": "soviet_1925",
+        "to_period_code": "independence_1991",
+    },
+    "tenge-catch": {
+        "from_period_code": "independence_1991",
+        "to_period_code": "transition_1998",
+    },
+    "timeline-sort": {
+        "from_period_code": "transition_1998",
+        "to_period_code": "modern_2025",
+    },
+}
+
+MINIGAME_BY_FROM_PERIOD = {
+    str(item["from_period_code"]): game_id
+    for game_id, item in MINIGAME_TRANSITIONS.items()
+}
 
 SUPPORTED_QUIZ_LANGUAGES = {"ru", "en", "kk"}
 
@@ -354,6 +390,11 @@ def _build_period_progress_snapshot(
         for item in player_progress["city_progress"]
     }
     manual_unlocked_periods = _list_unlocked_period_overrides(db_path, player_id)
+    connection = connect_db(db_path)
+    try:
+        completed_minigames = list_completed_minigames(connection, player_id)
+    finally:
+        connection.close()
 
     states: list[dict[str, object]] = []
     for index, period in enumerate(periods):
@@ -369,11 +410,24 @@ def _build_period_progress_snapshot(
             )
         )
         completed = total_cities > 0 and passed_cities >= total_cities
+        previous_state = states[index - 1] if index > 0 else None
+        required_game_id = (
+            MINIGAME_BY_FROM_PERIOD.get(str(previous_state["code"]))
+            if previous_state
+            else None
+        )
+        gate_satisfied = (
+            not required_game_id
+            or required_game_id in completed_minigames
+        )
         is_unlocked = (
             TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW
             or period_code in manual_unlocked_periods
             or index == 0
-            or bool(states[index - 1]["is_completed"])
+            or (
+                bool(previous_state and previous_state["is_unlocked"])
+                and gate_satisfied
+            )
         )
 
         states.append(
@@ -495,6 +549,51 @@ def _get_player_progress_from_connection(
     }
 
 
+def _has_progress_in_period_or_later(
+    states: list[dict[str, object]],
+    progress_by_pair: dict[tuple[str, str], dict[str, object]],
+    period_code: str,
+) -> bool:
+    period_indexes = {str(state["code"]): index for index, state in enumerate(states)}
+    start_index = period_indexes.get(period_code)
+    if start_index is None:
+        return False
+
+    later_codes = {
+        str(state["code"])
+        for state in states
+        if period_indexes[str(state["code"])] >= start_index
+    }
+    return any(
+        pair_period_code in later_codes
+        and (
+            int(progress.get("passed_count") or 0) > 0
+            or int(progress.get("total_attempts") or 0) > 0
+        )
+        for (pair_period_code, _city), progress in progress_by_pair.items()
+    )
+
+
+def _is_minigame_gate_satisfied(
+    connection: sqlite3.Connection,
+    player_id: str,
+    previous_period_code: str,
+    next_period_code: str,
+    states: list[dict[str, object]],
+    progress_by_pair: dict[tuple[str, str], dict[str, object]],
+) -> bool:
+    game_id = MINIGAME_BY_FROM_PERIOD.get(previous_period_code)
+    if not game_id:
+        return True
+
+    if game_id in list_completed_minigames(connection, player_id):
+        return True
+
+    # Strict gate: the next period stays locked until the required minigame
+    # is completed. No bypass for partial progress in later periods.
+    return False
+
+
 def _build_period_progress_snapshot_from_connection(
     connection: sqlite3.Connection,
     player_id: str,
@@ -544,11 +643,27 @@ def _build_period_progress_snapshot_from_connection(
             )
         )
         completed = total_cities > 0 and passed_cities >= total_cities
+        previous_state = states[index - 1] if index > 0 else None
+        gate_satisfied = (
+            True
+            if not previous_state
+            else _is_minigame_gate_satisfied(
+                connection,
+                player_id,
+                str(previous_state["code"]),
+                period_code,
+                [*states, {"code": period_code}],
+                progress_by_pair,
+            )
+        )
         is_unlocked = (
             TEMP_UNLOCK_ALL_PERIODS_FOR_REVIEW
             or period_code in manual_unlocked_periods
             or index == 0
-            or bool(states[index - 1]["is_completed"])
+            or (
+                bool(previous_state and previous_state["is_unlocked"])
+                and gate_satisfied
+            )
         )
         states.append(
             {
@@ -627,6 +742,111 @@ def _require_period_unlocked(
                 else "Сначала завершите текущий игровой этап."
             )
         ),
+    )
+
+
+def _build_minigame_gate_info(
+    states: list[dict[str, object]],
+    from_period_code: str,
+) -> MinigameGateInfo | None:
+    game_id = MINIGAME_BY_FROM_PERIOD.get(from_period_code)
+    if not game_id:
+        return None
+
+    transition = MINIGAME_TRANSITIONS[game_id]
+    to_period_code = str(transition["to_period_code"])
+    to_state = next(
+        (state for state in states if str(state["code"]) == to_period_code),
+        None,
+    )
+    if not to_state:
+        return None
+
+    return MinigameGateInfo(
+        game_id=game_id,
+        from_period_code=from_period_code,
+        to_period_code=to_period_code,
+        to_period_title=str(to_state["title"]),
+    )
+
+
+def _find_pending_minigame_gate(
+    connection: sqlite3.Connection,
+    player_id: str,
+    completed_period_code: str,
+) -> MinigameGateInfo | None:
+    game_id = MINIGAME_BY_FROM_PERIOD.get(completed_period_code)
+    if not game_id:
+        return None
+
+    snapshot = _build_period_progress_snapshot_from_connection(connection, player_id)
+    states = list(snapshot["states"])
+    from_state = next(
+        (state for state in states if str(state["code"]) == completed_period_code),
+        None,
+    )
+    if not from_state or not bool(from_state["is_completed"]):
+        return None
+
+    transition = MINIGAME_TRANSITIONS[game_id]
+    to_period_code = str(transition["to_period_code"])
+    to_state = next(
+        (state for state in states if str(state["code"]) == to_period_code),
+        None,
+    )
+    if to_state and bool(to_state["is_unlocked"]):
+        return None
+
+    return _build_minigame_gate_info(states, completed_period_code)
+
+
+def complete_minigame(
+    db_path: str | Path,
+    payload: CompleteMinigameRequest,
+) -> CompleteMinigameResponse:
+    ensure_database(db_path)
+    player_id = _normalize_player_id(payload.player_id)
+    game_id = payload.game_id.strip()
+    transition = MINIGAME_TRANSITIONS.get(game_id)
+    if not transition:
+        raise HTTPException(status_code=404, detail="Мини-игра не найдена.")
+
+    completed_at = _utc_now_iso()
+    connection = connect_db(db_path)
+    try:
+        with connection:
+            snapshot = _build_period_progress_snapshot_from_connection(connection, player_id)
+            from_period_code = str(transition["from_period_code"])
+            from_state = _get_period_state(snapshot, from_period_code)
+            if not from_state or not bool(from_state["is_unlocked"]):
+                raise HTTPException(
+                    status_code=403,
+                    detail="Период для этой мини-игры пока заблокирован.",
+                )
+
+            upsert_player_minigame_progress(
+                connection=connection,
+                player_id=player_id,
+                game_id=game_id,
+                completed_at=completed_at,
+                score=int(payload.score or 0),
+                elapsed_seconds=int(payload.elapsed_seconds or 0),
+            )
+
+            updated_snapshot = _build_period_progress_snapshot_from_connection(
+                connection,
+                player_id,
+            )
+            to_period_code = str(transition["to_period_code"])
+            to_state = _get_period_state(updated_snapshot, to_period_code)
+    finally:
+        connection.close()
+
+    return CompleteMinigameResponse(
+        game_id=game_id,
+        completed=True,
+        unlocked_period_code=to_period_code if bool(to_state["is_unlocked"]) else None,
+        unlocked_period_title=str(to_state["title"]) if bool(to_state["is_unlocked"]) else None,
     )
 
 
@@ -973,6 +1193,7 @@ def submit_test(db_path: str | Path, payload: SubmitTestRequest) -> SubmitTestRe
             )
 
             unlocked_achievements: list[UnlockedAchievement] = []
+            minigame_gate: MinigameGateInfo | None = None
             if passed:
                 unlocked_achievements = _unlock_achievement_codes(
                     connection=connection,
@@ -987,6 +1208,11 @@ def submit_test(db_path: str | Path, payload: SubmitTestRequest) -> SubmitTestRe
                         elapsed_seconds=elapsed_seconds,
                     ),
                     unlocked_at=completed_at,
+                )
+                minigame_gate = _find_pending_minigame_gate(
+                    connection,
+                    player_id,
+                    str(session["period_code"]),
                 )
 
             all_player_achievements_count = count_player_achievements(connection, player_id)
@@ -1005,6 +1231,7 @@ def submit_test(db_path: str | Path, payload: SubmitTestRequest) -> SubmitTestRe
         passed=passed,
         unlocked_achievements=unlocked_achievements,
         all_player_achievements_count=all_player_achievements_count,
+        minigame_gate=minigame_gate,
     )
 
 

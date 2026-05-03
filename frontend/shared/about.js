@@ -23,6 +23,9 @@ const translations = {
     feature_practice_title: "Тренировка знаний",
     feature_practice_text:
       "Вопросы помогают закреплять даты, события, личности и города без ощущения обычной зубрежки.",
+    minigames_title: "Мини-игры между периодами",
+    minigames_text:
+      "При переходе от одного исторического периода к следующему игроков ждёт короткая мини-игра по теме эпохи: караван по Шёлковому пути, защита казахской крепости, сборка пазла мавзолея Ходжи Ахмета Ясауи, мемори-карточки с великими казахстанцами, ловля купюр тенге первого выпуска и расстановка событий Современного Казахстана в хронологическом порядке. Все игры рассчитаны на 1-2 минуты, работают на телефоне и компьютере, и помогают почувствовать переход эпох.",
     how_title: "Как работает <br>Sapar Quest?",
     step_start_title: "Начинай с первого периода",
     step_start_text:
@@ -54,6 +57,9 @@ const translations = {
     feature_practice_title: "Knowledge practice",
     feature_practice_text:
       "Questions help reinforce dates, events, figures, and cities without making history feel like plain memorization.",
+    minigames_title: "Mini-games Between Periods",
+    minigames_text:
+      "When transitioning from one historical period to the next, players are met with a short themed mini-game: a caravan on the Silk Road, defending a Kazakh fortress, assembling a puzzle of the Khoja Ahmed Yasawi mausoleum, a memory game of great Kazakhs, catching first-issue tenge banknotes, and sorting the events of New Kazakhstan in chronological order. Each game lasts 1-2 minutes, works on both phone and PC, and helps players feel the change of eras.",
     how_title: "How does <br>Sapar Quest work?",
     step_start_title: "Start from the first period",
     step_start_text:
@@ -85,6 +91,9 @@ const translations = {
     feature_practice_title: "Білімді жаттықтыру",
     feature_practice_text:
       "Сұрақтар даталарды, оқиғаларды, тұлғаларды және қалаларды қарапайым жаттаусыз есте сақтауға көмектеседі.",
+    minigames_title: "Кезеңдер арасындағы шағын ойындар",
+    minigames_text:
+      "Тарихи кезеңдердің бірінен екіншісіне өту кезінде ойыншыларды дәуірге қатысты қысқа шағын ойындар күтеді: Жібек жолындағы керуен, қазақ қамалын қорғау, Қожа Ахмет Ясауи кесенесінің пазлы, ұлы қазақстандықтармен мемори, тұңғыш теңге банкноттарын ұстау және Жаңа Қазақстан оқиғаларын хронологиялық тәртіппен орналастыру. Барлық ойындар 1-2 минутқа есептелген, телефон мен компьютерде жұмыс істейді және дәуірлердің ауысуын сезінуге көмектеседі.",
     how_title: "Sapar Quest <br>қалай жұмыс істейді?",
     step_start_title: "Бірінші кезеңнен баста",
     step_start_text:

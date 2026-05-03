@@ -32,9 +32,22 @@ def main() -> None:
     report = build_review_report(records, errors, warnings)
 
     print(f"Всего вопросов: {report['total_questions']}")
-    print("Количество по городам:")
-    for city, count in report["counts_per_city"].items():
-        print(f"- {city}: {count}")
+    # The validator emits `counts_per_city` for legacy (period-less) banks and
+    # `counts_per_city_period` for the current period-aware bank. Support both
+    # so this script keeps working regardless of which schema the JSON uses.
+    if "counts_per_city" in report:
+        print("Количество по городам:")
+        for city, count in report["counts_per_city"].items():
+            print(f"- {city}: {count}")
+    elif "counts_per_city_period" in report:
+        print("Количество по парам город|период:")
+        for key, count in report["counts_per_city_period"].items():
+            print(f"- {key}: {count}")
+
+    if "counts_per_difficulty" in report:
+        print("\nКоличество по сложности:")
+        for difficulty, count in report["counts_per_difficulty"].items():
+            print(f"- {difficulty}: {count}")
 
     print(f"\nОшибки: {len(errors)}")
     for issue in errors:

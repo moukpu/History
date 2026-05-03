@@ -15,6 +15,7 @@ import {
   getPendingQuizContext,
   hasStoredAuthUser,
   setActiveQuizState,
+  setPendingMinigameGate,
   startStoredAuthWatcher,
 } from "./storage.js";
 import {
@@ -615,6 +616,11 @@ async function submitQuiz() {
   stopTimer();
   clearActiveQuizState();
   clearPendingQuizContext();
+  if (response.minigame_gate) {
+    setPendingMinigameGate(response.minigame_gate);
+    window.location.href = "../minigames/code.html";
+    return;
+  }
   render();
 }
 

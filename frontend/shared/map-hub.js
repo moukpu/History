@@ -21,11 +21,13 @@ import {
   ensureStoredAuthOrRedirect,
   getActiveFactSession,
   getLastCity,
+  getLastPeriodCode,
   getOrCreatePlayerId,
   startStoredAuthWatcher,
   setActiveFactSession,
   setLastCity,
   setLastPeriodCode,
+  setPendingMinigameGate,
   setPendingQuizContext,
 } from "./storage.js";
 import {
@@ -2542,12 +2544,47 @@ async function loadBootstrap() {
       initialMapPeriod: initial?.map_state?.period_code,
     });
     state.bootstrap = initial.bootstrap;
+    const minigameTransitions = [
+      ["khanate_1465", "imperial_1731", "caravan-runner"],
+      ["imperial_1731", "imperial_1868", "fortress-defense"],
+      ["imperial_1868", "soviet_1925", "monument-puzzle"],
+      ["soviet_1925", "independence_1991", "figures-memory"],
+      ["independence_1991", "transition_1998", "tenge-catch"],
+      ["transition_1998", "modern_2025", "timeline-sort"],
+    ];
+    const periodByCode = new Map(
+      (state.bootstrap.periods || []).map((period) => [period.code, period])
+    );
+    const pendingTransition = minigameTransitions.find(
+      ([fromPeriodCode, toPeriodCode]) =>
+        periodByCode.get(fromPeriodCode)?.is_completed &&
+        periodByCode.get(toPeriodCode) &&
+        !periodByCode.get(toPeriodCode).is_unlocked
+    );
+    if (pendingTransition) {
+      const [fromPeriodCode, toPeriodCode, gameId] = pendingTransition;
+      const toPeriod = periodByCode.get(toPeriodCode);
+      setPendingMinigameGate({
+        game_id: gameId,
+        from_period_code: fromPeriodCode,
+        to_period_code: toPeriodCode,
+        to_period_title: toPeriod.title,
+      });
+      window.location.href = "../minigames/code.html";
+      return;
+    }
 
     const periods = state.bootstrap.periods || [];
     const unlockedPeriods = periods
       .filter((period) => period.is_unlocked)
       .sort((a, b) => a.sort_order - b.sort_order);
+    const requestedPeriodCode =
+      new URLSearchParams(window.location.search).get("period") ||
+      getLastPeriodCode();
     const defaultPeriodCode =
+      periods.find(
+        (period) => period.code === requestedPeriodCode && period.is_unlocked
+      )?.code ||
       periods.find(
         (period) =>
           period.code === state.bootstrap.default_period_code && period.is_unlocked

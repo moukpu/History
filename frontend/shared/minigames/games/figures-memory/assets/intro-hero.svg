@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f3b3a"/>
+      <stop offset="55%" stop-color="#1a5c5a"/>
+      <stop offset="100%" stop-color="#0b2a29"/>
+    </linearGradient>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="0.6"/>
+    </filter>
+    <clipPath id="card">
+      <rect x="0" y="0" width="280" height="320" rx="18" ry="18"/>
+    </clipPath>
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="55%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.55"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+
+  <!-- subtle ornament pattern -->
+  <g opacity="0.08" fill="#ffcf6b">
+    <circle cx="120" cy="100" r="60"/>
+    <circle cx="1180" cy="620" r="80"/>
+    <circle cx="1100" cy="120" r="40"/>
+    <circle cx="160" cy="620" r="50"/>
+  </g>
+
+  <!-- 4x2 portrait grid -->
+  <g transform="translate(40, 40)">
+    <!-- Row 1 -->
+    <g transform="translate(0, 0)">
+      <rect x="-6" y="-6" width="292" height="332" rx="22" fill="#ffcf6b" opacity="0.18"/>
+      <image href="./portraits/satpayev.webp" x="0" y="0" width="280" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
+    </g>
+    <g transform="translate(300, 0)">
+      <rect x="-6" y="-6" width="292" height="332" rx="22" fill="#ffcf6b" opacity="0.18"/>
+      <image href="./portraits/kunayev.webp" x="0" y="0" width="280" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
+    </g>
+    <g transform="translate(600, 0)">
+      <rect x="-6" y="-6" width="292" height="332" rx="22" fill="#ffcf6b" opacity="0.18"/>
+      <image href="./portraits/auezov.webp" x="0" y="0" width="280" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
+    </g>
+    <g transform="translate(900, 0)">
+      <rect x="-6" y="-6" width="292" height="332" rx="22" fill="#ffcf6b" opacity="0.18"/>
+      <image href="./portraits/momyshuly.webp" x="0" y="0" width="280" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
+    </g>
+
+    <!-- Row 2 -->
+    <g transform="translate(0, 340)">
+      <rect x="-6" y="-6" width="292" height="332" rx="22" fill="#ffcf6b" opacity="0.18"/>
+      <image href="./portraits/ryskulov.webp" x="0" y="0" width="280" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
+    </g>
+    <g transform="translate(300, 340)">
+      <rect x="-6" y="-6" width="292" height="332" rx="22" fill="#ffcf6b" opacity="0.18"/>
+      <image href="./portraits/baglanova.webp" x="0" y="0" width="280" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
+    </g>
+    <g transform="translate(600, 340)">
+      <rect x="-6" y="-6" width="292" height="332" rx="22" fill="#ffcf6b" opacity="0.18"/>
+      <image href="./portraits/suleimenov.webp" x="0" y="0" width="280" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
+    </g>
+    <g transform="translate(900, 340)">
+      <rect x="-6" y="-6" width="292" height="332" rx="22" fill="#ffcf6b" opacity="0.18"/>
+      <image href="./portraits/musabayev.webp" x="0" y="0" width="280" height="320" preserveAspectRatio="xMidYMid slice" clip-path="url(#card)"/>
+    </g>
+  </g>
+
+  <!-- Soft vignette -->
+  <rect width="1280" height="720" fill="url(#vignette)"/>
+</svg>

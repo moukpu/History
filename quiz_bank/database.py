@@ -296,6 +296,16 @@ def _create_target_tables(connection: sqlite3.Connection) -> None:
             completed_at TEXT NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS player_minigame_progress (
+            player_id TEXT NOT NULL,
+            game_id TEXT NOT NULL,
+            completed_at TEXT NOT NULL,
+            best_score INTEGER NOT NULL DEFAULT 0,
+            best_elapsed_seconds INTEGER NOT NULL DEFAULT 0,
+            attempts INTEGER NOT NULL DEFAULT 1,
+            PRIMARY KEY(player_id, game_id)
+        );
+
         CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
             username TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -814,6 +824,9 @@ def _ensure_indexes(connection: sqlite3.Connection) -> None:
 
         CREATE INDEX IF NOT EXISTS fact_challenge_results_player_period_idx
         ON fact_challenge_results(player_id, period_code);
+
+        CREATE INDEX IF NOT EXISTS player_minigame_progress_player_id_idx
+        ON player_minigame_progress(player_id);
 
         CREATE UNIQUE INDEX IF NOT EXISTS users_email_normalized_uq
         ON users(LOWER(TRIM(email)));
@@ -2135,6 +2148,54 @@ def count_player_achievements(connection: sqlite3.Connection, player_id: str) ->
     ).fetchone()[0]
 
 
+def list_completed_minigames(
+    connection: sqlite3.Connection,
+    player_id: str,
+) -> set[str]:
+    rows = connection.execute(
+        """
+        SELECT game_id
+        FROM player_minigame_progress
+        WHERE player_id = ?
+        """,
+        (player_id,),
+    ).fetchall()
+    return {str(row["game_id"]) for row in rows}
+
+
+def upsert_player_minigame_progress(
+    connection: sqlite3.Connection,
+    player_id: str,
+    game_id: str,
+    completed_at: str,
+    score: int = 0,
+    elapsed_seconds: int = 0,
+) -> None:
+    connection.execute(
+        """
+        INSERT INTO player_minigame_progress (
+            player_id,
+            game_id,
+            completed_at,
+            best_score,
+            best_elapsed_seconds,
+            attempts
+        )
+        VALUES (?, ?, ?, ?, ?, 1)
+        ON CONFLICT(player_id, game_id) DO UPDATE SET
+            completed_at = excluded.completed_at,
+            best_score = MAX(player_minigame_progress.best_score, excluded.best_score),
+            best_elapsed_seconds = CASE
+                WHEN player_minigame_progress.best_elapsed_seconds = 0 THEN excluded.best_elapsed_seconds
+                WHEN excluded.best_elapsed_seconds = 0 THEN player_minigame_progress.best_elapsed_seconds
+                ELSE MIN(player_minigame_progress.best_elapsed_seconds, excluded.best_elapsed_seconds)
+            END,
+            attempts = player_minigame_progress.attempts + 1
+        """,
+        (player_id, game_id, completed_at, score, elapsed_seconds),
+    )
+
+
 def list_player_achievements(db_path: str | Path, player_id: str) -> list[dict[str, Any]]:
     ensure_database(db_path)
     connection = connect_db(db_path)
@@ -2481,7 +2542,53 @@ def get_quiz_counts(db_path: str | Path) -> dict[str, int]:
 
 
 def _hash_password(password: str, salt: str) -> str:
+    """Legacy SHA-256 hashing kept ONLY for verifying pre-existing rows.
+    New writes go through _hash_password_modern (PBKDF2-SHA256).
+    """
     return hashlib.sha256((salt + password).encode()).hexdigest()
+
+
+_PBKDF2_ITERATIONS = 600_000
+_PBKDF2_PREFIX = "pbkdf2_sha256$"
+
+
+def _hash_password_modern(password: str, salt: str | None = None) -> str:
+    """Self-contained PBKDF2-SHA256 hash: ``pbkdf2_sha256$<iter>$<salt_hex>$<dk_hex>``.
+    Designed to replace SHA-256+salt while keeping the existing column layout
+    (full string fits in ``password_hash``; ``password_salt`` is left empty
+    for newly-written rows so the format stays self-describing).
+    """
+    if salt is None:
+        salt = secrets.token_hex(16)
+    dk = hashlib.pbkdf2_hmac(
+        "sha256", password.encode("utf-8"), salt.encode("utf-8"), _PBKDF2_ITERATIONS
+    )
+    return f"{_PBKDF2_PREFIX}{_PBKDF2_ITERATIONS}${salt}${dk.hex()}"
+
+
+def _verify_password(password: str, stored_hash: str, legacy_salt: str) -> bool:
+    """Verify a password against either modern PBKDF2 or legacy SHA-256+salt
+    rows. Constant-time compare via ``hmac.compare_digest``.
+    """
+    import hmac as _hmac
+
+    if not stored_hash:
+        return False
+    if stored_hash.startswith(_PBKDF2_PREFIX):
+        try:
+            _, iter_str, salt, dk_hex = stored_hash.split("$", 3)
+            iterations = int(iter_str)
+            dk = hashlib.pbkdf2_hmac(
+                "sha256", password.encode("utf-8"), salt.encode("utf-8"), iterations
+            )
+            return _hmac.compare_digest(dk.hex(), dk_hex)
+        except (ValueError, TypeError):
+            return False
+    # Legacy: stored_hash is sha256(salt + password) hex.
+    if not legacy_salt:
+        return False
+    expected = hashlib.sha256((legacy_salt + password).encode("utf-8")).hexdigest()
+    return _hmac.compare_digest(expected, stored_hash)
 
 
 def create_user(
@@ -2494,8 +2601,7 @@ def create_user(
     ensure_database(db_path)
     username = _normalize_identity_username(username)
     email = _normalize_identity_email(email)
-    salt = secrets.token_hex(16)
-    password_hash = _hash_password(password, salt)
+    password_hash = _hash_password_modern(password)
     created_at = _utc_now_iso()
 
     connection = connect_db(db_path)
@@ -2512,9 +2618,9 @@ def create_user(
                     auth_provider,
                     created_at
                 )
-                VALUES (?, ?, ?, ?, ?, 'password', ?)
+                VALUES (?, ?, ?, ?, '', 'password', ?)
                 """,
-                (user_id, username, email, password_hash, salt, created_at),
+                (user_id, username, email, password_hash, created_at),
             )
     finally:
         connection.close()
@@ -2545,14 +2651,30 @@ def authenticate_user(
             """,
             (email,),
         ).fetchone()
+
+        if row is None:
+            return None
+
+        stored_hash = row["password_hash"] or ""
+        legacy_salt = row["password_salt"] or ""
+
+        if not _verify_password(password, stored_hash, legacy_salt):
+            return None
+
+        # Auto-upgrade legacy hashes on successful login. Best-effort; if the
+        # update fails for any reason we still let the user in.
+        if not stored_hash.startswith(_PBKDF2_PREFIX):
+            try:
+                new_hash = _hash_password_modern(password)
+                with connection:
+                    connection.execute(
+                        "UPDATE users SET password_hash = ?, password_salt = '' WHERE id = ?",
+                        (new_hash, row["id"]),
+                    )
+            except sqlite3.Error:
+                pass
     finally:
         connection.close()
-
-    if row is None:
-        return None
-
-    if not row["password_hash"] or _hash_password(password, row["password_salt"]) != row["password_hash"]:
-        return None
 
     return {
         "id": row["id"],
@@ -2733,7 +2855,16 @@ def get_leaderboard(db_path: str | Path, limit: int = 50) -> list[dict[str, Any]
                 u.avatar_url AS avatar_url,
                 COALESCE(SUM(pcp.best_score), 0) AS total_score,
                 COALESCE(SUM(pcp.total_attempts), 0) AS total_tests,
-                COALESCE(tr.accuracy, 0) AS accuracy,
+                -- Prefer accuracy derived from recorded answers on the
+                -- quiz questions (test_results). Legacy rows that only
+                -- carry `player_city_progress` best scores fall back to
+                -- the rounded average of those best scores so their
+                -- leaderboard accuracy never flatlines to 0.
+                COALESCE(
+                    tr.accuracy,
+                    CAST(ROUND(AVG(pcp.best_score)) AS INTEGER),
+                    0
+                ) AS accuracy,
                 COALESCE(pa.achievements_count, 0) AS achievements_count
             FROM users u
             LEFT JOIN player_city_progress pcp
@@ -2811,6 +2942,73 @@ def update_user_avatar(
         connection.close()
 
     return dict(row) if row is not None else None
+
+
+def delete_user_account(db_path: str | Path, user_id: str) -> bool:
+    """Hard-delete a user account and ALL related rows.
+
+    Returns True if a user row existed and was deleted, False otherwise.
+    """
+    ensure_database(db_path)
+    normalized_user_id = str(user_id).strip()
+    if not normalized_user_id:
+        return False
+
+    connection = connect_db(db_path)
+    try:
+        with connection:
+            existing = connection.execute(
+                "SELECT id FROM users WHERE id = ?",
+                (normalized_user_id,),
+            ).fetchone()
+            if existing is None:
+                return False
+
+            # Tables that store progress/sessions keyed by player_id.
+            tables_with_player_id = (
+                "player_achievements",
+                "test_sessions",
+                "fact_challenge_sessions",
+                "fact_challenge_results",
+                "player_period_overrides",
+                "player_minigame_progress",
+                "player_city_progress",
+            )
+
+            # ENT-detail/analysis are linked through test_results.id; clean those first.
+            test_result_rows = connection.execute(
+                "SELECT id FROM test_results WHERE player_id = ?",
+                (normalized_user_id,),
+            ).fetchall()
+            test_ids = [row["id"] for row in test_result_rows]
+            if test_ids:
+                placeholders = ",".join("?" * len(test_ids))
+                connection.execute(
+                    f"DELETE FROM ent_attempt_details WHERE test_result_id IN ({placeholders})",
+                    test_ids,
+                )
+                connection.execute(
+                    f"DELETE FROM ent_attempt_ai_analysis WHERE test_result_id IN ({placeholders})",
+                    test_ids,
+                )
+
+            connection.execute(
+                "DELETE FROM test_results WHERE player_id = ?",
+                (normalized_user_id,),
+            )
+            for table in tables_with_player_id:
+                connection.execute(
+                    f"DELETE FROM {table} WHERE player_id = ?",
+                    (normalized_user_id,),
+                )
+            connection.execute(
+                "DELETE FROM users WHERE id = ?",
+                (normalized_user_id,),
+            )
+    finally:
+        connection.close()
+
+    return True
 
 
 def update_user_username(
