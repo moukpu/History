@@ -234,6 +234,45 @@ def require_user_match(expected_user_id: str, authorization: str | None) -> None
         raise HTTPException(status_code=403, detail="Token does not match target user.")
 
 
+# --- Live session validation ----------------------------------------------
+# A signed JWT only proves "this server issued this token at some point". It
+# does NOT prove "the user still exists in the database right now". When an
+# admin deletes an account through the Telegram panel (or through the regular
+# DELETE /api/auth/account endpoint), the user's browser still holds the JWT
+# and would happily keep playing if we didn't catch it on the server side.
+#
+# The middleware below runs once per incoming request: if it sees a Bearer
+# token, it verifies the signature/expiry and then checks that the referenced
+# user row still exists. The "exists" lookup is cached in-memory for a few
+# seconds so we don't run a SQL SELECT on every request, but the TTL is short
+# enough that an admin-side deletion propagates almost immediately.
+_USER_EXISTENCE_TTL = 15.0  # seconds
+_user_existence_cache: dict[str, tuple[float, bool]] = {}
+
+
+def _user_exists_cached(user_id: str) -> bool:
+    if not user_id:
+        return False
+    now = time.monotonic()
+    cached = _user_existence_cache.get(user_id)
+    if cached is not None and (now - cached[0]) < _USER_EXISTENCE_TTL:
+        return cached[1]
+    exists = fetch_user_by_id(DB_PATH, user_id) is not None
+    _user_existence_cache[user_id] = (now, exists)
+    return exists
+
+
+def invalidate_user_existence(user_id: str | None) -> None:
+    """Drop the cached existence flag for ``user_id`` so the next request that
+    presents a token for this user re-checks the database immediately. Called
+    after DELETE /api/auth/account so the deleted user can't keep playing
+    even within the cache TTL window.
+    """
+    if not user_id:
+        return
+    _user_existence_cache.pop(str(user_id), None)
+
+
 
 class CachedStaticFiles(StaticFiles):
     async def get_response(self, path: str, scope):
@@ -426,6 +465,42 @@ STATIC_API_CACHE_PREFIXES = (
     "/api/timeline/cities/",
     "/api/city-content/",
 )
+
+
+@app.middleware("http")
+async def validate_session(request: Request, call_next):
+    """Reject API requests whose Bearer token references a non-existent user.
+
+    The signed JWT proves the server issued the token, not that the user is
+    still active. After the admin (Telegram panel or DELETE endpoint) removes
+    an account, the deleted user's browser still holds a valid-looking token
+    and would otherwise keep playing. This middleware closes that gap by
+    re-checking the database (with a short cache) on every authenticated API
+    call. ``/api/health`` and ``/api/auth/*`` are skipped: the former must
+    answer the Railway probe regardless of token state, and the latter is
+    where users normally re-login (login/register/google/resolve), so we
+    must not 401 those even if a stale token tags along.
+    """
+    path = request.url.path
+    if not path.startswith("/api/") or path == "/api/health" or path.startswith("/api/auth/"):
+        return await call_next(request)
+    auth_header = request.headers.get("authorization") or ""
+    if auth_header.lower().startswith("bearer "):
+        token = auth_header[7:].strip()
+        if token:
+            payload = verify_jwt(token)
+            if payload is None:
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Invalid or expired token."},
+                )
+            sub = str(payload.get("sub") or "").strip()
+            if sub and not _user_exists_cached(sub):
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Account no longer exists."},
+                )
+    return await call_next(request)
 
 
 @app.middleware("http")
@@ -1164,6 +1239,10 @@ async def delete_account(
     deleted = delete_user_account(DB_PATH, user_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Аккаунт не найден.")
+    # Drop the cached "user exists" flag so any other tab/device that still
+    # holds this user's JWT gets a 401 on the very next API call (instead of
+    # waiting for the TTL to expire).
+    invalidate_user_existence(user_id)
     return {"deleted": "true", "user_id": user_id}
 
 

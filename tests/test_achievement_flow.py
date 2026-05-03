@@ -143,6 +143,13 @@ class AchievementFlowApiTests(unittest.TestCase):
 
     def test_completing_first_period_unlocks_1731(self) -> None:
         with self._client_with_temp_db() as (client, db_path):
+            # Real prod traffic on /api/minigames/complete carries a JWT for an
+            # actually-registered user, and the validate_session middleware now
+            # 401s when the JWT references a user row that no longer exists.
+            # Insert a minimal `users` row for player-3 so the middleware sees
+            # a live account and lets the test request through.
+            self._ensure_user_row(db_path, "player-3")
+
             unlock_codes: set[str] = set()
             for city in (SYGNAK, YASSY, OTRAR, SAURAN, SAIRAM, TARAZ):
                 unlock_codes.update(
@@ -251,6 +258,26 @@ class AchievementFlowApiTests(unittest.TestCase):
                 connection.close()
 
             self.assertEqual([], rows)
+
+    @staticmethod
+    def _ensure_user_row(db_path: Path, user_id: str) -> None:
+        """Insert a minimal `users` row so server-side session validation
+        treats this id as an active account.
+        """
+        connection = sqlite3.connect(db_path)
+        try:
+            with connection:
+                connection.execute(
+                    """
+                    INSERT OR IGNORE INTO users (
+                        id, username, email, password_hash, password_salt,
+                        auth_provider, created_at
+                    ) VALUES (?, ?, ?, '', '', 'password', '2026-01-01T00:00:00+00:00')
+                    """,
+                    (user_id, f"test-{user_id}", f"{user_id}@test.local"),
+                )
+        finally:
+            connection.close()
 
     @staticmethod
     def _build_correct_answers(db_path: Path, question_ids: list[int]) -> list[dict[str, int]]:
