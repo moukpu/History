@@ -233,13 +233,23 @@ async function requestJson(path, options = {}) {
       emitGlobalApiError(response.status, message);
     }
 
-    // Stale-session recovery. If the backend rejected an *authenticated*
-    // request with 401 (token expired, JWT_SECRET rotated on the server, or
-    // the user row was wiped), the browser is holding a dead session. Wipe
-    // every stored auth key and bounce to the login screen. We do NOT do this
-    // for anonymous 401s (e.g. wrong password on /api/auth/login) so login
-    // pages keep their normal UX.
-    if (response.status === 401 && sentBearerToken) {
+    // Stale-session recovery. A 401 on anything other than the explicit
+    // "entry" auth endpoints (login / register / google / resolve / config)
+    // always means the browser is holding a broken session: either the token
+    // was sent and the server rejected it (expired, JWT_SECRET rotated, user
+    // row wiped), OR the token was missing from localStorage to begin with
+    // even though the UI thought the user was signed in. Both cases are
+    // handled the same way -- wipe every stored auth key and bounce to the
+    // login screen. We explicitly skip the entry endpoints so "wrong
+    // password" keeps producing an inline error instead of a forced logout.
+    const AUTH_ENTRY_PATHS = new Set([
+      "/api/auth/login",
+      "/api/auth/register",
+      "/api/auth/google",
+      "/api/auth/google/config",
+      "/api/auth/resolve",
+    ]);
+    if (response.status === 401 && !AUTH_ENTRY_PATHS.has(path)) {
       forceClientLogout();
     }
 
