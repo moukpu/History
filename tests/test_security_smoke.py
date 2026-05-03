@@ -14,10 +14,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-# Force a stable JWT secret + dev mode for the entire test run BEFORE we
-# import main, so create_jwt/verify_jwt round-trip on the same secret.
+# Force a stable JWT secret for the entire test run BEFORE we import main,
+# so create_jwt/verify_jwt round-trip on the same secret.
 os.environ.setdefault("JWT_SECRET", "smoke-test-secret-" + "x" * 40)
-os.environ.setdefault("DEV_MODE", "1")
 
 # Make sure we re-import main against the env vars set above.
 if "main" in sys.modules:

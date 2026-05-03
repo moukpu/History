@@ -140,41 +140,27 @@ GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
 FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 logger = logging.getLogger("saparquest")
 
-# --- DEV_MODE flag --------------------------------------------------------
-# DEV_MODE=1 enables /api/dev/* endpoints and the /dev-mobile/ launcher page.
-# In production deploys this MUST be unset / 0 / false.
-DEV_MODE = os.getenv("DEV_MODE", "").strip().lower() in {"1", "true", "yes", "on"}
-
 # --- JWT (HS256, stdlib only) --------------------------------------------
 # Tokens are issued at login/register/google/resolve and verified by the
 # require_user_match dependency on sensitive mutating endpoints.
 JWT_TTL_SECONDS = 30 * 24 * 3600  # 30 days
 _JWT_SECRET_ENV = os.getenv("JWT_SECRET", "").strip()
-if _JWT_SECRET_ENV:
-    if len(_JWT_SECRET_ENV) < 32:
-        # HMAC-SHA256 is only as strong as its key. Anything shorter than
-        # ~32 bytes is brute-forceable; refuse to start instead of pretending.
-        raise RuntimeError(
-            "JWT_SECRET is too short (must be at least 32 characters). "
-            "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
-        )
-    JWT_SECRET = _JWT_SECRET_ENV.encode("utf-8")
-elif DEV_MODE:
-    # No env secret in dev: generate an ephemeral one for this process.
-    # Tokens won't survive restarts, which is fine for local dev only.
-    JWT_SECRET = secrets.token_bytes(32)
-    logging.getLogger("saparquest").warning(
-        "JWT_SECRET is not configured; using an ephemeral per-process secret "
-        "because DEV_MODE=1. Set JWT_SECRET before deploying to production."
-    )
-else:
-    # Production deploy without JWT_SECRET would silently invalidate every
-    # session on every restart. Refuse to start instead.
+if not _JWT_SECRET_ENV:
+    # Without a secret every restart would silently invalidate every session.
+    # Refuse to start instead of pretending.
     raise RuntimeError(
-        "JWT_SECRET is required in production (DEV_MODE is off). "
-        "Set the JWT_SECRET environment variable to a 32+ character secret. "
+        "JWT_SECRET is required. Set the JWT_SECRET environment variable to "
+        "a 32+ character secret. Generate one with: "
+        "python -c \"import secrets; print(secrets.token_hex(32))\""
+    )
+if len(_JWT_SECRET_ENV) < 32:
+    # HMAC-SHA256 is only as strong as its key. Anything shorter than
+    # ~32 bytes is brute-forceable; refuse to start instead of pretending.
+    raise RuntimeError(
+        "JWT_SECRET is too short (must be at least 32 characters). "
         "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
     )
+JWT_SECRET = _JWT_SECRET_ENV.encode("utf-8")
 
 
 def _b64url_encode(data: bytes) -> str:
@@ -1203,52 +1189,6 @@ async def leaderboard() -> LeaderboardResponse:
     return LeaderboardResponse(entries=entries)
 
 
-# --- Dev-only endpoints --------------------------------------------------
-# Registered only when DEV_MODE is on. In production deploys DEV_MODE must be
-# unset/0/false so the entire /api/dev/* surface returns 404.
-if DEV_MODE:
-
-    @app.post("/api/dev/unlock-all-periods/{user_id}")
-    async def dev_unlock_all_periods(
-        user_id: str,
-        request: Request,
-        authorization: str | None = Header(default=None),
-    ):
-        if not user_id or not user_id.strip():
-            raise HTTPException(status_code=400, detail="user_id required")
-        # Localhost guard plus JWT match: even a developer must hold a valid
-        # token for the target user before unlocking their progress.
-        client = request.client.host if request.client else ""
-        if client not in ("127.0.0.1", "localhost", "::1"):
-            raise HTTPException(status_code=403, detail="dev endpoint: localhost only")
-        require_user_match(user_id, authorization)
-
-        connection = connect_db(DB_PATH)
-        try:
-            with connection:
-                period_rows = connection.execute(
-                    "SELECT code FROM timeline_periods ORDER BY sort_order"
-                ).fetchall()
-                now = _utc_now_iso()
-                codes = [str(row["code"]) for row in period_rows]
-                for code in codes:
-                    connection.execute(
-                        """
-                        INSERT INTO player_period_overrides (
-                            player_id, period_code, is_unlocked, updated_at
-                        ) VALUES (?, ?, 1, ?)
-                        ON CONFLICT(player_id, period_code) DO UPDATE SET
-                            is_unlocked = 1,
-                            updated_at = excluded.updated_at
-                        """,
-                        (user_id, code, now),
-                    )
-        finally:
-            connection.close()
-
-        return {"unlocked_periods": codes, "user_id": user_id}
-
-
 @app.get("/", include_in_schema=False)
 async def frontend_index() -> RedirectResponse:
     return RedirectResponse(url="/registration/code.html")
@@ -1262,18 +1202,6 @@ if FRONTEND_DIR.exists():
             media_type="image/svg+xml",
             headers={"Cache-Control": "public, max-age=86400"},
         )
-
-    # /dev-mobile/* is the developer launcher (auto-login as dev user, unlock
-    # all periods). It is gated by DEV_MODE so a production deploy serves a
-    # plain 404 instead of leaking the dev-only credentials/UI.
-    if not DEV_MODE:
-        @app.api_route(
-            "/dev-mobile/{_rest:path}",
-            methods=["GET", "HEAD"],
-            include_in_schema=False,
-        )
-        async def dev_mobile_disabled(_rest: str):
-            raise HTTPException(status_code=404, detail="Not Found")
 
     @app.get("/robots.txt", include_in_schema=False)
     async def robots_txt() -> FileResponse:

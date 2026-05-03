@@ -16,7 +16,6 @@ timeline_*.txt
 
 # --- Frontend dev-only ---
 frontend/node_modules
-frontend/dev-mobile/
 
 # --- Dev tooling, tests, docs (not needed at runtime) ---
 .git/
