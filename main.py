@@ -1213,7 +1213,9 @@ async def get_profile(user_id: str) -> AuthResponse:
     user = fetch_user_by_id(DB_PATH, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
-    return AuthResponse(**user)
+    # Re-issue the JWT so clients that merge this response into localStorage
+    # don't accidentally overwrite their live token with null.
+    return AuthResponse(**user, token=create_jwt(user["id"]))
 
 
 @app.post("/api/auth/avatar", response_model=AuthResponse)
@@ -1225,7 +1227,9 @@ async def update_avatar(
     user = update_user_avatar(DB_PATH, payload.user_id, payload.avatar_url)
     if user is None:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
-    return AuthResponse(**user)
+    # Re-issue the JWT so the frontend merge (``{...state.user, ...response}``)
+    # doesn't clobber the live token with the default ``None``.
+    return AuthResponse(**user, token=create_jwt(user["id"]))
 
 
 @app.delete("/api/auth/account/{user_id}")
@@ -1259,7 +1263,9 @@ async def update_username(
 
     if user is None:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
-    return AuthResponse(**user)
+    # Re-issue the JWT so the frontend merge (``{...state.user, ...response}``)
+    # doesn't clobber the live token with the default ``None``.
+    return AuthResponse(**user, token=create_jwt(user["id"]))
 
 
 @app.get("/api/leaderboard", response_model=LeaderboardResponse)
