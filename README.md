@@ -1,6 +1,17 @@
-# Kazakhstan Timeline Map
+# Sapar Quest — Kazakhstan Timeline Map
 
-Interactive historical map of Kazakhstan with a period-based quest flow, city quizzes, achievements, player profiles, and a leaderboard.
+Interactive historical map of Kazakhstan with a period-based quest flow, city quizzes, achievements, player profiles, six transition mini-games, an ENT-prep mode with AI feedback, and a leaderboard.
+
+> **Live demo:** https://saparquest.up.railway.app
+
+## Project documentation
+
+The repository ships with two long-form documents that describe the project end-to-end and can be used both for onboarding new contributors and for academic submissions:
+
+- [`docs/Sapar_Quest_Инструкция.md`](docs/Sapar_Quest_%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D1%8F.md) — full technical instruction in Russian: architecture, content, security, deployment.
+- [`docs/Sapar_Quest_Документация.docx`](docs/Sapar_Quest_%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F.docx) — competition-ready project paper (intro, methods, results, references).
+- [`docs/api_contract.md`](docs/api_contract.md) — API reference notes for frontend/backend integration.
+- [`docs/AI_RUNBOOK.md`](docs/AI_RUNBOOK.md) — project guide for AI agents.
 
 ## What is inside
 
@@ -43,6 +54,7 @@ Notes:
 
 - Add Python to `PATH` during installation if the installer offers that option.
 - The core site works without Node.js because the frontend can also be served by Python.
+- **`JWT_SECRET` is required.** The backend signs auth tokens with it and refuses to start without a value of 32+ characters. See the *Environment variables* section below for how to generate one.
 - `GROQ_API_KEY` is optional. It is required for AI analysis in ENT attempt reviews and Telegram support replies.
 - `GOOGLE_CLIENT_ID` is optional. It is only required if you want the Google sign-in button to work.
 - `TELEGRAM_BOT_TOKEN` and `TELEGRAM_ADMIN_IDS` are optional. They enable the Telegram support/admin bot.
@@ -54,8 +66,8 @@ Open two terminals: one for the backend and one for the frontend.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/azimxxd/kazakhstanmap.git
-cd kazakhstanmap
+git clone https://github.com/moukpu/History.git
+cd History
 ```
 
 ### 2. Start the backend
@@ -92,11 +104,36 @@ Install Python dependencies:
 pip install -r requirements.txt
 ```
 
-Start the API:
+Generate a JWT secret (one-off, copy the output):
 
 ```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Export it and start the API.
+
+Linux or macOS:
+
+```bash
+export JWT_SECRET=paste-the-generated-value-here
 python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
+
+Windows PowerShell:
+
+```powershell
+$env:JWT_SECRET="paste-the-generated-value-here"
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+Windows CMD:
+
+```cmd
+set JWT_SECRET=paste-the-generated-value-here
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+Alternatively, copy the value into `.env` (see *Environment variables* below) and the backend will pick it up automatically on startup.
 
 Backend URLs:
 
@@ -163,9 +200,14 @@ Linux or macOS:
 cp .env.example .env
 ```
 
-Then edit `.env`:
+Then edit `.env`. Minimum required content:
 
 ```bash
+# Required: must be 32+ characters. Generate with:
+#   python -c "import secrets; print(secrets.token_hex(32))"
+JWT_SECRET=replace-with-the-generated-value
+
+# Optional, only for Google Sign-In:
 GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
 ```
 
@@ -214,11 +256,15 @@ Deploy steps:
 1. Push this repo/branch to GitHub.
 2. In Railway, create a new project from the GitHub repo.
 3. In the service settings, generate a public Railway domain.
-4. In Variables, add the values from `.env.railway.example`.
-5. Add a Railway volume mounted at `/data`.
-6. Set `DB_PATH=/data/quizzes.db`.
-7. Set `GOOGLE_CLIENT_ID` to your Google OAuth Web Client ID.
-8. Redeploy the service.
+4. Add a Railway volume mounted at `/data`. The persistent SQLite database will live on this volume; without it, every redeploy resets all user data.
+5. In Variables (copy the names from `.env.railway.example`), set at minimum:
+   - `JWT_SECRET` — generate with `python -c "import secrets; print(secrets.token_hex(32))"`. **Without this, the service refuses to start.**
+   - `DB_PATH=/data/quizzes.db`
+   - `ALLOWED_ORIGINS=https://<your-railway-domain>` (no trailing slash, comma-separated for multiple origins)
+6. Optionally set `GOOGLE_CLIENT_ID`, `GROQ_API_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ADMIN_IDS`.
+7. Redeploy. On the first start the backend creates the schema and seeds all content (~1 667 quizzes, 7 periods, 81 city stories, 81 fact challenges, 106 achievements) from the JSON files in `data/` automatically.
+
+If you ever need a clean database, delete the Railway volume, recreate it with the same `/data` mount path and redeploy — the next start will recreate everything fresh.
 
 After Railway gives you a domain, add that exact domain to Google Cloud Console:
 
