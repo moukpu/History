@@ -13,6 +13,16 @@ const REQUEST_TIMEOUT_MS = 20000;
 // circular dependency between api.js and storage.js).
 const AUTH_USER_KEY = "sapar-user";
 
+// Storage keys that hold any reference to the current signed-in user. Wiped on
+// a forced logout so a stale browser doesn't keep pretending the user is in.
+const AUTH_LOCAL_KEYS = [
+  "sapar-user",
+  "sapar-user-resolved-at",
+  "kazakhstan-timeline-player-id",
+];
+
+const AUTH_REDIRECT_PATH = "/registration/code.html";
+
 function readStoredAuthToken() {
   try {
     const raw =
@@ -26,6 +36,50 @@ function readStoredAuthToken() {
     return token;
   } catch {
     return "";
+  }
+}
+
+// Forced logout. Called only when the server rejected an authenticated request
+// (HTTP 401 on a request that carried a Bearer token), which means the JWT is
+// dead -- expired, signed by a previous JWT_SECRET, or referencing a user that
+// no longer exists in the database. Clears every per-user key, drops the
+// session-storage API cache, and bounces the browser back to the login screen
+// so the user gets a fresh start instead of an inconsistent profile.
+function forceClientLogout() {
+  if (typeof window === "undefined") return;
+  try {
+    for (const key of AUTH_LOCAL_KEYS) {
+      window.localStorage?.removeItem(key);
+    }
+  } catch {
+    // localStorage can be disabled (private mode); cleanup is best-effort.
+  }
+  try {
+    const session = window.sessionStorage;
+    if (session) {
+      const stale = [];
+      for (let i = 0; i < session.length; i += 1) {
+        const key = session.key(i);
+        if (key && key.startsWith(SESSION_CACHE_PREFIX)) {
+          stale.push(key);
+        }
+      }
+      for (const key of stale) {
+        session.removeItem(key);
+      }
+    }
+  } catch {
+    // ignore session storage failures
+  }
+
+  try {
+    const here = window.location?.pathname || "";
+    if (!here.endsWith(AUTH_REDIRECT_PATH)) {
+      window.location.replace(AUTH_REDIRECT_PATH);
+    }
+  } catch {
+    // If navigation fails for any reason, leave the user on the page; the
+    // ApiError will still propagate and pages can show their own UI.
   }
 }
 
@@ -121,6 +175,11 @@ async function requestJson(path, options = {}) {
       headers.set("Authorization", `Bearer ${token}`);
     }
   }
+  // Track whether this particular request actually carried a Bearer token. We
+  // need this below: a 401 on a token-carrying request means "your session is
+  // dead" -> force-logout. A 401 on an anonymous request (e.g. wrong password
+  // on /api/auth/login) is just a UX-level error and must NOT log anyone out.
+  const sentBearerToken = headers.has("Authorization");
 
   const controller = new AbortController();
   const timeoutId = globalThis.setTimeout(
@@ -172,6 +231,16 @@ async function requestJson(path, options = {}) {
     // local — pages handle their own UX for those.
     if (response.status >= 500) {
       emitGlobalApiError(response.status, message);
+    }
+
+    // Stale-session recovery. If the backend rejected an *authenticated*
+    // request with 401 (token expired, JWT_SECRET rotated on the server, or
+    // the user row was wiped), the browser is holding a dead session. Wipe
+    // every stored auth key and bounce to the login screen. We do NOT do this
+    // for anonymous 401s (e.g. wrong password on /api/auth/login) so login
+    // pages keep their normal UX.
+    if (response.status === 401 && sentBearerToken) {
+      forceClientLogout();
     }
 
     throw new ApiError(response.status, message);
